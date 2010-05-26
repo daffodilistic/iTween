@@ -45,7 +45,7 @@ var delay : float = globalDefaults["delay"];
 static var tweens : Array = [];
 static var globalDefaults : Hashtable = {"time":1,"delay":0,"transition":"easeInOutCubic","isLocal":false};
 static var moveDefaults : Hashtable = {"isLocal":false};
-static var moveBezierDefaults : Hashtable = {"lookSpeed":8};
+static var moveBezierDefaults : Hashtable = {"lookSpeed":8, "transition":"easeInOutSine"};
 static var rotateDefaults : Hashtable = {"isLocal":true};
 static var shakePositionDefaults : Hashtable = {"isLocal":false};
 static var shakeRotationDefaults : Hashtable = {"isLocal":true};
@@ -979,6 +979,55 @@ private function disableKinematic() : void{
 	if(kinematicToggle){
 		rigidbody.isKinematic=false;
 	}
+}
+
+//###########################
+//# BEZIER POINT INFO CLASS #
+//###########################
+class BezierPointInfo
+{
+	public var starting : Vector3;
+	public var intermediate : Vector3;
+	public var end: Vector3;
+}
+
+//########################
+//# BEZIER PARSE UTILITY #
+//########################
+private function ParseBeziers(points: Array, wasLoop:boolean) : Array{
+	if(wasLoop){
+		points.Shift();
+	}
+	
+	var returnPoints : Array= new Array();
+
+	if (points.Count > 2){
+		var iCurPoint : int;
+		
+		for (iCurPoint = 0; iCurPoint < points.Count - 1; iCurPoint++){
+			var curPoint : Vector3 = points[iCurPoint];
+			var curSetofPoints: BezierPointInfo = new BezierPointInfo();
+			curSetofPoints.starting = curPoint;
+			if (iCurPoint == 0){
+				var p1 : Vector3 = points[1];
+				var p2 : Vector3 = points[2];
+				curSetofPoints.intermediate = p1 - ((p2 - curPoint) / 4);					
+			}else{
+				var bpiint: BezierPointInfo = returnPoints[iCurPoint - 1];
+				curSetofPoints.intermediate = 2 * curPoint - bpiint.intermediate;
+			}
+			curSetofPoints.end = points[iCurPoint + 1];
+			returnPoints.push(curSetofPoints);
+		}
+	}else{
+		var curSetofPoints2: BezierPointInfo = new BezierPointInfo();
+		curSetofPoints2.starting = points[0];
+		curSetofPoints2.end = points[1];
+		curSetofPoints2.intermediate = ((curSetofPoints2.starting + curSetofPoints2.end) / 2);
+		
+		returnPoints.push(curSetofPoints2);
+	}
+	return returnPoints;
 }
 
 //########################################
