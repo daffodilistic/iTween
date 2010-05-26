@@ -504,22 +504,36 @@ static function scaleBy(target : GameObject, args : Hashtable) : void{
 static function lookUpdate(target: GameObject, args: Hashtable):void{
 	var startRotation : Vector3 = target.transform.eulerAngles;
 	var lookValues : Vector3;
-	switch(args["target"].GetType()){
+	var lookTarget : Object;
+	
+	//look for lookTarget to avoid conflicts with target argument usage and ability to reuse this for other mehtods:
+	if(args.Contains("lookTarget")){
+		lookTarget=args["lookTarget"];
+	}else if(args.Contains("target")){
+		lookTarget=args["target"];
+	}
+	
+	//transform or vector3?
+	switch(lookTarget.GetType()){
 		case Vector3:
-			lookValues = args["target"];
+			lookValues = lookTarget;
 		break;
 		
 		case Transform:
-			lookValues = (args["target"] as Transform).position;
+			lookValues = (lookTarget as Transform).position;
 		break;
 	}
+	
 	var lookSpeed : float;
 	if(args.Contains("lookSpeed")){
 		lookSpeed = args["lookSpeed"];
 	}else{
 		lookSpeed = lookToUpdateDefaults["lookSpeed"];	
 	}
-	targetRotation = Quaternion.LookRotation(lookValues - target.transform.position, Vector3.up);
+	//Avoid "Look rotation viewing vector is zero" by ensuring we never hit a Vector3.zero (not sure what this really means but it avoids a console log and that makes me happy):
+	if(lookValues - target.transform.position != Vector3.zero){
+		targetRotation = Quaternion.LookRotation(lookValues - target.transform.position, Vector3.up);
+	}
 	target.transform.rotation = Quaternion.Slerp(target.transform.rotation,targetRotation,Time.deltaTime*lookSpeed);
 	if(args.Contains("axis")){
 		switch(args["axis"]){
@@ -1177,7 +1191,7 @@ private function generateTargets() : void{
 			}
 			endVector3=startVector3;
 			prevVector3=startVector3;
-			
+					
 			//set augmented values:
 			switch (method){
 				case "to":
@@ -1215,6 +1229,13 @@ private function generateTargets() : void{
 						}
 					}
 				break;
+			}
+			
+			//handle orient to path:
+			
+			if(args["orientToPath"] && !args.Contains("lookTarget")){
+				args["lookTarget"]=endVector3;
+				iTween.lookUpdate(gameObject,args);
 			}
 		break;
 		
@@ -1689,6 +1710,11 @@ private function tweenUpdate() : void{
 				transform.Translate(calculatedVector3-prevVector3,Space.World);
 			}
 			prevVector3=calculatedVector3;
+			
+			//handle look controls:
+			if(args.Contains("lookTarget")){
+				iTween.lookUpdate(gameObject,args);
+			}
 		break;
 		
 		//punch:
