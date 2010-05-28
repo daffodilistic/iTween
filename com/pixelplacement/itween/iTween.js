@@ -45,6 +45,7 @@ var delay : float = globalDefaults["delay"];
 static var tweens : Array = [];
 static var globalDefaults : Hashtable = {"time":1,"delay":0,"transition":"easeInOutCubic","isLocal":false};
 static var moveDefaults : Hashtable = {"isLocal":false};
+static var curveDefaults : Hashtable = {"isLocal":false, "overshoot":false};
 static var moveBezierDefaults : Hashtable = {"lookSpeed":8, "transition":"easeInOutSine"};
 static var rotateDefaults : Hashtable = {"isLocal":true};
 static var shakePositionDefaults : Hashtable = {"isLocal":false};
@@ -74,7 +75,7 @@ private var calculatedRect : Rect;
 private var startVector2 : Vector2;
 private var startVector3 : Vector3;
 private var startColor : Color;
-private var startInt : float;
+private var startInt : int;
 private var startFloat : float;
 private var startRect : Rect;
 private var endVector3 : Vector3;
@@ -84,6 +85,40 @@ private var endInt : float;
 private var endFloat : float;
 private var endRect : Rect;
 private var audioSource : AudioSource;
+private var beziers : Array;
+private var parsedBeziers : Array;
+
+//###################
+//# CURVE REGISTERS #
+//###################
+
+static function curveTo(target : GameObject, args : Hashtable) : void{
+	args["target"]=target;
+	args["id"]=generateID();
+	args["type"]="curve";
+	if(!args.Contains("method")){
+		args["method"]="to";
+	}
+	if(!args.Contains("isLocal")){
+		args["isLocal"]=curveDefaults["isLocal"];
+	}
+	if(!args.Contains("overshoot")){
+		args["overshoot"]=curveDefaults["overshoot"];
+	}	
+	//MESSY?
+	if(args["looped"]==null){
+		args["looped"]=false;
+	}
+	init(target,args);
+}
+
+static function curveFrom(target : GameObject, args : Hashtable) : void{
+	args["method"]="from";
+	lookTo(target,args);
+}
+
+static function moveToBezier(target : GameObject, args : Hashtable) : void{Debug.LogError("iTween Error: moveToBezier() has been deprecated. Please investigate curveTo() and the 'overshoot' property!");}
+static function moveToBezierWorld(target : GameObject, args : Hashtable) : void{Debug.LogError("iTween Error: moveToBezierWorld() has been deprecated. Please investigate curveTo() and the 'isLocal and 'overshoot' properties!");}
 
 //##################
 //# LOOK REGISTERS #
@@ -1067,6 +1102,23 @@ private function conflictCheck() : void{
 //######################################
 private function generateTargets() : void{
 	switch (type){
+		//curve
+		case "curve":
+			beziers = Array(args["bezier"]);
+				
+			//set foundation values:
+			if(isLocal){
+				startVector3=transform.localPosition;
+				beziers.Unshift(startVector3);
+			}else{
+				startVector3=transform.position;
+				beziers.Unshift(startVector3);
+			}
+			
+			//parse beziers:
+			parsedBeziers = ParseBeziers(beziers,args["looped"]);
+		break;
+		
 		//look
 		case "look":
 			type = "rotate";
@@ -1673,6 +1725,43 @@ private function tweenStart() : void{
 
 private function tweenUpdate() : void{
 	switch (type){	
+		case "curve":
+			//OrientToPath, loops, from;
+			//CHECK ON var parsedBeziers: Array = ParseBeziers(beziers,args["looped"]);
+			if (args["overshoot"]){
+				var pointCount : int = parsedBeziers.length;
+		
+				//calculate curve position:
+				var virtTimePart : float = transition(0, 1, percentage);
+				var iCurAxisPoint : int;
+				
+				if (virtTimePart <= 0){
+					iCurAxisPoint = 0;
+				}else if (virtTimePart >= 1){
+					iCurAxisPoint = pointCount - 1;
+				}else{
+					iCurAxisPoint = Mathf.Floor(pointCount * virtTimePart);
+				}
+				var timeFract : float = pointCount * virtTimePart - iCurAxisPoint;
+				var bpi : BezierPointInfo = parsedBeziers[iCurAxisPoint];
+				var calculatedVector3 : Vector3 = bpi.starting + timeFract * (2 * (1 - timeFract) * (bpi.intermediate - bpi.starting) + timeFract * (bpi.end - bpi.starting));		
+			
+				//apply position on curve:
+				if(isLocal){
+					transform.localPosition=calculatedVector3;
+				}else{
+					transform.position=calculatedVector3;
+				}
+			
+				//handle look controls:
+				if(args.Contains("lookTarget")){
+					iTween.lookUpdate(gameObject,args);
+				}				
+			}else{
+				print("Non-Overshooting Curve Under Development! Leverage 'overshoot':true property to execute a curve.")	;
+			}
+		break;
+		
 		case "value":
 			switch (method){
 				//rect:
