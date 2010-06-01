@@ -85,8 +85,8 @@ private var endInt : float;
 private var endFloat : float;
 private var endRect : Rect;
 private var audioSource : AudioSource;
-private var beziers : Array;
-private var parsedBeziers : Array;
+private var points : Array;
+private var parsedpoints : Array;
 
 //###################
 //# CURVE REGISTERS #
@@ -117,8 +117,8 @@ static function curveFrom(target : GameObject, args : Hashtable) : void{
 	lookTo(target,args);
 }
 
-static function moveToBezier(target : GameObject, args : Hashtable) : void{Debug.LogError("iTween Error: moveToBezier() has been deprecated. Please investigate curveTo() and the 'overshoot' property!");}
-static function moveToBezierWorld(target : GameObject, args : Hashtable) : void{Debug.LogError("iTween Error: moveToBezierWorld() has been deprecated. Please investigate curveTo() and the 'isLocal and 'overshoot' properties!");}
+static function moveToBezier(target : GameObject, args : Hashtable) : void{Debug.LogError("iTween Error: moveToBezier() has been deprecated. Please investigate curveTo() and the 'classic' property!");}
+static function moveToBezierWorld(target : GameObject, args : Hashtable) : void{Debug.LogError("iTween Error: moveToBezierWorld() has been deprecated. Please investigate curveTo() and the 'isLocal and 'classic' properties!");}
 
 //##################
 //# LOOK REGISTERS #
@@ -1029,7 +1029,7 @@ class BezierPointInfo
 //########################
 //# BEZIER PARSE UTILITY #
 //########################
-private function ParseBeziers(points: Array, wasLoop:boolean) : Array{
+private function ParsePoints(points: Array, wasLoop:boolean) : Array{
 	if(wasLoop){
 		points.Shift();
 	}
@@ -1104,19 +1104,24 @@ private function generateTargets() : void{
 	switch (type){
 		//curve
 		case "curve":
-			beziers = Array(args["bezier"]);
+			if(args["classic"]){
+				points = Array(args["points"]);
 				
-			//set foundation values:
-			if(isLocal){
-				startVector3=transform.localPosition;
-				beziers.Unshift(startVector3);
+				//set foundation values:
+				if(isLocal){
+					startVector3=transform.localPosition;
+					points.Unshift(startVector3);
+				}else{
+					startVector3=transform.position;
+					points.Unshift(startVector3);
+				}
+				
+				//parse points:
+				parsedpoints = ParsePoints(points,args["looped"]);				
 			}else{
-				startVector3=transform.position;
-				beziers.Unshift(startVector3);
+				Debug.LogError("iTween Error: New bezier curve system using Hermite Cardinal Splines in development");
 			}
 			
-			//parse beziers:
-			parsedBeziers = ParseBeziers(beziers,args["looped"]);
 		break;
 		
 		//look
@@ -1727,9 +1732,9 @@ private function tweenUpdate() : void{
 	switch (type){	
 		case "curve":
 			//OrientToPath, loops, from;
-			//CHECK ON var parsedBeziers: Array = ParseBeziers(beziers,args["looped"]);
-			if (args["overshoot"]){
-				var pointCount : int = parsedBeziers.length;
+			//CHECK ON var parsedpoints: Array = ParsePoints(points,args["looped"]);
+			if (args["classic"]){
+				var pointCount : int = parsedpoints.length;
 		
 				//calculate curve position:
 				var virtTimePart : float = transition(0, 1, percentage);
@@ -1743,7 +1748,7 @@ private function tweenUpdate() : void{
 					iCurAxisPoint = Mathf.Floor(pointCount * virtTimePart);
 				}
 				var timeFract : float = pointCount * virtTimePart - iCurAxisPoint;
-				var bpi : BezierPointInfo = parsedBeziers[iCurAxisPoint];
+				var bpi : BezierPointInfo = parsedpoints[iCurAxisPoint];
 				var calculatedVector3 : Vector3 = bpi.starting + timeFract * (2 * (1 - timeFract) * (bpi.intermediate - bpi.starting) + timeFract * (bpi.end - bpi.starting));		
 			
 				//apply position on curve:
@@ -1758,7 +1763,7 @@ private function tweenUpdate() : void{
 					iTween.lookUpdate(gameObject,args);
 				}				
 			}else{
-				print("Non-Overshooting Curve Under Development! Leverage 'overshoot':true property to execute a curve.")	;
+				Debug.LogError("iTween Error: New bezier curve system using Hermite Cardinal Splines in development");
 			}
 		break;
 		
