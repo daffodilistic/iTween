@@ -42,7 +42,7 @@ var method : String;
 var running : boolean;
 static var tweens : Array = [];
 static var globalDefaults : Hashtable = {"time":1,"delay":0,"transition":"easeInOutCubic","isLocal":false};
-static var moveDefaults : Hashtable = {"isLocal":false};
+static var moveDefaults : Hashtable = {"isLocal":false, "orientToPath":true};
 static var curveDefaults : Hashtable = {"isLocal":false, "overshoot":false};
 static var moveBezierDefaults : Hashtable = {"lookSpeed":8, "transition":"easeInOutSine"};
 static var rotateDefaults : Hashtable = {"isLocal":true};
