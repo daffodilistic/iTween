@@ -156,7 +156,7 @@ private static function generateCameaFade(args : Hashtable) : GameObject{
 //# CURVE REGISTERS #
 //###################
 
-static function CurveTo(target : GameObject, args : Hashtable) : void{
+static function curveTo(target : GameObject, args : Hashtable) : void{
 	args["target"]=target;
 	args["id"]=generateID();
 	args["type"]="curve";
@@ -176,7 +176,7 @@ static function CurveTo(target : GameObject, args : Hashtable) : void{
 	init(target,args);
 }
 
-static function CurveFrom(target : GameObject, args : Hashtable) : void{
+static function curveFrom(target : GameObject, args : Hashtable) : void{
 	args["method"]="from";
 	lookTo(target,args);
 }
