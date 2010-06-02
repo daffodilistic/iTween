@@ -170,8 +170,8 @@ static function curveTo(target : GameObject, args : Hashtable) : void{
 		args["overshoot"]=curveDefaults["overshoot"];
 	}	
 	//MESSY?
-	if(args["looped"]==null){
-		args["looped"]=false;
+	if(args["pingPonged"]==null){
+		args["pingPonged"]=false;
 	}
 	init(target,args);
 }
@@ -1094,8 +1094,8 @@ class BezierPointInfo
 //########################
 //# BEZIER PARSE UTILITY #
 //########################
-private function ParsePoints(points: Array, wasLoop:boolean) : Array{
-	if(wasLoop){
+private function ParsePoints(points: Array, wasPingPong:boolean) : Array{
+	if(wasPingPong){
 		points.Shift();
 	}
 	
@@ -1182,7 +1182,7 @@ private function generateTargets() : void{
 				}
 				
 				//parse points:
-				parsedpoints = ParsePoints(points,args["looped"]);				
+				parsedpoints = ParsePoints(points,args["pingPonged"]);				
 			}else{
 				Debug.LogError("iTween Error: New bezier curve system using Hermite Cardinal Splines in development");
 			}
@@ -1796,8 +1796,6 @@ private function tweenStart() : void{
 private function tweenUpdate() : void{
 	switch (type){	
 		case "curve":
-			//OrientToPath, loops, from;
-			//CHECK ON var parsedpoints: Array = ParsePoints(points,args["looped"]);
 			if (args["classic"]){
 				var pointCount : int = parsedpoints.length;
 		
@@ -1816,17 +1814,20 @@ private function tweenUpdate() : void{
 				var bpi : BezierPointInfo = parsedpoints[iCurAxisPoint];
 				var calculatedVector3 : Vector3 = bpi.starting + timeFract * (2 * (1 - timeFract) * (bpi.intermediate - bpi.starting) + timeFract * (bpi.end - bpi.starting));		
 			
+				//handle look controls:
+				if(args.Contains("lookTarget")){
+					iTween.lookUpdate(gameObject,args);
+				}else if(args["orientToPath"]){
+					args["target"] = calculatedVector3;
+					iTween.lookUpdate(gameObject,args);
+				}
+			
 				//apply position on curve:
 				if(isLocal){
 					transform.localPosition=calculatedVector3;
 				}else{
 					transform.position=calculatedVector3;
-				}
-			
-				//handle look controls:
-				if(args.Contains("lookTarget")){
-					iTween.lookUpdate(gameObject,args);
-				}				
+				}			
 			}else{
 				Debug.LogError("iTween Error: New bezier curve system using Hermite Cardinal Splines in development");
 			}
@@ -2133,10 +2134,22 @@ private function tweenLoop() : void{
 	switch(args["loopType"]){
 		case "loop":
 			switch (type){
+				case "curve":
+					if(args["classic"]){
+						if(isLocal){
+							transform.localPosition=startVector3;
+						}else{
+							transform.position=startVector3;
+						}
+						iTween.curveTo(gameObject,args);
+					}else{
+						Debug.Log("New bezier curve loop coming soon");
+					}
+				
 				case "value":
 					switch(method){
 						//rect:
-						case "recr":
+						case "rect":
 							calculatedRect = startRect;
 							args["to"]=endRect;
 							iTween.rectValue(gameObject,args);
@@ -2227,6 +2240,16 @@ private function tweenLoop() : void{
 		break;
 		case "pingPong":
 			switch (type){
+				case "curve":				
+					if(args["classic"]){
+						points.Reverse();
+						args["points"]=points;
+						args["pingPonged"]=true;
+						iTween.curveTo(gameObject,args);
+					}else{
+						Debug.Log("New bezier curve loop coming soon");
+					}
+				
 				case "value":
 					switch(method){
 						//rect:
