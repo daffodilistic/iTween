@@ -43,7 +43,7 @@ var running : boolean;
 static var tweens : Array = [];
 static var globalDefaults : Hashtable = {"time":1,"delay":0,"transition":"easeInOutCubic","isLocal":false};
 static var moveDefaults : Hashtable = {"isLocal":false, "orientToPath":true};
-static var curveDefaults : Hashtable = {"isLocal":false, "overshoot":false};
+static var curveDefaults : Hashtable = {"isLocal":false, "orientToPath":true, "classic":false};
 static var moveBezierDefaults : Hashtable = {"lookSpeed":8, "transition":"easeInOutSine"};
 static var rotateDefaults : Hashtable = {"isLocal":true};
 static var shakePositionDefaults : Hashtable = {"isLocal":false};
@@ -93,7 +93,7 @@ private var parsedpoints : Array;
 //#########################
 
 static function cameraFadeTo(args : Hashtable) : void{
-	if(args.Contains("color")){
+	if(args.Contains("color")){		
 		//make a camera fade object:
 		var cameraFade : GameObject = generateCameaFade(args);
 		
@@ -166,10 +166,13 @@ static function curveTo(target : GameObject, args : Hashtable) : void{
 	if(!args.Contains("isLocal")){
 		args["isLocal"]=curveDefaults["isLocal"];
 	}
-	if(!args.Contains("overshoot")){
-		args["overshoot"]=curveDefaults["overshoot"];
+	if(!args.Contains("classic")){
+		args["classic"]=curveDefaults["classic"];
 	}	
-	//MESSY?
+	if(!args.Contains("orientToPath")){
+			args["orientToPath"] = curveDefaults["orientToPath"];
+			print(curveDefaults["orientToPath"]);
+		}
 	if(args["pingPonged"]==null){
 		args["pingPonged"]=false;
 	}
@@ -1403,7 +1406,6 @@ private function generateTargets() : void{
 			}
 			
 			//handle orient to path:
-			
 			if(args["orientToPath"] && !args.Contains("lookTarget")){
 				args["lookTarget"]=endVector3;
 				iTween.lookUpdate(gameObject,args);
