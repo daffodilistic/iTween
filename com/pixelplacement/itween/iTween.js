@@ -171,7 +171,6 @@ static function curveTo(target : GameObject, args : Hashtable) : void{
 	}	
 	if(!args.Contains("orientToPath")){
 			args["orientToPath"] = curveDefaults["orientToPath"];
-			print(curveDefaults["orientToPath"]);
 		}
 	if(args["pingPonged"]==null){
 		args["pingPonged"]=false;
@@ -181,7 +180,7 @@ static function curveTo(target : GameObject, args : Hashtable) : void{
 
 static function curveFrom(target : GameObject, args : Hashtable) : void{
 	args["method"]="from";
-	lookTo(target,args);
+	curveTo(target,args);
 }
 
 static function moveToBezier(target : GameObject, args : Hashtable) : void{Debug.LogError("iTween Error: moveToBezier() has been deprecated. Please investigate curveTo() and the 'classic' property!");}
@@ -1175,15 +1174,32 @@ private function generateTargets() : void{
 			if(args["classic"]){
 				points = Array(args["points"]);
 				
-				//set foundation values:
-				if(isLocal){
-					startVector3=transform.localPosition;
-					points.Unshift(startVector3);
-				}else{
-					startVector3=transform.position;
-					points.Unshift(startVector3);
+				switch(args["method"]){
+					case "from":
+						args["method"]="to";
+						if(isLocal){
+							points.Push(transform.localPosition);
+							transform.localPosition=points[0];
+						}else{
+							points.Push(transform.position);
+							transform.position=points[0];
+						}
+						print(points.length);
+						startVector3=points[0];
+						points.Reverse();
+					break;
+					
+					case "to":
+						if(isLocal){
+							startVector3=transform.localPosition;
+							points.Unshift(startVector3);
+						}else{
+							startVector3=transform.position;
+							points.Unshift(startVector3);
+						}
+					break;
 				}
-				
+
 				//parse points:
 				parsedpoints = ParsePoints(points,args["pingPonged"]);				
 			}else{
@@ -2376,9 +2392,9 @@ function OnDisable(){
 	disableKinematic();
 }
 
-//##########
-//# CURVES #
-//##########
+//#################
+//# EASING CURVES #
+//#################
 
 private function linear(start:float,end:float,value:float):float{return Mathf.Lerp(start,end,value);}private
 private function clerp(start:float,end:float,value:float):float{var min=0.0;var max=360.0;var half=Mathf.Abs((max-min)/2.0);var retval=0.0;var diff=0.0;if((end-start)<-half){diff=((max-start)+end)*value;retval=start+diff;}else if((end-start)>half){diff=-((max-end)+start)*value;retval=start+diff;}else retval=start+(end-start)*value;return retval;}private
