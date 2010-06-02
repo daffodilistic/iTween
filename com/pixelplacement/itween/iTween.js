@@ -40,8 +40,6 @@ var id : String;
 var type : String;
 var method : String;
 var running : boolean;
-var time : float = globalDefaults["time"];
-var delay : float = globalDefaults["delay"];
 static var tweens : Array = [];
 static var globalDefaults : Hashtable = {"time":1,"delay":0,"transition":"easeInOutCubic","isLocal":false};
 static var moveDefaults : Hashtable = {"isLocal":false};
@@ -57,6 +55,8 @@ static var audioDefaults : Hashtable = {"transition":"linear"};
 static var lookDefaults : Hashtable = {"transition":"easeInOutCubic"};
 static var lookToUpdateDefaults : Hashtable = {"lookSpeed":3};
 static var moveToUpdateDefaults : Hashtable = {"isLocal":false, "time":.05};
+var time : float = globalDefaults["time"];
+var delay : float = globalDefaults["delay"];
 private var transitions : Hashtable = {"easeInQuad":easeInQuad, "easeOutQuad":easeOutQuad,"easeInOutQuad":easeInOutQuad, "easeInCubic":easeInCubic, "easeOutCubic":easeOutCubic, "easeInOutCubic":easeInOutCubic, "easeInQuart":easeInQuart, "easeOutQuart":easeOutQuart, "easeInOutQuart":easeInOutQuart, "easeInQuint":easeInQuint, "easeOutQuint":easeOutQuint, "easeInOutQuint":easeInOutQuint, "easeInSine":easeInSine, "easeOutSine":easeOutSine, "easeInOutSine":easeInOutSine, "easeInExpo":easeInExpo, "easeOutExpo":easeOutExpo, "easeInOutExpo":easeInOutExpo, "easeInCirc":easeInCirc, "easeOutCirc":easeOutCirc, "easeInOutCirc":easeInOutCirc, "linear":linear, "spring":spring, "bounce":bounce, "easeInBack":easeInBack, "easeOutBack":easeOutBack, "easeInOutBack":easeInOutBack}; 
 private var transition = linear;
 private var args : Hashtable;
@@ -88,11 +88,75 @@ private var audioSource : AudioSource;
 private var points : Array;
 private var parsedpoints : Array;
 
+//#########################
+//# CAMERA FADE REGISTERS #
+//#########################
+
+static function cameraFadeTo(args : Hashtable) : void{
+	if(args.Contains("color")){
+		//make a camera fade object:
+		var cameraFade : GameObject = generateCameaFade(args);
+		
+		//run fade:
+		args["alpha"]=1;
+		if(!args.Contains("method")){
+			fadeTo(cameraFade,args);
+		}else if(args["method"]=="from"){
+			fadeFrom(cameraFade,args);
+		}
+		
+		//fire clean up:
+		var runTime : float;
+		var runDelay : float;
+		var cleanDelay : float = .5;
+		if(args["time"]){
+			runTime=args["time"];
+		}else{
+			runTime=globalDefaults["time"];
+		}
+		if(args["delay"]){
+			runDelay=args["delay"];
+		}else{
+			runDelay=globalDefaults["delay"];
+		}
+		Destroy(cameraFade,cleanDelay + runTime + runDelay);
+	}
+}
+
+static function cameraFadeFrom(args : Hashtable) : void{
+	if(args.Contains("color")){
+		args["method"]="from";
+		cameraFadeTo(args);
+	}
+}
+
+private static function generateCameaFade(args : Hashtable) : GameObject{
+	//eastablish fill texture:
+	var colorFill : Color = args["color"];
+	var colorTexture : Texture2D = new Texture2D(Screen.width, Screen.height);
+	var currentColors : Color[] = colorTexture.GetPixels(0);
+	for(var i : uint = 0; i<currentColors.length; i++){
+		currentColors[i]=colorFill;
+	}
+	colorTexture.SetPixels(currentColors,0);
+	colorTexture.Apply(false);
+	
+	//establish colorFade object:
+	var cameraFade : GameObject = new GameObject("Camera Fade");
+	cameraFade.transform.position.x=.5;
+	cameraFade.transform.position.y=.5;
+	cameraFade.transform.position.z=999999;
+	cameraFade.AddComponent("GUITexture");
+	cameraFade.guiTexture.texture=colorTexture;
+	cameraFade.guiTexture.color.a=0;	
+	return cameraFade;
+}
+
 //###################
 //# CURVE REGISTERS #
 //###################
 
-static function curveTo(target : GameObject, args : Hashtable) : void{
+static function CurveTo(target : GameObject, args : Hashtable) : void{
 	args["target"]=target;
 	args["id"]=generateID();
 	args["type"]="curve";
@@ -112,7 +176,7 @@ static function curveTo(target : GameObject, args : Hashtable) : void{
 	init(target,args);
 }
 
-static function curveFrom(target : GameObject, args : Hashtable) : void{
+static function CurveFrom(target : GameObject, args : Hashtable) : void{
 	args["method"]="from";
 	lookTo(target,args);
 }
@@ -151,6 +215,7 @@ static function lookFrom(target : GameObject, args : Hashtable) : void{
 	args["method"]="from";
 	lookTo(target,args);
 }
+
 //deprecated shake registers:
 static function lookToWorld(target : GameObject, args : Hashtable) : void{Debug.LogError("iTween Error: lookToWorld() has been deprecated. Please investigate lookTo() and the 'isLocal' property!");}
 static function lookFromWorld(target : GameObject, args : Hashtable) : void{Debug.LogError("iTween Error: lookFromWorld() has been deprecated. Please investigate lookTo() and the 'isLocal' property!");}
