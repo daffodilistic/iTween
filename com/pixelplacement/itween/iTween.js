@@ -55,6 +55,8 @@ static var audioDefaults : Hashtable = {"transition":"linear"};
 static var lookDefaults : Hashtable = {"transition":"easeInOutCubic"};
 static var lookToUpdateDefaults : Hashtable = {"lookSpeed":3};
 static var moveToUpdateDefaults : Hashtable = {"isLocal":false, "time":.05};
+static var cameraFadeDefaults : Hashtable = {"defaultDepth":999999};
+static var cameraFade : GameObject;
 var time : float = globalDefaults["time"];
 var delay : float = globalDefaults["delay"];
 private var transitions : Hashtable = {"easeInQuad":easeInQuad, "easeOutQuad":easeOutQuad,"easeInOutQuad":easeInOutQuad, "easeInCubic":easeInCubic, "easeOutCubic":easeOutCubic, "easeInOutCubic":easeInOutCubic, "easeInQuart":easeInQuart, "easeOutQuart":easeOutQuart, "easeInOutQuart":easeInOutQuart, "easeInQuint":easeInQuint, "easeOutQuint":easeOutQuint, "easeInOutQuint":easeInOutQuint, "easeInSine":easeInSine, "easeOutSine":easeOutSine, "easeInOutSine":easeInOutSine, "easeInExpo":easeInExpo, "easeOutExpo":easeOutExpo, "easeInOutExpo":easeInOutExpo, "easeInCirc":easeInCirc, "easeOutCirc":easeOutCirc, "easeInOutCirc":easeInOutCirc, "linear":linear, "spring":spring, "bounce":bounce, "easeInBack":easeInBack, "easeOutBack":easeOutBack, "easeInOutBack":easeInOutBack}; 
@@ -93,63 +95,58 @@ private var parsedpoints : Array;
 //#########################
 
 static function cameraFadeTo(args : Hashtable) : void{
-	if(args.Contains("color")){		
-		//make a camera fade object:
-		var cameraFade : GameObject = generateCameaFade(args);
-		
-		//run fade:
-		args["alpha"]=1;
-		if(!args.Contains("method")){
-			fadeTo(cameraFade,args);
-		}else if(args["method"]=="from"){
-			fadeFrom(cameraFade,args);
-		}
-		
-		//fire clean up:
-		var runTime : float;
-		var runDelay : float;
-		var cleanDelay : float = .5;
-		if(args["time"]){
-			runTime=args["time"];
-		}else{
-			runTime=globalDefaults["time"];
-		}
-		if(args["delay"]){
-			runDelay=args["delay"];
-		}else{
-			runDelay=globalDefaults["delay"];
-		}
-		Destroy(cameraFade,cleanDelay + runTime + runDelay);
+	//add camera fade object:
+	addCameraFade();
+	
+	//set amount:
+	if(args.Contains("amount")){
+		var tempColor : Color = args["color"];
+		var tempAmount : float = args["amount"];
+		tempColor.a=tempAmount;
+		args["color"]=tempColor;
+	}
+	
+	//run fade:
+	if(args["method"]=="from"){
+		colorFrom(cameraFade,args);
+	}else{
+		colorTo(cameraFade,args);
 	}
 }
 
 static function cameraFadeFrom(args : Hashtable) : void{
-	if(args.Contains("color")){
-		args["method"]="from";
-		cameraFadeTo(args);
-	}
+	args["method"]="from";
+	cameraFadeTo(args);
 }
 
-private static function generateCameaFade(args : Hashtable) : GameObject{
-	//eastablish fill texture:
-	var colorFill : Color = args["color"];
-	var colorTexture : Texture2D = new Texture2D(Screen.width, Screen.height);
-	var currentColors : Color[] = colorTexture.GetPixels(0);
-	for(var i : uint = 0; i<currentColors.length; i++){
-		currentColors[i]=colorFill;
+static function addCameraFade(depth : int) : void{
+	if(cameraFade){
+		return;
 	}
-	colorTexture.SetPixels(currentColors,0);
-	colorTexture.Apply(false);
 	
+	//eastablish fill texture:
+	var colorTexture : Texture2D = new Texture2D(Screen.width, Screen.height);
+
 	//establish colorFade object:
-	var cameraFade : GameObject = new GameObject("Camera Fade");
+	cameraFade = new GameObject("Camera Fade");
 	cameraFade.transform.position.x=.5;
 	cameraFade.transform.position.y=.5;
-	cameraFade.transform.position.z=999999;
+	cameraFade.transform.position.z=depth;
 	cameraFade.AddComponent("GUITexture");
 	cameraFade.guiTexture.texture=colorTexture;
-	cameraFade.guiTexture.color.a=0;	
-	return cameraFade;
+	cameraFade.guiTexture.color=new Color(0,0,0,0);
+}
+
+static function addCameraFade() : void{
+	addCameraFade(cameraFadeDefaults["defaultDepth"]);
+}
+
+static function swapCameraFadeDepth(depth : float) : void{
+	cameraFade.transform.position.z=depth;
+}
+
+static function destroyCameraFade() : void{
+	Destroy(cameraFade);
 }
 
 //###################
