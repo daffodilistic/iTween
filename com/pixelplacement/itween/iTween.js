@@ -1169,36 +1169,11 @@ private function generateTargets() : void{
 		//curve
 		case "curve":
 			if(args["classic"]){
-				points = Array(args["points"]);
-				
-				switch(args["method"]){
-					case "from":
-						args["method"]="to";
-						if(isLocal){
-							points.Push(transform.localPosition);
-							transform.localPosition=points[0];
-						}else{
-							points.Push(transform.position);
-							transform.position=points[0];
-						}
-						print(points.length);
-						startVector3=points[0];
-						points.Reverse();
-					break;
-					
-					case "to":
-						if(isLocal){
-							startVector3=transform.localPosition;
-							points.Unshift(startVector3);
-						}else{
-							startVector3=transform.position;
-							points.Unshift(startVector3);
-						}
-					break;
-				}
-
-				//parse points:
-				parsedpoints = ParsePoints(points,args["pingPonged"]);				
+				if(isLocal){
+					startVector3=transform.localPosition;
+				}else{
+					startVector3=transform.position;
+				}			
 			}else{
 				Debug.LogError("iTween Error: New bezier curve system using Hermite Cardinal Splines in development");
 			}
@@ -1347,9 +1322,6 @@ private function generateTargets() : void{
 			if(args["pitch"]){
 				audio.pitch=args["pitch"];
 			}
-			time=audio.clip.length/audio.pitch;
-			//perform action here to avoid Update involvement:
-			audio.PlayOneShot(audio.clip);
 		break;
 		
 		//audio:
@@ -1741,6 +1713,18 @@ private function tweenFrom() : void{
 		method="to";
 		generateTargets();
 		switch (type){
+			case "curve":
+				if (args["classic"]){
+					points = Array(args["points"]);
+					points.Push(startVector3);
+					if(isLocal){
+						transform.localPosition=points[0];
+					}else{
+						transform.position=points[0];
+					}
+				}
+			break;
+			
 			//color:
 			case "color":
 				if(renderer){
@@ -1802,6 +1786,21 @@ private function tweenStart() : void{
 	enableKinematic();
 	generateTargets();
 	running=true;
+	
+	switch (type){
+		case "stab":
+			time=audio.clip.length/audio.pitch;
+			audio.PlayOneShot(audio.clip);		
+		break;
+		
+		case "curve":
+			if(!points){
+				points = Array(args["points"]);
+				points.Unshift(startVector3);	
+			}	
+			parsedpoints = ParsePoints(points,args["pingPonged"]);	
+		break;
+	}
 }
 
 //############################
