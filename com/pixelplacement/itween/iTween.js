@@ -157,7 +157,9 @@ static function destroyCameraFade() : void{
 
 static function curveTo(target : GameObject, args : Hashtable) : void{
 	args["target"]=target;
-	args["id"]=generateID();
+	if(!args.Contains("id")){
+		args["id"]=generateID();
+	}
 	args["type"]="curve";
 	if(!args.Contains("method")){
 		args["method"]="to";
@@ -196,7 +198,9 @@ static function lookTo(target : GameObject, args : Hashtable) : void{
 		args["lookTarget"]=args["target"];	
 	}
 	args["target"]=target;
-	args["id"]=generateID();
+	if(!args.Contains("id")){
+		args["id"]=generateID();
+	}
 	args["type"]="look";
 	if(!args.Contains("method")){
 		args["method"]="to";
@@ -230,7 +234,9 @@ static function rectValue(target : GameObject, args : Hashtable) : void{
 		Debug.LogError("iTween Error: rectValue() requires an onUpdate callback function which accepts a single argument (as a Rect) to function properly!");
 	}else{
 		args["target"]=target;
-		args["id"]=generateID();
+		if(!args.Contains("id")){
+			args["id"]=generateID();
+		}
 		args["type"]="value";
 		args["method"]="rect";
 		init(target,args);
@@ -242,7 +248,9 @@ static function vector2Value(target : GameObject, args : Hashtable) : void{
 		Debug.LogError("iTween Error: vector2Value() requires an onUpdate callback function which accepts a single argument (as a Vector2) to function properly!");
 	}else{
 		args["target"]=target;
-		args["id"]=generateID();
+		if(!args.Contains("id")){
+			args["id"]=generateID();
+		}
 		args["type"]="value";
 		args["method"]="vector2";
 		init(target,args);
@@ -254,7 +262,9 @@ static function vector3Value(target : GameObject, args : Hashtable) : void{
 		Debug.LogError("iTween Error: vector3Value() requires an onUpdate callback function which accepts a single argument (as a Vector3) to function properly!");
 	}else{
 		args["target"]=target;
-		args["id"]=generateID();
+		if(!args.Contains("id")){
+			args["id"]=generateID();
+		}
 		args["type"]="value";
 		args["method"]="vector3";
 		init(target,args);
@@ -266,7 +276,9 @@ static function colorValue(target : GameObject, args : Hashtable) : void{
 		Debug.LogError("iTween Error: colorValue() requires an onUpdate callback function which accepts a single argument (as a Color) to function properly!");
 	}else{
 		args["target"]=target;
-		args["id"]=generateID();
+		if(!args.Contains("id")){
+			args["id"]=generateID();
+		}
 		args["type"]="value";
 		args["method"]="color";
 		init(target,args);
@@ -278,7 +290,9 @@ static function floatValue(target : GameObject, args : Hashtable) : void{
 		Debug.LogError("iTween Error: floatTo() requires an onUpdate callback function which accepts a single argument (as a float) to function properly!");
 	}else{
 		args["target"]=target;
-		args["id"]=generateID();
+		if(!args.Contains("id")){
+			args["id"]=generateID();
+		}
 		args["type"]="value";
 		args["method"]="float";
 		init(target,args);
@@ -290,7 +304,9 @@ static function intValue(target : GameObject, args : Hashtable) : void{
 		Debug.LogError("iTween Error: intTo() requires an onUpdate callback function which accepts a single argument (as an int) to function properly!");
 	}else{
 		args["target"]=target;
-		args["id"]=generateID();
+		if(!args.Contains("id")){
+			args["id"]=generateID();
+		}
 		args["type"]="value";
 		args["method"]="int";
 		init(target,args);
@@ -344,7 +360,9 @@ static function colorTo(target : GameObject, args : Hashtable) : void{
 	}
 	
 	args["target"]=target;
-	args["id"]=generateID();
+	if(!args.Contains("id")){
+		args["id"]=generateID();
+	}
 	args["type"]="color";
 	if(!args.Contains("method")){
 		args["method"]="to";
@@ -378,7 +396,9 @@ static function stab(target : GameObject, args : Hashtable):void{
 		Debug.LogError("iTween Error: There is no AudioClip to play!");
 	}else{
 		args["target"]=target;
-		args["id"]=generateID();
+		if(!args.Contains("id")){
+			args["id"]=generateID();
+		}
 		args["type"]="stab";
 		init(target,args);	
 	}
@@ -390,7 +410,9 @@ static function stab(target : GameObject, args : Hashtable):void{
 
 static function audioTo(target : GameObject, args : Hashtable) : void{
 	args["target"]=target;
-	args["id"]=generateID();
+	if(!args.Contains("id")){
+		args["id"]=generateID();
+	}
 	args["type"]="audio";
 	if(!args.Contains("method")){
 		args["method"]="to";
@@ -426,7 +448,9 @@ static function audioFrom(target : AudioSource, args : Hashtable) : void{
 
 static function shakePosition(target : GameObject, args : Hashtable) : void{
 	args["target"]=target;
-	args["id"]=generateID();
+	if(!args.Contains("id")){
+		args["id"]=generateID();
+	}
 	args["type"]="shake";
 	args["method"]="position";
 	if(!args.Contains("isLocal")){
@@ -437,7 +461,9 @@ static function shakePosition(target : GameObject, args : Hashtable) : void{
 
 static function shakeRotation(target : GameObject, args : Hashtable) : void{
 	args["target"]=target;
-	args["id"]=generateID();
+	if(!args.Contains("id")){
+		args["id"]=generateID();
+	}
 	args["type"]="shake";
 	args["method"]="rotation";
 	if(!args.Contains("isLocal")){
@@ -448,7 +474,9 @@ static function shakeRotation(target : GameObject, args : Hashtable) : void{
 
 static function shakeScale(target : GameObject, args : Hashtable) : void{
 	args["target"]=target;
-	args["id"]=generateID();
+	if(!args.Contains("id")){
+		args["id"]=generateID();
+	}
 	args["type"]="shake";
 	args["method"]="scale";
 	init(target,args);
@@ -464,7 +492,9 @@ static function shakeWorld(target : GameObject, args : Hashtable) : void{Debug.L
 
 static function punchPosition(target : GameObject, args : Hashtable) : void{
 	args["target"]=target;
-	args["id"]=generateID();
+	if(!args.Contains("id")){
+		args["id"]=generateID();
+	}
 	args["type"]="punch";
 	args["method"]="position";
 	if(!args.Contains("isLocal")){
@@ -475,7 +505,9 @@ static function punchPosition(target : GameObject, args : Hashtable) : void{
 
 static function punchRotation(target : GameObject, args : Hashtable) : void{
 	args["target"]=target;
-	args["id"]=generateID();
+	if(!args.Contains("id")){
+		args["id"]=generateID();
+	}
 	args["type"]="punch";
 	args["method"]="rotation";
 	if(!args.Contains("isLocal")){
@@ -486,7 +518,9 @@ static function punchRotation(target : GameObject, args : Hashtable) : void{
 
 static function punchScale(target : GameObject, args : Hashtable) : void{
 	args["target"]=target;
-	args["id"]=generateID();
+	if(!args.Contains("id")){
+		args["id"]=generateID();
+	}
 	args["type"]="punch";
 	args["method"]="scale";
 	init(target,args);
@@ -500,9 +534,11 @@ static function punchRotationWorld(target : GameObject, args : Hashtable) : void
 //# MOVE REGISTERS #
 //##################
 
-static function moveTo(target : GameObject, args : Hashtable) : iTween{
+static function moveTo(target : GameObject, args : Hashtable) : void{
 	args["target"]=target;
-	args["id"]=generateID();
+	if(!args.Contains("id")){
+		args["id"]=generateID();
+	}
 	args["type"]="move";
 	if(!args.Contains("method")){
 		args["method"]="to";
@@ -510,7 +546,7 @@ static function moveTo(target : GameObject, args : Hashtable) : iTween{
 	if(!args.Contains("isLocal")){
 		args["isLocal"]=moveDefaults["isLocal"];
 	}
-	return init(target,args);
+	init(target,args);
 }
 
 static function moveFrom(target : GameObject, args : Hashtable) : void{
@@ -540,7 +576,9 @@ static function moveToWorld(target : GameObject, args : Hashtable) : void{Debug.
 
 static function rotateTo(target : GameObject, args : Hashtable) : void{
 	args["target"]=target;
-	args["id"]=generateID();
+	if(!args.Contains("id")){
+		args["id"]=generateID();
+	}
 	args["type"]="rotate";
 	if(!args.Contains("method")){
 		args["method"]="to";
@@ -576,7 +614,9 @@ static function rotateByWorld(target : GameObject, args : Hashtable) : void{Debu
 
 static function scaleTo(target : GameObject, args : Hashtable) : void{
 	args["target"]=target;
-	args["id"]=generateID();
+	if(!args.Contains("id")){
+		args["id"]=generateID();
+	}
 	args["type"]="scale";
 	if(!args.Contains("method")){
 		args["method"]="to";
@@ -1710,7 +1750,13 @@ private function callBack(version : String) : void{
 		}else{
 			target=gameObject;
 		}
-		target.SendMessage(args[version],args[version+"Params"],SendMessageOptions.DontRequireReceiver);
+		//if a string wasn't passed cast it as one:
+		if(args[version].GetType() != String){
+			Debug.LogError("iTween Error: Callback method refrences must be passed as a String!");
+			Destroy (this);
+		}else{
+			target.SendMessage(args[version],args[version+"Params"],SendMessageOptions.DontRequireReceiver);
+		}
 	}	
 }
 
