@@ -36,10 +36,11 @@ import System.Reflection;
 //# VARS #
 //########
 
-var id : String;
-var type : String;
-var method : String;
-var running : boolean;
+public var id : String;
+public var type : String;
+public var method : String;
+public var running : boolean;
+public var paused : boolean;
 static var tweens : Array = [];
 static var globalDefaults : Hashtable = {"time":1,"delay":0,"transition":"easeInOutCubic","isLocal":false};
 static var moveDefaults : Hashtable = {"isLocal":false, "orientToPath":true};
@@ -57,8 +58,9 @@ static var lookToUpdateDefaults : Hashtable = {"lookSpeed":3};
 static var moveToUpdateDefaults : Hashtable = {"isLocal":false, "time":.05};
 static var cameraFadeDefaults : Hashtable = {"defaultDepth":999999};
 static var cameraFade : GameObject;
-var time : float = globalDefaults["time"];
-var delay : float = globalDefaults["delay"];
+private var time : float = globalDefaults["time"];
+private var delay : float = globalDefaults["delay"];
+private var delayStartedTime : float;
 private var transitions : Hashtable = {"easeInQuad":easeInQuad, "easeOutQuad":easeOutQuad,"easeInOutQuad":easeInOutQuad, "easeInCubic":easeInCubic, "easeOutCubic":easeOutCubic, "easeInOutCubic":easeInOutCubic, "easeInQuart":easeInQuart, "easeOutQuart":easeOutQuart, "easeInOutQuart":easeInOutQuart, "easeInQuint":easeInQuint, "easeOutQuint":easeOutQuint, "easeInOutQuint":easeInOutQuint, "easeInSine":easeInSine, "easeOutSine":easeOutSine, "easeInOutSine":easeInOutSine, "easeInExpo":easeInExpo, "easeOutExpo":easeOutExpo, "easeInOutExpo":easeInOutExpo, "easeInCirc":easeInCirc, "easeOutCirc":easeOutCirc, "easeInOutCirc":easeInOutCirc, "linear":linear, "spring":spring, "bounce":bounce, "easeInBack":easeInBack, "easeOutBack":easeOutBack, "easeInOutBack":easeInOutBack}; 
 private var transition = linear;
 private var args : Hashtable;
@@ -498,7 +500,7 @@ static function punchRotationWorld(target : GameObject, args : Hashtable) : void
 //# MOVE REGISTERS #
 //##################
 
-static function moveTo(target : GameObject, args : Hashtable) : void{
+static function moveTo(target : GameObject, args : Hashtable) : iTween{
 	args["target"]=target;
 	args["id"]=generateID();
 	args["type"]="move";
@@ -508,7 +510,7 @@ static function moveTo(target : GameObject, args : Hashtable) : void{
 	if(!args.Contains("isLocal")){
 		args["isLocal"]=moveDefaults["isLocal"];
 	}
-	init(target,args);
+	return init(target,args);
 }
 
 static function moveFrom(target : GameObject, args : Hashtable) : void{
@@ -746,19 +748,29 @@ static function moveToUpdate(target: GameObject, args: Hashtable):void{Debug.Log
 
 //pause all iTweens in GameObject:
 static function pause(target : GameObject) : void{
-	var tweens = target.GetComponents(iTween);
-	for (var tween : iTween in tweens) {
+	var tempTweens: Component[] = target.GetComponents(iTween);
+	for (var tween : iTween in tempTweens) {
+		if(tween.delay>0){
+			tween.delay-=Time.time-tween.delayStartedTime;
+			tween.StopCoroutine("tweenDelay");
+		}
+		tween.paused=true;
 		tween.enabled=false;
 	}
 }
 
 //pause all iTweens in GameObject of type:
 static function pause(target : GameObject, type : String) : void{
-	var tweens = target.GetComponents(iTween);
-	for (var tween : iTween in tweens) {
+	var tempTweens : Component[] = target.GetComponents(iTween);
+	for (var tween : iTween in tempTweens) {
 		var targetType : String = tween.type+tween.method;
 		targetType = targetType.Substring(0,type.length);
 		if(targetType==type.ToLower()){
+			if(tween.delay>0){
+				tween.delay-=Time.time-tween.delayStartedTime;
+				tween.StopCoroutine("tweenDelay");
+			}
+			tween.paused=true;
 			tween.enabled=false;
 		}
 	}
@@ -782,7 +794,6 @@ static function pauseChildren(target : GameObject, type : String) : void{
 
 //pause all iTweens in scene:
 static function pauseAll() : void{
-	print(tweens.length);
 	for(var i : int=0; i<tweens.length; i++){
 		var currentTween : Hashtable = tweens[i];
 		var target : GameObject = currentTween["target"];
@@ -808,16 +819,16 @@ static function pauseAll(type : String) : void{
 
 //resume all iTweens in GameObject:
 static function resume(target : GameObject) : void{
-	var tweens = target.GetComponents(iTween);
-	for (var tween : iTween in tweens) {
+	var tempTweens: Component[] = target.GetComponents(iTween);
+	for (var tween : iTween in tempTweens) {
 		tween.enabled=true;
 	}
 }
 
 //resume all iTweens in GameObject of type:
 static function resume(target : GameObject, type : String) : void{
-	var tweens = target.GetComponents(iTween);
-	for (var tween : iTween in tweens) {
+	var tempTweens: Component[] = target.GetComponents(iTween);
+	for (var tween : iTween in tempTweens) {
 		var targetType : String = tween.type+tween.method;
 		targetType = targetType.Substring(0,type.length);
 		if(targetType==type.ToLower()){
@@ -844,7 +855,6 @@ static function resumeChildren(target : GameObject, type : String) : void{
 
 //resume all iTweens in scene:
 static function resumeAll() : void{
-	print(tweens.length);
 	for(var i : int=0; i<tweens.length; i++){
 		var currentTween : Hashtable = tweens[i];
 		var target : GameObject = currentTween["target"];
@@ -870,15 +880,15 @@ static function resumeAll(type : String) : void{
 
 //count all iTweens in GameObject:
 static function count(target : GameObject) : int{
-	var tweens = target.GetComponents(iTween);
-	return tweens.length;
+	var tempTweens: Component[] = target.GetComponents(iTween);
+	return tempTweens.length;
 }
 
 //count all iTweens in GameObject of type:
 static function count(target : GameObject, type : String) : int{
 	var tweenCount : int;
-	var tweens = target.GetComponents(iTween);
-	for (var tween : iTween in tweens) {
+	var tempTweens: Component[] = target.GetComponents(iTween);
+	for (var tween : iTween in tempTweens) {
 		var targetType : String = tween.type+tween.method;
 		targetType = targetType.Substring(0,type.length);
 		if(targetType==type.ToLower()){
@@ -915,16 +925,16 @@ static function countAll(type : String) : int{
 
 //stop all iTweens in GameObject:
 static function stop(target : GameObject) : void{
-	var tweens = target.GetComponents(iTween);
-	for (var tween : iTween in tweens) {
+	var tempTweens : Component[] = target.GetComponents(iTween);
+	for (var tween : iTween in tempTweens) {
 		tween.tweenDispose();
 	}
 }
 
 //stop all iTweens in GameObject of type:
 static function stop(target : GameObject, type : String) : void{
-	var tweens = target.GetComponents(iTween);
-	for (var tween : iTween in tweens) {
+	var tempTweens : Component[] = target.GetComponents(iTween);
+	for (var tween : iTween in tempTweens) {
 		var targetType : String = tween.type+tween.method;
 		targetType = targetType.Substring(0,type.length);
 		if(targetType==type.ToLower()){
@@ -984,9 +994,9 @@ static function stopAll(type : String) : void{
 //# INTERNAL INIT UTILITY #
 //#########################
 
-static function init(target : GameObject, args :  Hashtable) : void{
+static function init(target : GameObject, args :  Hashtable) : iTween{
 	tweens.Unshift(args);
-	target.AddComponent("iTween");
+	return(target.AddComponent("iTween"));
 }
 
 //#########################################
@@ -1704,6 +1714,15 @@ private function callBack(version : String) : void{
 	}	
 }
 
+//#################################
+//# INTERNAL RESUME DELAY UTILITY #
+//#################################
+
+private function resumeDelay(){
+	yield StartCoroutine("tweenDelay");
+	tweenStart();
+}
+
 //##########################
 //# TWEEN FROM APPLICATION #
 //##########################
@@ -1774,6 +1793,15 @@ private function tweenFrom() : void{
 			break;
 		}
 	}	
+}
+
+//###########################
+//# TWEEN START APPLICATION #
+//###########################
+
+private function tweenDelay(){
+	delayStartedTime = Time.time;
+	yield WaitForSeconds(delay);
 }
 
 //###########################
@@ -2363,7 +2391,8 @@ function Awake(){
 
 function Start(){
 	tweenFrom();
-	yield WaitForSeconds(delay);
+	yield StartCoroutine("tweenDelay");
+	if(delay == 999999999999999999){tweenDelay();} //Fake call to avoid "never used" warnings from StartCoroutine call above
 	tweenStart();
 }
 
@@ -2381,6 +2410,11 @@ function Update(){
 function OnEnable(){
 	if(running){
 		enableKinematic();
+	}
+	//resume delay:
+	if(paused && delay>0){
+		paused=false;
+		resumeDelay();
 	}
 }
 
