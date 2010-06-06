@@ -32,9 +32,9 @@ using System.Collections.Generic;
 
 
     /// <summary>
-    /// iTween is intended for creating simple animations on gameObjects within Unity.
+    /// iTweenOLD is intended for creating simple animations on gameObjects within Unity.
     /// </summary>
-public class iTween : MonoBehaviour
+public class iTweenOLD : MonoBehaviour
 {
     #region structural stuff
     #region enums
@@ -855,11 +855,11 @@ public class iTween : MonoBehaviour
     //Check for and remove running tweens of same type:
     private void checkForConflicts()
     {
-        Component[] scripts = GetComponents(typeof(iTween));
+        Component[] scripts = GetComponents(typeof(iTweenOLD));
         if (scripts.Length > 1)
         {
             //this is okay to cast as isharpTween because we are only getting that type
-            foreach (iTween tween in scripts)
+            foreach (iTweenOLD tween in scripts)
             {
                 if ((tween != this) && tween.inProgress && IsTweenSameType(tween.args.type, args.type))
                 {
@@ -1460,11 +1460,11 @@ public class iTween : MonoBehaviour
                 setMoveFrom();
                 if (args.transform != null)
                 {
-                    iTween.lookTo(_transform.gameObject, 0, 0, args.transform.position);
+                    iTweenOLD.lookTo(_transform.gameObject, 0, 0, args.transform.position);
                 }
                 else if (args.lookAt.HasValue)
                 {
-                    iTween.lookTo(_transform.gameObject, 0, 0, args.lookAt.Value);
+                    iTweenOLD.lookTo(_transform.gameObject, 0, 0, args.lookAt.Value);
                 }
             }
 
@@ -1508,11 +1508,11 @@ public class iTween : MonoBehaviour
 
                 if (args.transform != null)
                 {
-                    iTween.lookToUpdate(_transform.gameObject, args.transform.position, args.lookSpeed, args.axis);
+                    iTweenOLD.lookToUpdate(_transform.gameObject, args.transform.position, args.lookSpeed, args.axis);
                 }
                 else if (args.lookAt.HasValue)
                 {
-                    iTween.lookToUpdate(_transform.gameObject, args.lookAt.Value, args.lookSpeed, args.axis);
+                    iTweenOLD.lookToUpdate(_transform.gameObject, args.lookAt.Value, args.lookSpeed, args.axis);
                 }
 
                 DoUpdateCallback();
@@ -1652,11 +1652,11 @@ public class iTween : MonoBehaviour
 
                 if (args.isWorld)
                 {
-                    iTween.lookToUpdateWorld(_transform.gameObject, lookAtTarget, args.lookSpeed, args.axis);
+                    iTweenOLD.lookToUpdateWorld(_transform.gameObject, lookAtTarget, args.lookSpeed, args.axis);
                 }
                 else
                 {
-                    iTween.lookToUpdate(_transform.gameObject, lookAtTarget, args.lookSpeed, args.axis);
+                    iTweenOLD.lookToUpdate(_transform.gameObject, lookAtTarget, args.lookSpeed, args.axis);
                 }
 
                 //_transform.rotation = Quaternion.Slerp(_transform.rotation, Quaternion.LookRotation(newVector - _transform.position, Vector3.up), Time.deltaTime * moveBezierDefaultLookSpeed);
@@ -2578,7 +2578,7 @@ public class iTween : MonoBehaviour
     //Registers and preps for static to component swap:
     private static void init(GameObject target, Arguments args)
     {
-        iTween obj = (iTween)target.AddComponent(typeof(iTween));
+        iTweenOLD obj = (iTweenOLD)target.AddComponent(typeof(iTweenOLD));
         obj.args = args;
     }
 
@@ -2592,8 +2592,8 @@ public class iTween : MonoBehaviour
     /// <param name="obj">The GameObject that you want to stop all tweening on</param>
     public static void stop(GameObject obj)
     {
-        Component[] scripts = obj.GetComponents(typeof(iTween));
-        foreach (iTween tween in scripts)
+        Component[] scripts = obj.GetComponents(typeof(iTweenOLD));
+        foreach (iTweenOLD tween in scripts)
         {
             tween.StopTween();
         }
@@ -2607,9 +2607,9 @@ public class iTween : MonoBehaviour
     /// <param name="type"></param>
     public static void stopType(GameObject obj, FunctionType type)
     {
-        Component[] scripts = obj.GetComponents(typeof(iTween));
+        Component[] scripts = obj.GetComponents(typeof(iTweenOLD));
 
-        foreach (iTween tween in scripts)
+        foreach (iTweenOLD tween in scripts)
         {
             if (IsTweenSameType(type, tween.args.type))
             {
@@ -2620,13 +2620,13 @@ public class iTween : MonoBehaviour
 
 
     /// <summary>
-    /// Finds the number of iTween scripts attached to the gameobject
+    /// Finds the number of iTweenOLD scripts attached to the gameobject
     /// </summary>
-    /// <param name="obj">The GameObject that you wish to know the count of iTween scripts</param>
-    /// <returns>The number of iTween scripts attached to the given GameObject</returns>
+    /// <param name="obj">The GameObject that you wish to know the count of iTweenOLD scripts</param>
+    /// <returns>The number of iTweenOLD scripts attached to the given GameObject</returns>
     public static int tweenCount(GameObject obj)
     {
-        return obj.GetComponents(typeof(iTween)).Length;
+        return obj.GetComponents(typeof(iTweenOLD)).Length;
     }
 
 
