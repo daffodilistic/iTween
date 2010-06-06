@@ -1998,15 +1998,26 @@ private function tweenUpdate() : void{
 		
 		//move:
 		case "move":
+			print(startVector3 + " " + endVector3);
 			calculatedVector3.x = transition(startVector3.x,endVector3.x,percentage);
 			calculatedVector3.y = transition(startVector3.y,endVector3.y,percentage);
 			calculatedVector3.z = transition(startVector3.z,endVector3.z,percentage);
+			
+			if(isLocal){
+				transform.localPosition=calculatedVector3;
+			}else{
+				transform.position=calculatedVector3;	
+			}
+			
+			/*
+			//positioning utilizing Translate (found to be incorrect)
 			if(isLocal){
 				transform.Translate(calculatedVector3-prevVector3,Space.Self);
 			}else{
 				transform.Translate(calculatedVector3-prevVector3,Space.World);
 			}
 			prevVector3=calculatedVector3;
+			*/
 			
 			//handle look controls:
 			if(args.Contains("lookTarget")){
