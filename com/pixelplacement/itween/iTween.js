@@ -1034,9 +1034,9 @@ static function stopAll(type : String) : void{
 //# INTERNAL INIT UTILITY #
 //#########################
 
-static function init(target : GameObject, args :  Hashtable) : iTween{
+static function init(target : GameObject, args :  Hashtable) : void{
 	tweens.Unshift(args);
-	return(target.AddComponent("iTween"));
+	target.AddComponent("iTween");
 }
 
 //#########################################
