@@ -76,7 +76,7 @@ public class iTween : MonoBehaviour {
 	//public vars:
 	public string id, type, method;
 	public bool running, paused;
-	public static ArrayList tweens;
+	public static ArrayList tweens = new ArrayList();
 	public static Hashtable globalDefaults = new Hashtable();
 	public static Hashtable moveDefaults = new Hashtable();
 	public static Hashtable curveDefaults = new Hashtable();	
@@ -136,7 +136,9 @@ public class iTween : MonoBehaviour {
 	//# MOVE REGISTERS #
 	//##################
 	
-	static void MoveTo(GameObject target, Hashtable args){
+	public static void MoveTo(GameObject target, Hashtable args){
+		Debug.Log("MoveTo");
+		
 		args["target"]=target;
 		
 		if(!args.Contains("id")){
@@ -156,8 +158,9 @@ public class iTween : MonoBehaviour {
 	//# INTERNAL INIT UTILITY #
 	//#########################
 	
-	static void init(GameObject target , Hashtable args){
-		//tweens.Unshift(args);
+	static void init(GameObject target, Hashtable args){
+		Debug.Log("init");
+		
 		tweens.Insert(0,args);
 		target.AddComponent("iTween");
 	}
