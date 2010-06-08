@@ -3,6 +3,8 @@
 //should move defaults use orient by default - check on JS version as well??
 //took out lookDefaults - if correct needs to be done in JS version as well
 //limit what is visible in autocomplete to simplify interface usage
+//ensure JS version has corect default cameraFade object depth (.999999 insted of 999999)
+//JS version rename tween start application comment duplication
 
 /*
 iTween
@@ -37,13 +39,13 @@ using System.Collections;
 using System.Reflection;
 
 public class iTween : MonoBehaviour {	
-	public enum loopType{
+	public enum LoopType{
 		none,
 		loop,
 		pingPong
 	}
 	
-	public enum transitions{
+	public enum Transition{
 		easeInQuad,
 		easeOutQuad,
 		easeInOutQuad,
@@ -77,79 +79,62 @@ public class iTween : MonoBehaviour {
 	public string id, type, method;
 	public bool running, paused;
 	public static ArrayList tweens = new ArrayList();
-	public static Hashtable globalDefaults = new Hashtable();
-	public static Hashtable moveDefaults = new Hashtable();
-	public static Hashtable curveDefaults = new Hashtable();	
-	public static Hashtable rotateDefaults = new Hashtable();	
-	public static Hashtable shakePositionDefaults = new Hashtable();
-	public static Hashtable shakeRotationDefaults = new Hashtable();
-	public static Hashtable punchPositionDefaults = new Hashtable();
-	public static Hashtable punchRotationDefaults = new Hashtable();
-	public static Hashtable colorDefaults = new Hashtable();
-	public static Hashtable audioDefaults = new Hashtable();
-	public static Hashtable lookToUpdateDefaults = new Hashtable();
-	public static Hashtable moveToUpdateDefaults = new Hashtable();
-	public static Hashtable cameraFadeDefaults = new Hashtable();
 	public static GameObject cameraFade;
 	
-	//private vars:
-	private float time = (float)globalDefaults["time"];
-	private float delay = (float)globalDefaults["delay"];
-	private transitions transition;
-	private Hashtable args;
-	private bool kinematicToggle, isLocal, impact;
-	private float delayStartedTime, calculatedInt, runningTime, percentage, calculatedFloat, startFloat, endFloat = 0;
-	private Vector3 prevVector3, calculatedVector3, startVector3, endVector3;
-	private Vector2 calculatedVector2, startVector2, endVector2;
-	private Color calculatedColor, startColor, endColor;
-	private Rect calculatedRect, startRect, endRect;
-	private int startInt, endInt;
-	private AudioSource audioSource;
-	private Vector3[] points;
-	private BezierPointInfo[] parsedpoints;
+	//public defaults:
+	public static float defaultTime = 1;
+	public static float defaultDelay = 0;
+	public static Transition defaultTransition = Transition.easeInOutCubic;
+	public static bool defaultLocal = false;
+	public static bool moveDefaultLocal = false;
+	public static bool moveDefaultOrientToPath = false;
+	public static bool curveDefaultLocal = false;
+	public static bool curveDefaultOrientToPath = true;
+	public static bool curveDefaultClassic = false;
+	public static float curveDefaultLookSpeed = 8;
+	public static Transition curveDefaultTransition = Transition.easeInOutSine;
+	public static bool rotateDefaultLocal = true;
+	public static bool shakePositionDefaultLocal = false;
+	public static bool shakeRotationDefaultLocal = false;
+	public static bool punchPositionDefaultLocal = false;
+	public static bool punchRotationDefaultLocal = true;
+	public static Transition colorDefaultTransition = Transition.linear;
+	public static Transition audioDefaultTransition = Transition.linear;
+	public static float lookToUpdateDefaultLookSpeed = 3;	
+	public static bool moveToUpdateDefaultLocal = false;
+	public static int cameraFadeDefaultDepth = 999999;
 	
-	static iTween(){
-		globalDefaults.Add("time",1);
-		globalDefaults.Add("delay",0);
-		globalDefaults.Add("transition", transitions.easeInOutCubic);
-		globalDefaults.Add("isLocal", false);
-		moveDefaults.Add("isLocal", false);
-		moveDefaults.Add("orientToPath", true);
-		curveDefaults.Add("isLocal", false);
-		curveDefaults.Add("orientToPath", true);
-		curveDefaults.Add("classic", false);
-		curveDefaults.Add("lookSpeed", 8);
-		curveDefaults.Add("transition", transitions.easeInOutSine);
-		rotateDefaults.Add("isLocal", true);
-		shakePositionDefaults.Add("isLocal", false);
-		shakeRotationDefaults.Add("isLocal", true);
-		punchPositionDefaults.Add("isLocal", false);
-		punchRotationDefaults.Add("isLocal", true);
-		colorDefaults.Add("transition", transitions.linear);
-		audioDefaults.Add("transition", transitions.linear);
-		lookToUpdateDefaults.Add("lookSpeed", 3);
-		moveToUpdateDefaults.Add("isLocal", false);
-		cameraFadeDefaults.Add("defaultDepth", .999999);
-	}
+	//private vars:
+	float time;
+	float delay;
+	Transition transition;
+	Hashtable args;
+	bool kinematicToggle, isLocal, impact;
+	float delayStartedTime, calculatedInt, runningTime, percentage, calculatedFloat, startFloat, endFloat;
+	Vector3 prevVector3, calculatedVector3, startVector3, endVector3;
+	Vector2 calculatedVector2, startVector2, endVector2;
+	Color calculatedColor, startColor, endColor;
+	Rect calculatedRect, startRect, endRect;
+	int startInt, endInt;
+	AudioSource audioSource;
+	Vector3[] points;
+	BezierPointInfo[] parsedpoints;
 	
 	//##################
 	//# MOVE REGISTERS #
 	//##################
 	
 	public static void MoveTo(GameObject target, Hashtable args){
-		Debug.Log("MoveTo");
-		
 		args["target"]=target;
-		
+		args["type"]="move";
 		if(!args.Contains("id")){
 			args["id"]=generateID();
 		}
-		args["type"]="move";
 		if(!args.Contains("method")){
 			args["method"]="to";
 		}
 		if(!args.Contains("isLocal")){
-			args["isLocal"]=moveDefaults["isLocal"];
+			args["isLocal"]=moveDefaultLocal;
 		}
 		init(target,args);
 	}
@@ -157,10 +142,7 @@ public class iTween : MonoBehaviour {
 	//#########################
 	//# INTERNAL INIT UTILITY #
 	//#########################
-	
-	static void init(GameObject target, Hashtable args){
-		Debug.Log("init");
-		
+	static void init(GameObject target, Hashtable args){	
 		tweens.Insert(0,args);
 		target.AddComponent("iTween");
 	}
@@ -179,6 +161,48 @@ public class iTween : MonoBehaviour {
 		}
 		return randomChar;
 	}	
+	
+	//#######################################
+	//# INTERNAL ARGUMENT RETRIEVAL UTILITY #
+	//#######################################
+	
+	void retrieveArgs(){
+		for (int i = 0; i < tweens.Count; i++) {
+			Hashtable currentTween = (Hashtable)tweens[i];
+			if ((GameObject)currentTween["target"] == gameObject) {
+				args=currentTween;
+				break;
+			}
+		}
+
+		id=(string)args["id"];
+		type=(string)args["type"];
+		method=(string)args["method"];
+		
+		if(args.Contains("time")){
+			time=(float)args["time"];
+		}else{
+			time=defaultTime;
+		}
+		
+		if(args.Contains("delay")){
+			delay=(float)args["delay"];
+		}else{
+			delay=defaultDelay;
+		}
+		
+		if(args.Contains("transition")){
+			transition = (Transition)args["transition"];
+		}else{
+			transition = defaultTransition; 
+		}
+		
+		if(args.Contains("isLocal")){
+			isLocal=(bool)args["isLocal"];
+		}else{
+			isLocal=defaultLocal;	
+		}
+	}
 	
 	
 	//###########################
@@ -221,5 +245,63 @@ public class iTween : MonoBehaviour {
 			}
 			return hashTable;
 		}
+	}
+	
+	//##########################
+	//# TWEEN FROM APPLICATION #
+	//##########################
+	void tweenFrom(){
+		
+	}
+	
+	//###########################
+	//# TWEEN DELAY APPLICATION #
+	//###########################
+	
+	IEnumerator tweenDelay(){
+		delayStartedTime = Time.time;
+		yield return new WaitForSeconds (delay);
+	}
+	
+	//###########################
+	//# TWEEN START APPLICATION #
+	//###########################
+	
+	void tweenStart(){
+		callBack("onStart");
+		conflictCheck();
+		enableKinematic();
+		generateTargets();
+		running=true;
+		
+		switch (type){
+			case "stab":
+				time=audio.clip.length/audio.pitch;
+				audio.PlayOneShot(audio.clip);          
+			break;
+			case "curve":
+				if(!points){
+					points = Array(args["points"]);
+					points.Unshift(startVector3);   
+				}       
+				parsedpoints = ParsePoints(points,args["pingPonged"]);  
+			break;
+		}
+	}
+
+	
+	
+	//##############
+	//# COMPONENTS #
+	//##############
+	
+	void Awake(){
+		retrieveArgs();
+	}
+	
+	IEnumerator Start(){
+		tweenFrom();
+		yield return StartCoroutine("tweenDelay");
+		tweenStart();
 	}
 }
