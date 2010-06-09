@@ -1998,7 +1998,6 @@ private function tweenUpdate() : void{
 		
 		//move:
 		case "move":
-			print(startVector3 + " " + endVector3);
 			calculatedVector3.x = transition(startVector3.x,endVector3.x,percentage);
 			calculatedVector3.y = transition(startVector3.y,endVector3.y,percentage);
 			calculatedVector3.z = transition(startVector3.z,endVector3.z,percentage);
