@@ -639,9 +639,9 @@ static function scaleBy(target : GameObject, args : Hashtable) : void{
 	scaleTo(target,args);
 }
 
-//############################################
+//########################################
 //# LOOKUPDATE UTILITY (REPEAT CALLABLE) #
-//############################################
+//########################################
 static function lookUpdate(target: GameObject, args: Hashtable):void{
 	var startRotation : Vector3 = target.transform.eulerAngles;
 	var lookValues : Vector3;
@@ -698,9 +698,9 @@ static function lookUpdate(target: GameObject, args: Hashtable):void{
 
 static function lookToUpdate(target: GameObject, args: Hashtable):void{Debug.LogError("iTween Error: lookToUpdate() has been deprecated. Please investigate lookUpdate()!");}
 
-//############################################
+//########################################
 //# MOVEUPDATE UTILITY (REPEAT CALLABLE) #
-//############################################
+//########################################
 static function moveUpdate(target: GameObject, args: Hashtable):void{
 	var tempVelocityX : float = 0.0;
 	var tempVelocityY : float = 0.0;
