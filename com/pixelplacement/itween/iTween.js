@@ -1750,7 +1750,8 @@ private function callBack(version : String) : void{
 		}else{
 			target=gameObject;
 		}
-		//if a string wasn't passed cast it as one:
+		
+		//if a string wasn't passed for callback:
 		if(args[version].GetType() != String){
 			Debug.LogError("iTween Error: Callback method refrences must be passed as a String!");
 			Destroy (this);
