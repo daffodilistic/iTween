@@ -5,6 +5,7 @@
 //limit what is visible in autocomplete to simplify interface usage
 //ensure JS version has corect default cameraFade object depth (.999999 insted of 999999)
 //JS version rename tween start application comment duplication
+//Test everything including conflict interruption!
 
 /*
 iTween
@@ -100,8 +101,8 @@ public class iTween : MonoBehaviour {
 	public static bool punchRotationDefaultLocal = true;
 	public static Transition colorDefaultTransition = Transition.linear;
 	public static Transition audioDefaultTransition = Transition.linear;
-	public static float lookToUpdateDefaultLookSpeed = 3;	
-	public static bool moveToUpdateDefaultLocal = false;
+	public static float lookUpdateDefaultLookSpeed = 3;	
+	public static bool moveUpdateDefaultLocal = false;
 	public static int cameraFadeDefaultDepth = 999999;
 	
 	//private vars:
@@ -117,8 +118,8 @@ public class iTween : MonoBehaviour {
 	Rect calculatedRect, startRect, endRect;
 	int startInt, endInt;
 	AudioSource audioSource;
-	Vector3[] points;
-	BezierPointInfo[] parsedpoints;
+	ArrayList points;
+	ArrayList parsedpoints;
 	
 	//##################
 	//# MOVE REGISTERS #
@@ -138,6 +139,68 @@ public class iTween : MonoBehaviour {
 		}
 		init(target,args);
 	}
+	
+	//########################################
+	//# LOOKUPDATE UTILITY (REPEAT CALLABLE) #
+	//########################################
+	public static void LookUpdate(GameObject target, Hashtable args){
+		Vector3 startRotation = target.transform.eulerAngles;
+		Vector3 lookValues = new Vector3();
+		float lookSpeed;
+		object lookTarget = new object();
+		Quaternion targetRotation = new Quaternion();
+		Vector3 finalComputedAngle;
+		
+		//look for lookTarget to avoid conflicts with target argument usage and ability to reuse this for other mehtods:
+		if(args.Contains("lookTarget")){
+			lookTarget=(object)args["lookTarget"];
+		}else if(args.Contains("target")){
+			lookTarget=(object)args["target"];
+		}
+		
+		//transform or vector3?
+		if(lookTarget is Vector3){
+			lookValues = (Vector3)lookTarget;
+		}else if(lookTarget is Transform){
+			Transform transform = (Transform)lookTarget;
+			lookValues = transform.position;
+		}
+		
+		if(args.Contains("lookSpeed")){
+			lookSpeed = (float)args["lookSpeed"];
+		}else{
+			lookSpeed = lookUpdateDefaultLookSpeed;
+		}
+		
+		//Avoid "Look rotation viewing vector is zero" by ensuring we never hit a Vector3.zero (not sure what this really means but it avoids a console log and that makes me happy):
+		if(lookValues - target.transform.position != Vector3.zero){
+			targetRotation = Quaternion.LookRotation(lookValues - target.transform.position, Vector3.up);
+		}
+		target.transform.rotation = Quaternion.Slerp(target.transform.rotation,targetRotation,Time.deltaTime*lookSpeed);
+		//axis restriction:
+		if(args.Contains("axis")){
+			finalComputedAngle = target.transform.eulerAngles;
+			switch((string)args["axis"]){
+				case "x":
+					finalComputedAngle.y=startRotation.y;
+					finalComputedAngle.z=startRotation.z;
+				break;
+				
+				case "y":
+					finalComputedAngle.x=startRotation.x;
+					finalComputedAngle.z=startRotation.z;
+				break;
+				
+				case "z":
+					finalComputedAngle.x=startRotation.x;
+					finalComputedAngle.y=startRotation.y;
+				break;
+			}
+			target.transform.eulerAngles = finalComputedAngle;
+		}
+	}
+	
+	void lookToUpdate(GameObject target, Hashtable args){Debug.LogError("iTween Error: lookToUpdate() has been deprecated. Please investigate LookUpdate()!");}	
 	
 	//#########################
 	//# INTERNAL INIT UTILITY #
@@ -204,6 +267,164 @@ public class iTween : MonoBehaviour {
 		}
 	}
 	
+	//########################################
+	//# INTERNAL CONFLICT RESOLUTION UTILITY #
+	//########################################
+	
+	void conflictCheck(){	
+		iTween[] tweens = GetComponents<iTween>();
+		foreach (iTween tween in tweens) {
+			if(tween.running && tween.type==type){
+				switch (type){
+					//exception for types that have "sub" methods, given the extreme method differences and lack of argumentative transform modifications per method:
+					case "value":
+					case "punch":
+					case "shake":
+						if(tween.method == method){
+							tween.tweenDispose();
+						}
+					break;
+	                                
+					case "audio":
+						if(tween.audioSource == audioSource){
+							tween.tweenDispose();
+						}
+					break;
+	                                
+					default:
+						tween.tweenDispose();
+					break;
+				}
+			}
+		}
+	}
+	
+	//#############################
+	//# TWEEN DISPOSE APPLICATION #
+	//#############################
+	
+	public void tweenDispose(){
+		for (int i = 0; i < tweens.Count; i++) {
+			Hashtable currentTween = (Hashtable)tweens[i];
+			if((string)currentTween["id"] == id){
+				tweens.RemoveAt(i);
+				break;
+			}
+		}
+		Destroy(this);
+	}
+	
+	//#####################################
+	//# INTERNAL KINEMATIC ENABLE UTILITY #
+	//#####################################
+	
+	void enableKinematic(){
+		if(gameObject.GetComponent<Rigidbody>() != null){
+			if(!rigidbody.isKinematic){
+				kinematicToggle=true;
+				rigidbody.isKinematic=true;
+			}
+		}
+	}
+	
+	//######################################
+	//# INTERNAL KINEMATIC DISABLE UTILITY #
+	//######################################
+	
+	void disableKinematic(){
+		if(kinematicToggle){
+			rigidbody.isKinematic=false;
+		}
+	}
+	
+	//#############################
+	//# INTERNAL CALLBACK UTILITY #
+	//#############################
+	
+	void callBack(string version){
+		if(args.Contains(version) && !args.Contains("isChild")){
+			GameObject target;
+			if(args.Contains(version+"Target")){
+				target=(GameObject)args[version+"Target"];
+			}else{
+				target=gameObject;
+			}
+			
+			if(args[version] is string){
+				Debug.LogError("iTween Error: Callback method refrences must be passed as a String!");
+				Destroy (this);
+			}else{
+				target.SendMessage((string)args[version],args[version+"Params"],SendMessageOptions.DontRequireReceiver);
+			}
+		}       
+	}
+	
+	//######################################
+	//# INTERNAL TARGET GENERATION UTILITY #
+	//######################################
+	void generateTargets(){
+		switch (type){
+			//move:
+			case "move":
+				//set foundation values:
+				if(isLocal){
+					startVector3=transform.localPosition;
+				}else{
+					startVector3=transform.position;
+				}
+				endVector3=startVector3;
+				prevVector3=startVector3;
+                                        
+				//set augmented values:
+				switch (method){
+					case "to":
+						if(args.Contains("position")){
+							endVector3 = (Vector3)args["position"];
+						}else{
+						if(args.Contains("x")){
+							endVector3.x=(float)args["x"];
+						}
+						if(args.Contains("y")){
+							endVector3.y=(float)args["y"];
+						}
+						if(args.Contains("z")){
+							endVector3.z=(float)args["z"];
+						}
+					}
+					break;                  
+
+					case "add":
+						if(args.Contains("amount")){
+							calculatedVector3 = (Vector3)args["amount"];
+							endVector3 += calculatedVector3;
+						}else{
+							if(args.Contains("x")){
+								calculatedFloat = (float)args["x"];
+								endVector3.x+=calculatedFloat;
+							}
+							if(args.Contains("y")){
+								calculatedFloat = (float)args["y"];
+								endVector3.y+=calculatedFloat;
+							}
+							if(args.Contains("z")){
+								calculatedFloat = (float)args["z"];
+								endVector3.z+=calculatedFloat;
+							}
+						}
+					break;
+				}
+                        
+				//handle orient to path:
+				if(args.Contains("orientToPath")){
+					if((bool)args["orientToPath"] && !args.Contains("lookTarget")){
+						args["lookTarget"]=endVector3;
+						iTween.LookUpdate(gameObject,args);
+					}
+				}
+				
+			break;
+		}
+	}	
 	
 	//###########################
 	//# BEZIER POINT INFO CLASS #
@@ -211,6 +432,44 @@ public class iTween : MonoBehaviour {
 	private class BezierPointInfo{
 		public Vector3 starting, intermediate, end;
 	}
+	
+	//########################
+	//# BEZIER PARSE UTILITY #
+	//########################
+	ArrayList ParsePoints(ArrayList points, bool wasPingPong){
+		ArrayList returnPoints = new ArrayList();
+		
+		if(wasPingPong){
+			points.RemoveAt(0);
+		}
+			
+		if (points.Count > 2){
+			int iCurPoint;
+			
+			for (iCurPoint = 0; iCurPoint < points.Count - 1; iCurPoint++){
+				Vector3 curPoint = (Vector3)points[iCurPoint];
+				BezierPointInfo curSetofPoints = new BezierPointInfo();
+				curSetofPoints.starting = curPoint;
+				if (iCurPoint == 0){
+					Vector3 p1 = (Vector3)points[1];
+					Vector3 p2 = (Vector3)points[2];
+					curSetofPoints.intermediate = p1 - ((p2 - curPoint) / 4);					
+				}else{
+					BezierPointInfo bpiint = (BezierPointInfo)returnPoints[iCurPoint - 1];
+					curSetofPoints.intermediate = 2 * curPoint - bpiint.intermediate;
+				}
+				curSetofPoints.end = (Vector3)points[iCurPoint + 1];
+				returnPoints.Add(curSetofPoints);
+			}
+		}else{
+			BezierPointInfo curSetofPoints2 = new BezierPointInfo();
+			curSetofPoints2.starting = (Vector3)points[0];
+			curSetofPoints2.end = (Vector3)points[1];
+			curSetofPoints2.intermediate = ((curSetofPoints2.starting + curSetofPoints2.end) / 2);
+			returnPoints.Add(curSetofPoints2);
+		}
+		return returnPoints;
+	}	
 	
 	//##################################
 	//# INTERNAL HASH CREATION UTILITY #
@@ -280,11 +539,11 @@ public class iTween : MonoBehaviour {
 				audio.PlayOneShot(audio.clip);          
 			break;
 			case "curve":
-				if(!points){
-					points = Array(args["points"]);
-					points.Unshift(startVector3);   
+				if(points.Count == 0){
+					points = (ArrayList)args["points"];
+					points.Insert(0,startVector3);
 				}       
-				parsedpoints = ParsePoints(points,args["pingPonged"]);  
+				parsedpoints = ParsePoints(points,(bool)args["pingPonged"]);  
 			break;
 		}
 	}
