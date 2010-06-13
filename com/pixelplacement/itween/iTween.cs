@@ -9,7 +9,7 @@ using UnityEngine;
 /// <para>Support: http://itween.pixelplacement.com</para>
 /// </summary>
 public class iTween : MonoBehaviour{	
-	public static ArrayList tweens;
+	public static ArrayList tweens = new ArrayList();
 	
 	//status members (for visual troubleshooting in the inspector):
 	public string id;
@@ -17,8 +17,14 @@ public class iTween : MonoBehaviour{
 	public string method;
 	public LoopType loopType;
 	public bool running;
-	public bool paused;		
+	public bool paused;
 	
+	//private members:
+	Hashtable tweenArguments;
+	float time, delay;
+	iTween.EaseType easeType;
+	Space space;
+
 	/// <summary>
 	/// The type of easing to use based on Robert Penner's open source easing equations (http://www.robertpenner.com/easing_terms_of_use.html).
 	/// </summary>
@@ -141,6 +147,88 @@ public class iTween : MonoBehaviour{
 		}		
 	}
 	
+	static void Init(GameObject target, Hashtable args){
+		tweens.Insert(0,args);
+		target.AddComponent("iTween");
+	}
+	
+	static string GenerateID(){
+		int strlen = 15;
+		char[] chars = {'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z','0','1','2','3','4','5','6','7','8'};
+		int num_chars = chars.Length - 1;
+		string randomChar = "";
+		for (int i = 0; i < strlen; i++) {
+			randomChar += chars[(int)Mathf.Floor(Random.Range(0,num_chars))];
+		}
+		return randomChar;
+	}
+		
+	public static void MoveTo(GameObject target, Hashtable args){
+		CleanArgs(args);
+		if(!args.Contains("id")){
+			args["id"] = GenerateID();
+		}
+		if(!args.Contains("target")){
+			args["target"] = target;
+		}
+		if(!args.Contains("type")){
+			args["type"]="move";
+		}
+		if(!args.Contains("space")){
+			args["space"]=Defaults.moveSpace;
+		}
+		args["method"]="to";
+		Init(target,args);
+	}
+	
+	void RetrieveArgs(){
+		foreach (Hashtable item in tweens) {
+			if((GameObject)item["target"] == gameObject){
+				tweenArguments=item;
+			}
+		}
+		
+		id=(string)tweenArguments["id"];
+		type=(string)tweenArguments["type"];
+		method=(string)tweenArguments["method"];
+		
+		if(tweenArguments.Contains("loopType")){
+			loopType=(LoopType)tweenArguments["loopType"];
+		}else{
+			loopType = iTween.LoopType.none;	
+		}
+               
+		if(tweenArguments.Contains("time")){
+			time=(float)tweenArguments["time"];
+		}else{
+			time=Defaults.time;
+		}
+               
+		if(tweenArguments.Contains("delay")){
+			delay=(float)tweenArguments["delay"];
+		}else{
+			delay=Defaults.delay;
+		}
+         
+		if(tweenArguments.Contains("easeType")){
+			easeType=(EaseType)tweenArguments["easeType"];
+		}else{
+			easeType=Defaults.easeType;
+		}
+		
+		if(tweenArguments.Contains("space")){
+			space = (Space)tweenArguments["space"];
+		}else{
+			space = Defaults.moveSpace;
+		}
+
+	}
+	
+	void Awake(){
+		RetrieveArgs();
+	}
+}
+
 	/*
 	public static Hashtable Hash(params object[] args){
 		Hashtable hashTable = new Hashtable(args.Length/2);
@@ -157,12 +245,3 @@ public class iTween : MonoBehaviour{
 		}
 	}
 	*/
-			
-	//hash interface:
-	public static void MoveTo(GameObject target, Hashtable args){
-		CleanArgs(args);
-	}
-	
-	
-	//GUIOptions method:
-}
