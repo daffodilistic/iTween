@@ -134,14 +134,15 @@ public class iTween : MonoBehaviour{
 		
 		foreach (DictionaryEntry item in argsCopy) {
 			if(item.Value.GetType() == typeof(System.Int32)){
-				int tempPull = (int)item.Value;
-				float tempCast = (float)tempPull;
+				int original = (int)item.Value;
+				float casted = (float)original;
+				args[item.Key] = casted;
 			}
 		}		
 	}
 	
+	/*
 	public static Hashtable Hash(params object[] args){
-		/*
 		Hashtable hashTable = new Hashtable(args.Length/2);
 		if (args.Length %2 != 0) {
 			Debug.LogError("Tween Error: Hash requires an even number of arguments!"); 
@@ -154,8 +155,8 @@ public class iTween : MonoBehaviour{
 			}
 			return hashTable;
 		}
-		*/
 	}
+	*/
 			
 	//hash interface:
 	public static void MoveTo(GameObject target, Hashtable args){
