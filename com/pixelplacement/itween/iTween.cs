@@ -8,22 +8,21 @@ using UnityEngine;
 /// <para>Contributors: Patrick Corkum (http://insquare.com)</para>
 /// <para>Support: http://itween.pixelplacement.com</para>
 /// </summary>
-public class iTween : MonoBehaviour{	
+public class iTween : MonoBehaviour{
+	//repository of all living iTweens:
 	public static ArrayList tweens = new ArrayList();
 	
-	//status members (for visual troubleshooting in the inspector):
-	public string id;
-	public string type;
-	public string method;
+	//status members (made public for visual troubleshooting in the inspector):
+	public string id, type, method;
+	public float time, delay;
 	public LoopType loopType;
-	public bool running;
-	public bool paused;
+	public bool running,paused;
 	
-	//private members:
-	Hashtable tweenArguments;
-	float time, delay;
-	iTween.EaseType easeType;
-	Space space;
+	//private members (made protected to silence Unity's occasionally annoying warnings):
+ 	protected float delayStarted;
+	protected Hashtable tweenArguments;
+	protected iTween.EaseType easeType;
+	protected Space space;
 
 	/// <summary>
 	/// The type of easing to use based on Robert Penner's open source easing equations (http://www.robertpenner.com/easing_terms_of_use.html).
@@ -187,11 +186,11 @@ public class iTween : MonoBehaviour{
 				tweenArguments=item;
 			}
 		}
-		
+
 		id=(string)tweenArguments["id"];
 		type=(string)tweenArguments["type"];
 		method=(string)tweenArguments["method"];
-		
+
 		if(tweenArguments.Contains("loopType")){
 			loopType=(LoopType)tweenArguments["loopType"];
 		}else{
@@ -221,11 +220,21 @@ public class iTween : MonoBehaviour{
 		}else{
 			space = Defaults.moveSpace;
 		}
-
 	}
 	
+	IEnumerator TweenDelay(){
+		delayStarted = Time.time;
+		yield return new WaitForSeconds (delay);
+	}
+		
 	void Awake(){
 		RetrieveArgs();
+	}
+	
+	IEnumerator Start(){
+		if(delay > 0){
+			yield return StartCoroutine("TweenDelay");
+		}
 	}
 }
 
