@@ -1,6 +1,8 @@
+#region Namespaces
 using System.Collections;
 using System.Reflection;
 using UnityEngine;
+#endregion
 
 /// <summary>
 /// <para>Version: 2.0.0</para>
@@ -8,7 +10,10 @@ using UnityEngine;
 /// <para>Contributors: Patrick Corkum (http://insquare.com)</para>
 /// <para>Support: http://itween.pixelplacement.com</para>
 /// </summary>
+/// 
 public class iTween : MonoBehaviour{
+	
+#region Variables
 	//repository of all living iTweens:
 	public static ArrayList tweens = new ArrayList();
 	
@@ -19,11 +24,14 @@ public class iTween : MonoBehaviour{
 	public bool running,paused;
 	
 	//private members (made protected to silence Unity's occasionally annoying warnings):
- 	protected float delayStarted;
+ 	protected float delayStarted, percentage, runningTime;
+	protected bool kinematic;
 	protected Hashtable tweenArguments;
 	protected iTween.EaseType easeType;
 	protected Space space;
-
+	delegate float EasingFunctionDelegate(float start, float end, float value);
+	EasingFunctionDelegate ease;
+	
 	/// <summary>
 	/// The type of easing to use based on Robert Penner's open source easing equations (http://www.robertpenner.com/easing_terms_of_use.html).
 	/// </summary>
@@ -88,7 +96,9 @@ public class iTween : MonoBehaviour{
 		/// </summary>
 		hermite
 	}
+#endregion
 	
+#region Defaults
 	/// <summary>
 	/// A collection of baseline presets that iTween needs and utilizes if certain parameters are not provided. 
 	/// </summary>
@@ -128,8 +138,10 @@ public class iTween : MonoBehaviour{
 		//cameraFade defaults:
 		public static int cameraFadeDepth = 999999;
 	}
+#endregion
 	
-	//ensure all property values are floats:
+#region Internal Utilities
+	//cast any accidentally supplied doubles as floats as iTween only uses floats internally:
 	static void CleanArgs(Hashtable args){
 		Hashtable argsCopy = new Hashtable(args.Count);
 		
@@ -144,13 +156,9 @@ public class iTween : MonoBehaviour{
 				args[item.Key] = casted;
 			}
 		}		
-	}
+	}	
 	
-	static void Init(GameObject target, Hashtable args){
-		tweens.Insert(0,args);
-		target.AddComponent("iTween");
-	}
-	
+	//random ID generator:
 	static string GenerateID(){
 		int strlen = 15;
 		char[] chars = {'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z','0','1','2','3','4','5','6','7','8'};
@@ -160,26 +168,9 @@ public class iTween : MonoBehaviour{
 			randomChar += chars[(int)Mathf.Floor(Random.Range(0,num_chars))];
 		}
 		return randomChar;
-	}
-		
-	public static void MoveTo(GameObject target, Hashtable args){
-		CleanArgs(args);
-		if(!args.Contains("id")){
-			args["id"] = GenerateID();
-		}
-		if(!args.Contains("target")){
-			args["target"] = target;
-		}
-		if(!args.Contains("type")){
-			args["type"]="move";
-		}
-		if(!args.Contains("space")){
-			args["space"]=Defaults.moveSpace;
-		}
-		args["method"]="to";
-		Init(target,args);
-	}
+	}	
 	
+	//grab and set generic, neccesary iTween arguments:
 	void RetrieveArgs(){
 		foreach (Hashtable item in tweens) {
 			if((GameObject)item["target"] == gameObject){
@@ -214,30 +205,117 @@ public class iTween : MonoBehaviour{
 		}else{
 			easeType=Defaults.easeType;
 		}
+		GetEasingFunction();
 		
 		if(tweenArguments.Contains("space")){
 			space = (Space)tweenArguments["space"];
 		}else{
 			space = Defaults.moveSpace;
 		}
-	}
+	}	
 	
-	IEnumerator TweenDelay(){
-		delayStarted = Time.time;
-		yield return new WaitForSeconds (delay);
-	}
-		
-	void Awake(){
-		RetrieveArgs();
-	}
-	
-	IEnumerator Start(){
-		if(delay > 0){
-			yield return StartCoroutine("TweenDelay");
+	//catalog new tween and add component phase of iTween:
+	static void Init(GameObject target, Hashtable args){
+		tweens.Insert(0,args);
+		target.AddComponent("iTween");
+	}	
+
+	//factory to instantiate cached refrence to easing equation:
+	void GetEasingFunction(){
+		switch (easeType){
+			case EaseType.easeInQuad:
+				ease  = new EasingFunctionDelegate(easeInQuad);
+				break;
+			case EaseType.easeOutQuad:
+				ease = new EasingFunctionDelegate(easeOutQuad);
+				break;
+			case EaseType.easeInOutQuad:
+				ease = new EasingFunctionDelegate(easeInOutQuad);
+				break;
+			case EaseType.easeInCubic:
+				ease = new EasingFunctionDelegate(easeInCubic);
+				break;
+			case EaseType.easeOutCubic:
+				ease = new EasingFunctionDelegate(easeOutCubic);
+				break;
+			case EaseType.easeInOutCubic:
+				ease = new EasingFunctionDelegate(easeInOutCubic);
+				break;
+			case EaseType.easeInQuart:
+				ease = new EasingFunctionDelegate(easeInQuart);
+				break;
+			case EaseType.easeOutQuart:
+				ease = new EasingFunctionDelegate(easeOutQuart);
+				break;
+			case EaseType.easeInOutQuart:
+				ease = new EasingFunctionDelegate(easeInOutQuart);
+				break;
+			case EaseType.easeInQuint:
+				ease = new EasingFunctionDelegate(easeInQuint);
+				break;
+			case EaseType.easeOutQuint:
+				ease = new EasingFunctionDelegate(easeOutQuint);
+				break;
+			case EaseType.easeInOutQuint:
+				ease = new EasingFunctionDelegate(easeInOutQuint);
+				break;
+			case EaseType.easeInSine:
+				ease = new EasingFunctionDelegate(easeInSine);
+				break;
+			case EaseType.easeOutSine:
+				ease = new EasingFunctionDelegate(easeOutSine);
+				break;
+			case EaseType.easeInOutSine:
+				ease = new EasingFunctionDelegate(easeInOutSine);
+				break;
+			case EaseType.easeInExpo:
+				ease = new EasingFunctionDelegate(easeInExpo);
+				break;
+			case EaseType.easeOutExpo:
+				ease = new EasingFunctionDelegate(easeOutExpo);
+				break;
+			case EaseType.easeInOutExpo:
+				ease = new EasingFunctionDelegate(easeInOutExpo);
+				break;
+			case EaseType.easeInCirc:
+				ease = new EasingFunctionDelegate(easeInCirc);
+				break;
+			case EaseType.easeOutCirc:
+				ease = new EasingFunctionDelegate(easeOutCirc);
+				break;
+			case EaseType.easeInOutCirc:
+				ease = new EasingFunctionDelegate(easeInOutCirc);
+				break;
+			case EaseType.linear:
+				ease = new EasingFunctionDelegate(linear);
+				break;
+			case EaseType.spring:
+				ease = new EasingFunctionDelegate(spring);
+				break;
+			case EaseType.bounce:
+				ease = new EasingFunctionDelegate(bounce);
+				break;
+			case EaseType.easeInBack:
+				ease = new EasingFunctionDelegate(easeInBack);
+				break;
+			case EaseType.easeOutBack:
+				ease = new EasingFunctionDelegate(easeOutBack);
+				break;
+			case EaseType.easeInOutBack:
+				ease = new EasingFunctionDelegate(easeInOutBack);
+				break;
+			default:
+				return;
 		}
 	}
-}
-
+	
+	void UpdatePercentage(){
+		runningTime+=Time.deltaTime;
+		percentage=runningTime/time;
+	}
+#endregion
+	
+#region External Utilities
 	/*
 	public static Hashtable Hash(params object[] args){
 		Hashtable hashTable = new Hashtable(args.Length/2);
@@ -253,4 +331,302 @@ public class iTween : MonoBehaviour{
 			return hashTable;
 		}
 	}
-	*/
+	*/	
+#endregion
+		
+#region Static Registers	
+	public static void MoveTo(GameObject target, Hashtable args){
+		CleanArgs(args);
+		if(!args.Contains("id")){
+			args["id"] = GenerateID();
+		}
+		if(!args.Contains("target")){
+			args["target"] = target;
+		}
+		if(!args.Contains("type")){
+			args["type"]="move";
+		}
+		if(!args.Contains("space")){
+			args["space"]=Defaults.moveSpace;
+		}
+		args["method"]="to";
+		Init(target,args);
+	}
+#endregion
+	
+#region Application Segments
+	void TweenFrom(){
+		
+	}
+	
+	IEnumerator TweenDelay(){
+		delayStarted = Time.time;
+		yield return new WaitForSeconds (delay);
+	}	
+	
+	void TweenStart(){
+		//fire start callback
+		//handle destruction of running duplicate types
+		//handle kinematic toggle
+		//generate current state values
+		//run stab
+		//setup curve crap?
+		running = true;
+	}
+	
+	void TweenUpdate(){
+		//fire update callback
+		
+		Vector3 ass = transform.position; //sample
+		ass.x = ease(0,3,percentage); //sample
+		transform.position = ass; //sample
+		
+		UpdatePercentage();		
+	}
+	
+	void TweenLoop(){
+		
+	}
+	
+	void TweenComplete(){
+		//fire complete callback
+	}
+#endregion
+
+#region Component Segments
+	void Awake(){
+		RetrieveArgs();
+	}
+	
+	IEnumerator Start(){
+		if(delay > 0){
+			yield return StartCoroutine("TweenDelay");
+		}
+		TweenStart();
+	}	
+	
+	void Update(){
+		if(running){
+			if(percentage<1f){
+				TweenUpdate();
+			}else{
+				running=false;
+				TweenComplete();
+			}
+		}
+	}
+	
+#endregion
+	
+#region Easing Curves
+	private float linear(float start, float end, float value){
+		return Mathf.Lerp(start, end, value);
+	}
+	
+	private float clerp(float start, float end, float value){
+		float min = 0.0f;
+		float max = 360.0f;
+		float half = Mathf.Abs((max - min) / 2.0f);
+		float retval = 0.0f;
+		float diff = 0.0f;
+		if ((end - start) < -half){
+			diff = ((max - start) + end) * value;
+			retval = start + diff;
+		}else if ((end - start) > half){
+			diff = -((max - end) + start) * value;
+			retval = start + diff;
+		}else retval = start + (end - start) * value;
+		return retval;
+    }
+
+	private float spring(float start, float end, float value){
+		value = Mathf.Clamp01(value);
+		value = (Mathf.Sin(value * Mathf.PI * (0.2f + 2.5f * value * value * value)) * Mathf.Pow(1f - value, 2.2f) + value) * (1f + (1.2f * (1f - value)));
+		return start + (end - start) * value;
+	}
+
+	private float easeInQuad(float start, float end, float value){
+		end -= start;
+		return end * value * value + start;
+	}
+
+	private float easeOutQuad(float start, float end, float value){
+		end -= start;
+		return -end * value * (value - 2) + start;
+	}
+
+	private float easeInOutQuad(float start, float end, float value){
+		value /= .5f;
+		end -= start;
+		if (value < 1) return end / 2 * value * value + start;
+		value--;
+		return -end / 2 * (value * (value - 2) - 1) + start;
+	}
+
+	private float easeInCubic(float start, float end, float value){
+		end -= start;
+		return end * value * value * value + start;
+	}
+
+	private float easeOutCubic(float start, float end, float value){
+		value--;
+		end -= start;
+		return end * (value * value * value + 1) + start;
+	}
+
+	private float easeInOutCubic(float start, float end, float value){
+		value /= .5f;
+		end -= start;
+		if (value < 1) return end / 2 * value * value * value + start;
+		value -= 2;
+		return end / 2 * (value * value * value + 2) + start;
+	}
+
+	private float easeInQuart(float start, float end, float value){
+		end -= start;
+		return end * value * value * value * value + start;
+	}
+
+	private float easeOutQuart(float start, float end, float value){
+		value--;
+		end -= start;
+		return -end * (value * value * value * value - 1) + start;
+	}
+
+	private float easeInOutQuart(float start, float end, float value){
+		value /= .5f;
+		end -= start;
+		if (value < 1) return end / 2 * value * value * value * value + start;
+		value -= 2;
+		return -end / 2 * (value * value * value * value - 2) + start;
+	}
+
+	private float easeInQuint(float start, float end, float value){
+		end -= start;
+		return end * value * value * value * value * value + start;
+	}
+
+	private float easeOutQuint(float start, float end, float value){
+		value--;
+		end -= start;
+		return end * (value * value * value * value * value + 1) + start;
+	}
+
+	private float easeInOutQuint(float start, float end, float value){
+		value /= .5f;
+		end -= start;
+		if (value < 1) return end / 2 * value * value * value * value * value + start;
+		value -= 2;
+		return end / 2 * (value * value * value * value * value + 2) + start;
+	}
+
+	private float easeInSine(float start, float end, float value){
+		end -= start;
+		return -end * Mathf.Cos(value / 1 * (Mathf.PI / 2)) + end + start;
+	}
+
+	private float easeOutSine(float start, float end, float value){
+		end -= start;
+		return end * Mathf.Sin(value / 1 * (Mathf.PI / 2)) + start;
+	}
+
+	private float easeInOutSine(float start, float end, float value){
+		end -= start;
+		return -end / 2 * (Mathf.Cos(Mathf.PI * value / 1) - 1) + start;
+	}
+
+	private float easeInExpo(float start, float end, float value){
+		end -= start;
+		return end * Mathf.Pow(2, 10 * (value / 1 - 1)) + start;
+	}
+
+	private float easeOutExpo(float start, float end, float value){
+		end -= start;
+		return end * (-Mathf.Pow(2, -10 * value / 1) + 1) + start;
+	}
+
+	private float easeInOutExpo(float start, float end, float value){
+		value /= .5f;
+		end -= start;
+		if (value < 1) return end / 2 * Mathf.Pow(2, 10 * (value - 1)) + start;
+		value--;
+		return end / 2 * (-Mathf.Pow(2, -10 * value) + 2) + start;
+	}
+
+	private float easeInCirc(float start, float end, float value){
+		end -= start;
+		return -end * (Mathf.Sqrt(1 - value * value) - 1) + start;
+	}
+
+	private float easeOutCirc(float start, float end, float value){
+		value--;
+		end -= start;
+		return end * Mathf.Sqrt(1 - value * value) + start;
+	}
+
+	private float easeInOutCirc(float start, float end, float value){
+		value /= .5f;
+		end -= start;
+		if (value < 1) return -end / 2 * (Mathf.Sqrt(1 - value * value) - 1) + start;
+		value -= 2;
+		return end / 2 * (Mathf.Sqrt(1 - value * value) + 1) + start;
+	}
+
+	private float bounce(float start, float end, float value){
+		value /= 1f;
+		end -= start;
+		if (value < (1 / 2.75f)){
+			return end * (7.5625f * value * value) + start;
+		}else if (value < (2 / 2.75f)){
+			value -= (1.5f / 2.75f);
+			return end * (7.5625f * (value) * value + .75f) + start;
+		}else if (value < (2.5 / 2.75)){
+			value -= (2.25f / 2.75f);
+			return end * (7.5625f * (value) * value + .9375f) + start;
+		}else{
+			value -= (2.625f / 2.75f);
+			return end * (7.5625f * (value) * value + .984375f) + start;
+		}
+	}
+
+	private float easeInBack(float start, float end, float value){
+		end -= start;
+		value /= 1;
+		float s = 1.70158f;
+		return end * (value) * value * ((s + 1) * value - s) + start;
+	}
+
+	private float easeOutBack(float start, float end, float value){
+		float s = 1.70158f;
+		end -= start;
+		value = (value / 1) - 1;
+		return end * ((value) * value * ((s + 1) * value + s) + 1) + start;
+	}
+
+	private float easeInOutBack(float start, float end, float value){
+		float s = 1.70158f;
+		end -= start;
+		value /= .5f;
+		if ((value) < 1){
+			s *= (1.525f);
+			return end / 2 * (value * value * (((s) + 1) * value - s)) + start;
+		}
+		value -= 2;
+		s *= (1.525f);
+		return end / 2 * ((value) * value * (((s) + 1) * value + s) + 2) + start;
+	}
+
+	private float punch(float amplitude, float value){
+		float s = 9;
+		if (value == 0){
+			return 0;
+		}
+		if (value == 1){
+			return 0;
+		}
+		float period = 1 * 0.3f;
+		s = period / (2 * Mathf.PI) * Mathf.Asin(0);
+		return (amplitude * Mathf.Pow(2, -10 * value) * Mathf.Sin((value * 1 - s) * (2 * Mathf.PI) / period));
+    }
+#endregion	
+}
