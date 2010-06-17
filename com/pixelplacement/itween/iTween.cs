@@ -383,51 +383,55 @@ public class iTween : MonoBehaviour{
 	
 #region Set Methods	
 	void GenerateMovetargets(){
-		//start values:
-		vector3s=new Vector3[4];	//[0] from, [1] to, [2] calculated value from ease equation, [3] previous value for Translate usage to allow Space utilization
-		if (space==Space.World) {
-			vector3s[0]=vector3s[1]=vector3s[3]=transform.position;				
+		if(percentage==1 && method=="from"){//if method is "from" and from has already been applied shuffle from and to values and reset percentage to 0:
+			vector3s[1]=vector3s[0];
+			vector3s[0]=vector3s[3];
+			percentage=0;
 		}else{
-			vector3s[0]=vector3s[1]=vector3s[3]=transform.localPosition;
-		}
-		
-		//end values:
-		switch (method) {
-		case "from":
-		case "to":
-			if (tweenArguments.Contains("position")) {
-				vector3s[1]=(Vector3)tweenArguments["position"];
+			//start values:
+			vector3s=new Vector3[4];	//[0] from, [1] to, [2] calculated value from ease equation, [3] previous value for Translate usage to allow Space utilization
+			if (space==Space.World) {
+				vector3s[0]=vector3s[1]=vector3s[3]=transform.position;				
 			}else{
-				if (tweenArguments.Contains("x")) {
-					vector3s[1].x=(float)tweenArguments["x"];
-				}
-				if (tweenArguments.Contains("y")) {
-					vector3s[1].y=(float)tweenArguments["y"];
-				}
-				if (tweenArguments.Contains("z")) {
-					vector3s[1].z=(float)tweenArguments["z"];
-				}
-			}	
-
-			break;
-		
-		case "by":
-		case "add":
-			if (tweenArguments.Contains("amount")) {
-				vector3s[1]+=(Vector3)tweenArguments["amount"];
-			}else{
-				if (tweenArguments.Contains("x")) {
-					vector3s[1].x+=(float)tweenArguments["x"];
-				}
-				if (tweenArguments.Contains("y")) {
-					vector3s[1].y+=(float)tweenArguments["y"];
-				}
-				if (tweenArguments.Contains("z")) {
-					vector3s[1].z+=(float)tweenArguments["z"];
-				}
+				vector3s[0]=vector3s[1]=vector3s[3]=transform.localPosition;
 			}
-			break;
-		}	
+			
+			//end values:
+			switch (method) {
+			case "from":
+			case "to":
+				if (tweenArguments.Contains("position")) {
+					vector3s[1]=(Vector3)tweenArguments["position"];
+				}else{
+					if (tweenArguments.Contains("x")) {
+						vector3s[1].x=(float)tweenArguments["x"];
+					}
+					if (tweenArguments.Contains("y")) {
+						vector3s[1].y=(float)tweenArguments["y"];
+					}
+					if (tweenArguments.Contains("z")) {
+						vector3s[1].z=(float)tweenArguments["z"];
+					}
+				}	
+				break;
+			case "by":
+			case "add":
+				if (tweenArguments.Contains("amount")) {
+					vector3s[1]+=(Vector3)tweenArguments["amount"];
+				}else{
+					if (tweenArguments.Contains("x")) {
+						vector3s[1].x+=(float)tweenArguments["x"];
+					}
+					if (tweenArguments.Contains("y")) {
+						vector3s[1].y+=(float)tweenArguments["y"];
+					}
+					if (tweenArguments.Contains("z")) {
+						vector3s[1].z+=(float)tweenArguments["z"];
+					}
+				}
+				break;
+			}				
+		}
 	}	
 #endregion
 	
@@ -501,8 +505,6 @@ public class iTween : MonoBehaviour{
 		GenerateTargets();
 		percentage=1;
 		apply();
-		percentage=0;
-		method="to";
 	}
 	
 	IEnumerator TweenDelay(){
@@ -536,6 +538,10 @@ public class iTween : MonoBehaviour{
 		isRunning=false;
 		percentage=1;
         apply();
+		print("temp test for loop method will need delay reapplication");
+		percentage=0;
+		runningTime=0;
+		isRunning=true;
 	}
 #endregion
 
