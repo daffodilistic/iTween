@@ -1,11 +1,12 @@
 #region Namespaces
+using System;
 using System.Collections;
 using System.Reflection;
 using UnityEngine;
 #endregion
 
 /// <summary>
-/// <para>Version: 2.0.0</para>
+/// <para>Version: 2.0.0</para>	 
 /// <para>Author: Bob Berkebile (http://pixelplacement.com)</para>
 /// <para>Contributors: Patrick Corkum (http://insquare.com)</para>
 /// <para>Support: http://itween.pixelplacement.com</para>
@@ -21,16 +22,26 @@ public class iTween : MonoBehaviour{
 	public string id, type, method;
 	public float time, delay;
 	public LoopType loopType;
-	public bool running,paused;
+	public bool isRunning,isPaused;
 	
-	//private members (made protected to silence Unity's occasionally annoying warnings):
- 	protected float delayStarted, percentage, runningTime;
-	protected bool kinematic;
-	protected Hashtable tweenArguments;
-	protected iTween.EaseType easeType;
-	protected Space space;
-	delegate float EasingFunctionDelegate(float start, float end, float value);
-	EasingFunctionDelegate ease;
+	//private members:
+ 	private float percentage, runningTime;
+	protected float delayStarted; //probably not neccesary that this be protected but it shuts Unity's compiler up about this being "never used"
+	private bool kinematic;
+	private Hashtable tweenArguments;
+	private iTween.EaseType easeType;
+	private Space space;
+	private delegate float EasingFunctionDelegate(float start, float end, float value);
+	private delegate void ApplyTweenDelegate();
+	private EasingFunctionDelegate ease;
+	private ApplyTweenDelegate apply;
+	private AudioSource audioSource;
+	private Vector3[] vector3s;
+	private Vector2[] vector2s;
+	private Color[] colors;
+	private float[] floats;
+	private int[] ints;
+	private Rect[] rects;	
 	
 	/// <summary>
 	/// The type of easing to use based on Robert Penner's open source easing equations (http://www.robertpenner.com/easing_terms_of_use.html).
@@ -140,8 +151,8 @@ public class iTween : MonoBehaviour{
 	}
 #endregion
 	
-#region Internal Utilities
-	//cast any accidentally supplied doubles as floats as iTween only uses floats internally:
+#region Internal Helpers
+	//cast any accidentally supplied doubles and ints as floats as iTween only uses floats internally:
 	static void CleanArgs(Hashtable args){
 		Hashtable argsCopy = new Hashtable(args.Count);
 		
@@ -155,6 +166,11 @@ public class iTween : MonoBehaviour{
 				float casted = (float)original;
 				args[item.Key] = casted;
 			}
+			if(item.Value.GetType() == typeof(System.Double)){
+				double original = (double)item.Value;
+				float casted = (float)original;
+				args[item.Key] = casted;
+			}
 		}		
 	}	
 	
@@ -165,7 +181,7 @@ public class iTween : MonoBehaviour{
 		int num_chars = chars.Length - 1;
 		string randomChar = "";
 		for (int i = 0; i < strlen; i++) {
-			randomChar += chars[(int)Mathf.Floor(Random.Range(0,num_chars))];
+			randomChar += chars[(int)Mathf.Floor(UnityEngine.Random.Range(0,num_chars))];
 		}
 		return randomChar;
 	}	
@@ -181,12 +197,6 @@ public class iTween : MonoBehaviour{
 		id=(string)tweenArguments["id"];
 		type=(string)tweenArguments["type"];
 		method=(string)tweenArguments["method"];
-
-		if(tweenArguments.Contains("loopType")){
-			loopType=(LoopType)tweenArguments["loopType"];
-		}else{
-			loopType = iTween.LoopType.none;	
-		}
                
 		if(tweenArguments.Contains("time")){
 			time=(float)tweenArguments["time"];
@@ -199,123 +209,249 @@ public class iTween : MonoBehaviour{
 		}else{
 			delay=Defaults.delay;
 		}
+		
+		if(tweenArguments.Contains("loopType")){
+			//allows loopType to be set as either an enum(C# friendly) or a string(JS friendly), string case usage doesn't matter to further increase usability:
+			if(tweenArguments["loopType"].GetType() == typeof(LoopType)){
+				loopType=(LoopType)tweenArguments["loopType"];
+			}else{
+				try {
+					loopType=(LoopType)Enum.Parse(typeof(LoopType),(string)tweenArguments["loopType"],true); 
+				} catch {
+					Debug.LogWarning("iTween: Unsupported loopType supplied! Default will be used.");
+					loopType = iTween.LoopType.none;	
+				}
+			}			
+		}else{
+			loopType = iTween.LoopType.none;	
+		}		
          
 		if(tweenArguments.Contains("easeType")){
-			easeType=(EaseType)tweenArguments["easeType"];
+			//allows easeType to be set as either an enum(C# friendly) or a string(JS friendly), string case usage doesn't matter to further increase usability:
+			if(tweenArguments["easeType"].GetType() == typeof(EaseType)){
+				easeType=(EaseType)tweenArguments["easeType"];
+			}else{
+				try {
+					easeType=(EaseType)Enum.Parse(typeof(EaseType),(string)tweenArguments["easeType"],true); 
+				} catch {
+					Debug.LogWarning("iTween: Unsupported easeType supplied! Default will be used.");
+					easeType=Defaults.easeType;
+				}
+			}
 		}else{
 			easeType=Defaults.easeType;
 		}
-		GetEasingFunction();
-		
+				
 		if(tweenArguments.Contains("space")){
-			space = (Space)tweenArguments["space"];
+			//allows space to be set as either an enum(C# friendly) or a string(JS friendly), string case usage doesn't matter to further increase usability:
+			if(tweenArguments["space"].GetType() == typeof(Space)){
+				space=(Space)tweenArguments["space"];
+			}else{
+				try {
+					space=(Space)Enum.Parse(typeof(Space),(string)tweenArguments["space"],true); 	
+				} catch {
+					Debug.LogWarning("iTween: Unsupported space supplied! Default will be used.");
+					space = Defaults.moveSpace;
+				}
+			}			
 		}else{
 			space = Defaults.moveSpace;
 		}
+		
+		//instantiates a cached ease equation refrence:
+		GetEasingFunction();
 	}	
 	
 	//catalog new tween and add component phase of iTween:
-	static void Init(GameObject target, Hashtable args){
+	static void Launch(GameObject target, Hashtable args){
+		CleanArgs(args);
+		if(!args.Contains("id")){
+			args["id"] = GenerateID();
+		}
+		if(!args.Contains("target")){
+			args["target"] = target;
+		}		
 		tweens.Insert(0,args);
 		target.AddComponent("iTween");
 	}	
 
-	//factory to instantiate cached refrence to easing equation:
+	//instantiates a cached ease equation refrence:
 	void GetEasingFunction(){
 		switch (easeType){
-			case EaseType.easeInQuad:
-				ease  = new EasingFunctionDelegate(easeInQuad);
-				break;
-			case EaseType.easeOutQuad:
-				ease = new EasingFunctionDelegate(easeOutQuad);
-				break;
-			case EaseType.easeInOutQuad:
-				ease = new EasingFunctionDelegate(easeInOutQuad);
-				break;
-			case EaseType.easeInCubic:
-				ease = new EasingFunctionDelegate(easeInCubic);
-				break;
-			case EaseType.easeOutCubic:
-				ease = new EasingFunctionDelegate(easeOutCubic);
-				break;
-			case EaseType.easeInOutCubic:
-				ease = new EasingFunctionDelegate(easeInOutCubic);
-				break;
-			case EaseType.easeInQuart:
-				ease = new EasingFunctionDelegate(easeInQuart);
-				break;
-			case EaseType.easeOutQuart:
-				ease = new EasingFunctionDelegate(easeOutQuart);
-				break;
-			case EaseType.easeInOutQuart:
-				ease = new EasingFunctionDelegate(easeInOutQuart);
-				break;
-			case EaseType.easeInQuint:
-				ease = new EasingFunctionDelegate(easeInQuint);
-				break;
-			case EaseType.easeOutQuint:
-				ease = new EasingFunctionDelegate(easeOutQuint);
-				break;
-			case EaseType.easeInOutQuint:
-				ease = new EasingFunctionDelegate(easeInOutQuint);
-				break;
-			case EaseType.easeInSine:
-				ease = new EasingFunctionDelegate(easeInSine);
-				break;
-			case EaseType.easeOutSine:
-				ease = new EasingFunctionDelegate(easeOutSine);
-				break;
-			case EaseType.easeInOutSine:
-				ease = new EasingFunctionDelegate(easeInOutSine);
-				break;
-			case EaseType.easeInExpo:
-				ease = new EasingFunctionDelegate(easeInExpo);
-				break;
-			case EaseType.easeOutExpo:
-				ease = new EasingFunctionDelegate(easeOutExpo);
-				break;
-			case EaseType.easeInOutExpo:
-				ease = new EasingFunctionDelegate(easeInOutExpo);
-				break;
-			case EaseType.easeInCirc:
-				ease = new EasingFunctionDelegate(easeInCirc);
-				break;
-			case EaseType.easeOutCirc:
-				ease = new EasingFunctionDelegate(easeOutCirc);
-				break;
-			case EaseType.easeInOutCirc:
-				ease = new EasingFunctionDelegate(easeInOutCirc);
-				break;
-			case EaseType.linear:
-				ease = new EasingFunctionDelegate(linear);
-				break;
-			case EaseType.spring:
-				ease = new EasingFunctionDelegate(spring);
-				break;
-			case EaseType.bounce:
-				ease = new EasingFunctionDelegate(bounce);
-				break;
-			case EaseType.easeInBack:
-				ease = new EasingFunctionDelegate(easeInBack);
-				break;
-			case EaseType.easeOutBack:
-				ease = new EasingFunctionDelegate(easeOutBack);
-				break;
-			case EaseType.easeInOutBack:
-				ease = new EasingFunctionDelegate(easeInOutBack);
-				break;
-			default:
-				return;
+		case EaseType.easeInQuad:
+			ease  = new EasingFunctionDelegate(easeInQuad);
+			break;
+		case EaseType.easeOutQuad:
+			ease = new EasingFunctionDelegate(easeOutQuad);
+			break;
+		case EaseType.easeInOutQuad:
+			ease = new EasingFunctionDelegate(easeInOutQuad);
+			break;
+		case EaseType.easeInCubic:
+			ease = new EasingFunctionDelegate(easeInCubic);
+			break;
+		case EaseType.easeOutCubic:
+			ease = new EasingFunctionDelegate(easeOutCubic);
+			break;
+		case EaseType.easeInOutCubic:
+			ease = new EasingFunctionDelegate(easeInOutCubic);
+			break;
+		case EaseType.easeInQuart:
+			ease = new EasingFunctionDelegate(easeInQuart);
+			break;
+		case EaseType.easeOutQuart:
+			ease = new EasingFunctionDelegate(easeOutQuart);
+			break;
+		case EaseType.easeInOutQuart:
+			ease = new EasingFunctionDelegate(easeInOutQuart);
+			break;
+		case EaseType.easeInQuint:
+			ease = new EasingFunctionDelegate(easeInQuint);
+			break;
+		case EaseType.easeOutQuint:
+			ease = new EasingFunctionDelegate(easeOutQuint);
+			break;
+		case EaseType.easeInOutQuint:
+			ease = new EasingFunctionDelegate(easeInOutQuint);
+			break;
+		case EaseType.easeInSine:
+			ease = new EasingFunctionDelegate(easeInSine);
+			break;
+		case EaseType.easeOutSine:
+			ease = new EasingFunctionDelegate(easeOutSine);
+			break;
+		case EaseType.easeInOutSine:
+			ease = new EasingFunctionDelegate(easeInOutSine);
+			break;
+		case EaseType.easeInExpo:
+			ease = new EasingFunctionDelegate(easeInExpo);
+			break;
+		case EaseType.easeOutExpo:
+			ease = new EasingFunctionDelegate(easeOutExpo);
+			break;
+		case EaseType.easeInOutExpo:
+			ease = new EasingFunctionDelegate(easeInOutExpo);
+			break;
+		case EaseType.easeInCirc:
+			ease = new EasingFunctionDelegate(easeInCirc);
+			break;
+		case EaseType.easeOutCirc:
+			ease = new EasingFunctionDelegate(easeOutCirc);
+			break;
+		case EaseType.easeInOutCirc:
+			ease = new EasingFunctionDelegate(easeInOutCirc);
+			break;
+		case EaseType.linear:
+			ease = new EasingFunctionDelegate(linear);
+			break;
+		case EaseType.spring:
+			ease = new EasingFunctionDelegate(spring);
+			break;
+		case EaseType.bounce:
+			ease = new EasingFunctionDelegate(bounce);
+			break;
+		case EaseType.easeInBack:
+			ease = new EasingFunctionDelegate(easeInBack);
+			break;
+		case EaseType.easeOutBack:
+			ease = new EasingFunctionDelegate(easeOutBack);
+			break;
+		case EaseType.easeInOutBack:
+			ease = new EasingFunctionDelegate(easeInOutBack);
+			break;
 		}
 	}
 	
+	//calculate percentage of tween based on time:
 	void UpdatePercentage(){
 		runningTime+=Time.deltaTime;
-		percentage=runningTime/time;
+		percentage = runningTime/time;
+	}
+	
+	//call correct set target method and set tween application delegate:
+	void GenerateTargets(){
+		switch (type) {
+		case "move":
+			GenerateMovetargets();
+			apply = new ApplyTweenDelegate(ApplyMoveTargets);
+			break;
+		default:
+		break;
+		}
 	}
 #endregion
 	
+#region Set Methods	
+	void GenerateMovetargets(){
+		//start values:
+		vector3s=new Vector3[4];	//[0] from, [1] to, [2] calculated value from ease equation, [3] previous value for Translate usage to allow Space utilization
+		if (space==Space.World) {
+			vector3s[0]=vector3s[1]=vector3s[3]=transform.position;				
+		}else{
+			vector3s[0]=vector3s[1]=vector3s[3]=transform.localPosition;
+		}
+		
+		//end values:
+		switch (method) {
+		case "from":
+		case "to":
+			if (tweenArguments.Contains("position")) {
+				vector3s[1]=(Vector3)tweenArguments["position"];
+			}else{
+				if (tweenArguments.Contains("x")) {
+					vector3s[1].x=(float)tweenArguments["x"];
+				}
+				if (tweenArguments.Contains("y")) {
+					vector3s[1].y=(float)tweenArguments["y"];
+				}
+				if (tweenArguments.Contains("z")) {
+					vector3s[1].z=(float)tweenArguments["z"];
+				}
+			}	
+
+			break;
+		
+		case "by":
+		case "add":
+			if (tweenArguments.Contains("amount")) {
+				vector3s[1]+=(Vector3)tweenArguments["amount"];
+			}else{
+				if (tweenArguments.Contains("x")) {
+					vector3s[1].x+=(float)tweenArguments["x"];
+				}
+				if (tweenArguments.Contains("y")) {
+					vector3s[1].y+=(float)tweenArguments["y"];
+				}
+				if (tweenArguments.Contains("z")) {
+					vector3s[1].z+=(float)tweenArguments["z"];
+				}
+			}
+			break;
+		}	
+	}	
+#endregion
+	
+#region Apply Methods
+	void ApplyMoveTargets(){
+		//calculate:
+		vector3s[2].x = ease(vector3s[0].x,vector3s[1].x,percentage);
+		vector3s[2].y = ease(vector3s[0].y,vector3s[1].y,percentage);
+		vector3s[2].z = ease(vector3s[0].z,vector3s[1].z,percentage);
+		
+		//apply:
+		transform.Translate(vector3s[2]-vector3s[3],space);
+		
+		//record:		
+		vector3s[3]=vector3s[2];
+	}		
+#endregion
+		
 #region External Utilities
+	//stops
+	//pauses
+	//completes
+	//rewinds
+	//counts
 	/*
 	public static Hashtable Hash(params object[] args){
 		Hashtable hashTable = new Hashtable(args.Length/2);
@@ -336,27 +472,37 @@ public class iTween : MonoBehaviour{
 		
 #region Static Registers	
 	public static void MoveTo(GameObject target, Hashtable args){
-		CleanArgs(args);
-		if(!args.Contains("id")){
-			args["id"] = GenerateID();
-		}
-		if(!args.Contains("target")){
-			args["target"] = target;
-		}
-		if(!args.Contains("type")){
-			args["type"]="move";
-		}
-		if(!args.Contains("space")){
-			args["space"]=Defaults.moveSpace;
-		}
+		args["type"]="move";
 		args["method"]="to";
-		Init(target,args);
+		Launch(target,args);
+	}
+	
+	public static void MoveFrom(GameObject target, Hashtable args){
+		args["type"]="move";
+		args["method"]="from";
+		Launch(target,args);
+	}
+	
+	public static void MoveAdd(GameObject target, Hashtable args){
+		args["type"]="move";
+		args["method"]="add";
+		Launch(target,args);
+	}
+	
+	public static void MoveBy(GameObject target, Hashtable args){
+		args["type"]="move";
+		args["method"]="by";
+		Launch(target,args);
 	}
 #endregion
 	
 #region Application Segments
 	void TweenFrom(){
-		
+		GenerateTargets();
+		percentage=1;
+		apply();
+		percentage=0;
+		method="to";
 	}
 	
 	IEnumerator TweenDelay(){
@@ -368,28 +514,28 @@ public class iTween : MonoBehaviour{
 		//fire start callback
 		//handle destruction of running duplicate types
 		//handle kinematic toggle
-		//generate current state values
-		//run stab
+		//run stab adn anything else that doesn't loop?
 		//setup curve crap?
-		running = true;
+		GenerateTargets();
+		isRunning = true;
 	}
 	
 	void TweenUpdate(){
 		//fire update callback
-		
-		Vector3 ass = transform.position; //sample
-		ass.x = ease(0,3,percentage); //sample
-		transform.position = ass; //sample
-		
+		apply();
 		UpdatePercentage();		
 	}
 	
 	void TweenLoop(){
-		
+		//do not destroy and create a new iTween, just reset percentage to 0???
 	}
 	
 	void TweenComplete(){
 		//fire complete callback
+		//dial in percentage to 1 for final run
+		isRunning=false;
+		percentage=1;
+        apply();
 	}
 #endregion
 
@@ -399,6 +545,9 @@ public class iTween : MonoBehaviour{
 	}
 	
 	IEnumerator Start(){
+		if(method=="from"){
+			TweenFrom();
+		}
 		if(delay > 0){
 			yield return StartCoroutine("TweenDelay");
 		}
@@ -406,12 +555,11 @@ public class iTween : MonoBehaviour{
 	}	
 	
 	void Update(){
-		if(running){
-			if(percentage<1f){
+		if(isRunning){
+			if(percentage<1f ){
 				TweenUpdate();
 			}else{
-				running=false;
-				TweenComplete();
+				TweenComplete();	
 			}
 		}
 	}
