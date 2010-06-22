@@ -25,7 +25,7 @@ public class iTween : MonoBehaviour{
 	public bool isRunning,isPaused;
 	
 	//private members:
- 	private float percentage, runningTime;
+ 	private float runningTime, percentage;
 	protected float delayStarted; //probably not neccesary that this be protected but it shuts Unity's compiler up about this being "never used"
 	private bool kinematic;
 	private Hashtable tweenArguments;
@@ -383,9 +383,14 @@ public class iTween : MonoBehaviour{
 	
 #region Set Methods	
 	void GenerateMovetargets(){
-		if(percentage==1 && method=="from"){//if method is "from" and from has already been applied shuffle from and to values and reset percentage to 0:
+		if(percentage==1.0f && method=="from"){//if method is "from" and from has already been applied shuffle from and to values and reset percentage to 0:
 			vector3s[1]=vector3s[0];
-			vector3s[0]=vector3s[3];
+			//vector3s[0]=vector3s[3];
+			if (space==Space.World) {
+				vector3s[0]=vector3s[3]=transform.position;				
+			}else{
+				vector3s[0]=vector3s[3]=transform.localPosition;
+			}
 			percentage=0;
 		}else{
 			//start values:
@@ -503,7 +508,7 @@ public class iTween : MonoBehaviour{
 #region Application Segments
 	void TweenFrom(){
 		GenerateTargets();
-		percentage=1;
+		percentage=1.0f;
 		apply();
 	}
 	
@@ -536,12 +541,14 @@ public class iTween : MonoBehaviour{
 		//fire complete callback
 		//dial in percentage to 1 for final run
 		isRunning=false;
-		percentage=1;
+		percentage=1.0f;
         apply();
+		/*
 		print("temp test for loop method will need delay reapplication");
 		percentage=0;
 		runningTime=0;
 		isRunning=true;
+		*/
 	}
 #endregion
 
