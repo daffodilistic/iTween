@@ -89,7 +89,7 @@ public class iTween : MonoBehaviour{
 		/// </summary>
 		loop,
 		/// <summary>
-		/// Ping pong the animation.
+		/// Ping pong the animation back and forth.
 		/// </summary>
 		pingPong
 	}
@@ -372,8 +372,12 @@ public class iTween : MonoBehaviour{
 	void GenerateTargets(){
 		switch (type) {
 		case "move":
-			GenerateMovetargets();
+			GenerateMoveTargets();
 			apply = new ApplyTweenDelegate(ApplyMoveTargets);
+			break;
+		case "scale":
+			GenerateScaleTargets();
+			apply = new ApplyTweenDelegate(ApplyScaleTargets);
 			break;
 		default:
 		break;
@@ -382,10 +386,10 @@ public class iTween : MonoBehaviour{
 #endregion
 	
 #region Set Methods	
-	void GenerateMovetargets(){
+	#region GenerateMoveTargets
+	void GenerateMoveTargets(){
 		if(percentage==1.0f && method=="from"){//if method is "from" and from has already been applied shuffle from and to values and reset percentage to 0:
 			vector3s[1]=vector3s[0];
-			//vector3s[0]=vector3s[3];
 			if (space==Space.World) {
 				vector3s[0]=vector3s[3]=transform.position;				
 			}else{
@@ -394,7 +398,7 @@ public class iTween : MonoBehaviour{
 			percentage=0;
 		}else{
 			//start values:
-			vector3s=new Vector3[4];	//[0] from, [1] to, [2] calculated value from ease equation, [3] previous value for Translate usage to allow Space utilization
+			vector3s=new Vector3[4];//[0] from, [1] to, [2] calculated value from ease equation, [3] previous value for Translate usage to allow Space utilization
 			if (space==Space.World) {
 				vector3s[0]=vector3s[1]=vector3s[3]=transform.position;				
 			}else{
@@ -437,10 +441,76 @@ public class iTween : MonoBehaviour{
 				break;
 			}				
 		}
+	}
+	#endregion
+	
+	#region GenerateScaleTargets
+	void GenerateScaleTargets(){
+		if(percentage==1.0f && method=="from"){//if method is "from" and from has already been applied shuffle from and to values and reset percentage to 0:
+			vector3s[1]=vector3s[0];
+			vector3s[0]=vector3s[3]=transform.localScale;	
+			percentage=0;
+		}else{
+			//start values:
+			vector3s=new Vector3[4];//[0] from, [1] to, [2] calculated value from ease equation
+			vector3s[0]=vector3s[1]=transform.localScale;	
+			
+			//end values:
+			switch (method) {
+			case "from":
+			case "to":
+				if (tweenArguments.Contains("scale")) {
+					vector3s[1]=(Vector3)tweenArguments["scale"];
+				}else{
+					if (tweenArguments.Contains("x")) {
+						vector3s[1].x=(float)tweenArguments["x"];
+					}
+					if (tweenArguments.Contains("y")) {
+						vector3s[1].y=(float)tweenArguments["y"];
+					}
+					if (tweenArguments.Contains("z")) {
+						vector3s[1].z=(float)tweenArguments["z"];
+					}
+				}	
+				break;
+			case "by":
+				if (tweenArguments.Contains("amount")) {
+					vector3s[1]=Vector3.Scale(vector3s[1],(Vector3)tweenArguments["amount"]);
+				}else{
+					if (tweenArguments.Contains("x")) {
+						vector3s[1].x*=(float)tweenArguments["x"];
+					}
+					if (tweenArguments.Contains("y")) {
+						vector3s[1].y*=(float)tweenArguments["y"];
+					}
+					if (tweenArguments.Contains("z")) {
+						vector3s[1].z*=(float)tweenArguments["z"];
+					}
+				}
+				break;				
+			case "add":
+				if (tweenArguments.Contains("amount")) {
+					vector3s[1]+=(Vector3)tweenArguments["amount"];
+				}else{
+					if (tweenArguments.Contains("x")) {
+						vector3s[1].x+=(float)tweenArguments["x"];
+					}
+					if (tweenArguments.Contains("y")) {
+						vector3s[1].y+=(float)tweenArguments["y"];
+					}
+					if (tweenArguments.Contains("z")) {
+						vector3s[1].z+=(float)tweenArguments["z"];
+					}
+				}
+				break;
+			}				
+		}
 	}	
+	#endregion
 #endregion
 	
 #region Apply Methods
+	#region ApplyMoveTargets
 	void ApplyMoveTargets(){
 		//calculate:
 		vector3s[2].x = ease(vector3s[0].x,vector3s[1].x,percentage);
@@ -450,9 +520,22 @@ public class iTween : MonoBehaviour{
 		//apply:
 		transform.Translate(vector3s[2]-vector3s[3],space);
 		
-		//record:		
+		//record:
 		vector3s[3]=vector3s[2];
 	}		
+	#endregion
+	
+	#region ApplyScaleTargets
+	void ApplyScaleTargets(){
+		//calculate:
+		vector3s[2].x = ease(vector3s[0].x,vector3s[1].x,percentage);
+		vector3s[2].y = ease(vector3s[0].y,vector3s[1].y,percentage);
+		vector3s[2].z = ease(vector3s[0].z,vector3s[1].z,percentage);
+		
+		//apply:
+		transform.localScale = vector3s[2];
+	}		
+	#endregion
 #endregion
 		
 #region External Utilities
@@ -479,30 +562,550 @@ public class iTween : MonoBehaviour{
 	*/	
 #endregion
 		
-#region Static Registers	
+#region Static Registers
+	#region Documentation
+	/// <summary>
+	/// Moves a GameObject's position to the supplied coordinates.
+	/// </summary>
+	/// <param name="position">
+	/// A <see cref="Vector3"/>
+	/// </param>
+	/// <param name="x">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="y">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="z">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="time">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="delay">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="space">
+	/// A <see cref="Space"/> or <see cref="System.String"/>
+	/// </param>
+	/// <param name="easeType">
+	/// A <see cref="EaseType"/> or <see cref="System.String"/>
+	/// </param>   
+	/// <param name="loopType">
+	/// A <see cref="EaseType"/> or <see cref="System.String"/>
+	/// </param>
+	/// <param name="orientToPath">
+	/// A <see cref="System.Boolean"/>
+	/// </param>
+	/// <param name="lookTarget">
+	/// A <see cref="Vector3"/> or A <see cref="Transform"/>
+	/// </param>
+	/// <param name="onStart">
+	/// A <see cref="System.String"/>
+	/// </param>
+	/// <param name="onStartTarget">
+	/// A <see cref="GameObject"/>
+	/// </param>
+	/// <param name="onStartParams">
+	/// A <see cref="System.Object"/>
+	/// </param>
+	/// <param name="onUpdate">
+	/// A <see cref="System.String"/>
+	/// </param>
+	/// <param name="onUpdateTarget">
+	/// A <see cref="GameObject"/>
+	/// </param>
+	/// <param name="onUpdateParams">
+	/// A <see cref="System.Object"/>
+	/// </param> 
+	/// <param name="onComplete">
+	/// A <see cref="System.String"/>
+	/// </param>
+	/// <param name="onCompleteTarget">
+	/// A <see cref="GameObject"/>.
+	/// </param>
+	/// <param name="onCompleteParams">
+	/// A <see cref="System.Object"/>
+	/// </param>
+	#endregion 
 	public static void MoveTo(GameObject target, Hashtable args){
 		args["type"]="move";
 		args["method"]="to";
 		Launch(target,args);
 	}
 	
+	#region Documentation
+	/// <summary>
+	/// Moves a GameObject from the supplied coordinates to its starting position.
+	/// </summary>
+	/// <param name="position">
+	/// A <see cref="Vector3"/>
+	/// </param>
+	/// <param name="x">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="y">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="z">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="time">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="delay">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="space">
+	/// A <see cref="Space"/> or <see cref="System.String"/>
+	/// </param>
+	/// <param name="easeType">
+	/// A <see cref="EaseType"/> or <see cref="System.String"/>
+	/// </param>   
+	/// <param name="loopType">
+	/// A <see cref="EaseType"/> or <see cref="System.String"/>
+	/// </param>
+	/// <param name="orientToPath">
+	/// A <see cref="System.Boolean"/>
+	/// </param>
+	/// <param name="lookTarget">
+	/// A <see cref="Vector3"/> or A <see cref="Transform"/>
+	/// </param>
+	/// <param name="onStart">
+	/// A <see cref="System.String"/>
+	/// </param>
+	/// <param name="onStartTarget">
+	/// A <see cref="GameObject"/>
+	/// </param>
+	/// <param name="onStartParams">
+	/// A <see cref="System.Object"/>
+	/// </param>
+	/// <param name="onUpdate">
+	/// A <see cref="System.String"/>
+	/// </param>
+	/// <param name="onUpdateTarget">
+	/// A <see cref="GameObject"/>
+	/// </param>
+	/// <param name="onUpdateParams">
+	/// A <see cref="System.Object"/>
+	/// </param> 
+	/// <param name="onComplete">
+	/// A <see cref="System.String"/>
+	/// </param>
+	/// <param name="onCompleteTarget">
+	/// A <see cref="GameObject"/>.
+	/// </param>
+	/// <param name="onCompleteParams">
+	/// A <see cref="System.Object"/>
+	/// </param>
+	#endregion 
 	public static void MoveFrom(GameObject target, Hashtable args){
 		args["type"]="move";
 		args["method"]="from";
 		Launch(target,args);
 	}
 	
+	#region Documentation
+	/// <summary>
+	/// Adds the supplied coordinates to a GameObject's postion.
+	/// </summary>
+	/// <param name="amount">
+	/// A <see cref="Vector3"/>
+	/// </param>
+	/// <param name="x">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="y">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="z">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="time">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="delay">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="space">
+	/// A <see cref="Space"/> or <see cref="System.String"/>
+	/// </param>
+	/// <param name="easeType">
+	/// A <see cref="EaseType"/> or <see cref="System.String"/>
+	/// </param>   
+	/// <param name="loopType">
+	/// A <see cref="EaseType"/> or <see cref="System.String"/>
+	/// </param>
+	/// <param name="orientToPath">
+	/// A <see cref="System.Boolean"/>
+	/// </param>
+	/// <param name="lookTarget">
+	/// A <see cref="Vector3"/> or A <see cref="Transform"/>
+	/// </param>
+	/// <param name="onStart">
+	/// A <see cref="System.String"/>
+	/// </param>
+	/// <param name="onStartTarget">
+	/// A <see cref="GameObject"/>
+	/// </param>
+	/// <param name="onStartParams">
+	/// A <see cref="System.Object"/>
+	/// </param>
+	/// <param name="onUpdate">
+	/// A <see cref="System.String"/>
+	/// </param>
+	/// <param name="onUpdateTarget">
+	/// A <see cref="GameObject"/>
+	/// </param>
+	/// <param name="onUpdateParams">
+	/// A <see cref="System.Object"/>
+	/// </param> 
+	/// <param name="onComplete">
+	/// A <see cref="System.String"/>
+	/// </param>
+	/// <param name="onCompleteTarget">
+	/// A <see cref="GameObject"/>.
+	/// </param>
+	/// <param name="onCompleteParams">
+	/// A <see cref="System.Object"/>
+	/// </param>
+	#endregion	
 	public static void MoveAdd(GameObject target, Hashtable args){
 		args["type"]="move";
 		args["method"]="add";
 		Launch(target,args);
 	}
 	
+	#region Documentation
+	/// <summary>
+	/// Adds the supplied coordinates to a GameObject's postion.
+	/// </summary>
+	/// <param name="amount">
+	/// A <see cref="Vector3"/>
+	/// </param>
+	/// <param name="x">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="y">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="z">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="time">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="delay">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="space">
+	/// A <see cref="Space"/> or <see cref="System.String"/>
+	/// </param>
+	/// <param name="easeType">
+	/// A <see cref="EaseType"/> or <see cref="System.String"/>
+	/// </param>   
+	/// <param name="loopType">
+	/// A <see cref="EaseType"/> or <see cref="System.String"/>
+	/// </param>
+	/// <param name="orientToPath">
+	/// A <see cref="System.Boolean"/>
+	/// </param>
+	/// <param name="lookTarget">
+	/// A <see cref="Vector3"/> or A <see cref="Transform"/>
+	/// </param>
+	/// <param name="onStart">
+	/// A <see cref="System.String"/>
+	/// </param>
+	/// <param name="onStartTarget">
+	/// A <see cref="GameObject"/>
+	/// </param>
+	/// <param name="onStartParams">
+	/// A <see cref="System.Object"/>
+	/// </param>
+	/// <param name="onUpdate">
+	/// A <see cref="System.String"/>
+	/// </param>
+	/// <param name="onUpdateTarget">
+	/// A <see cref="GameObject"/>
+	/// </param>
+	/// <param name="onUpdateParams">
+	/// A <see cref="System.Object"/>
+	/// </param> 
+	/// <param name="onComplete">
+	/// A <see cref="System.String"/>
+	/// </param>
+	/// <param name="onCompleteTarget">
+	/// A <see cref="GameObject"/>.
+	/// </param>
+	/// <param name="onCompleteParams">
+	/// A <see cref="System.Object"/>
+	/// </param>
+	#endregion	
 	public static void MoveBy(GameObject target, Hashtable args){
 		args["type"]="move";
 		args["method"]="by";
 		Launch(target,args);
 	}
+
+	#region Documentation
+	/// <summary>
+	/// Scales a GameObject to the supplied values.
+	/// </summary>
+	/// <param name="scale">
+	/// A <see cref="Vector3"/>
+	/// </param>
+	/// <param name="x">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="y">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="z">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="time">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="delay">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="space">
+	/// A <see cref="Space"/> or <see cref="System.String"/>
+	/// </param>
+	/// <param name="easeType">
+	/// A <see cref="EaseType"/> or <see cref="System.String"/>
+	/// </param>   
+	/// <param name="loopType">
+	/// A <see cref="EaseType"/> or <see cref="System.String"/>
+	/// </param>
+	/// <param name="onStart">
+	/// A <see cref="System.String"/>
+	/// </param>
+	/// <param name="onStartTarget">
+	/// A <see cref="GameObject"/>
+	/// </param>
+	/// <param name="onStartParams">
+	/// A <see cref="System.Object"/>
+	/// </param>
+	/// <param name="onUpdate">
+	/// A <see cref="System.String"/>
+	/// </param>
+	/// <param name="onUpdateTarget">
+	/// A <see cref="GameObject"/>
+	/// </param>
+	/// <param name="onUpdateParams">
+	/// A <see cref="System.Object"/>
+	/// </param> 
+	/// <param name="onComplete">
+	/// A <see cref="System.String"/>
+	/// </param>
+	/// <param name="onCompleteTarget">
+	/// A <see cref="GameObject"/>.
+	/// </param>
+	/// <param name="onCompleteParams">
+	/// A <see cref="System.Object"/>
+	/// </param>
+	#endregion	
+	public static void ScaleTo(GameObject target, Hashtable args){
+		args["type"]="scale";
+		args["method"]="to";
+		Launch(target,args);
+	}
+	
+	#region Documentation
+	/// <summary>
+	/// Scales a GameObject from the supplied values to its starting values.
+	/// </summary>
+	/// <param name="scale">
+	/// A <see cref="Vector3"/>
+	/// </param>
+	/// <param name="x">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="y">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="z">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="time">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="delay">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="space">
+	/// A <see cref="Space"/> or <see cref="System.String"/>
+	/// </param>
+	/// <param name="easeType">
+	/// A <see cref="EaseType"/> or <see cref="System.String"/>
+	/// </param>   
+	/// <param name="loopType">
+	/// A <see cref="EaseType"/> or <see cref="System.String"/>
+	/// </param>
+	/// <param name="onStart">
+	/// A <see cref="System.String"/>
+	/// </param>
+	/// <param name="onStartTarget">
+	/// A <see cref="GameObject"/>
+	/// </param>
+	/// <param name="onStartParams">
+	/// A <see cref="System.Object"/>
+	/// </param>
+	/// <param name="onUpdate">
+	/// A <see cref="System.String"/>
+	/// </param>
+	/// <param name="onUpdateTarget">
+	/// A <see cref="GameObject"/>
+	/// </param>
+	/// <param name="onUpdateParams">
+	/// A <see cref="System.Object"/>
+	/// </param> 
+	/// <param name="onComplete">
+	/// A <see cref="System.String"/>
+	/// </param>
+	/// <param name="onCompleteTarget">
+	/// A <see cref="GameObject"/>.
+	/// </param>
+	/// <param name="onCompleteParams">
+	/// A <see cref="System.Object"/>
+	/// </param>
+	#endregion	
+	public static void ScaleFrom(GameObject target, Hashtable args){
+		args["type"]="scale";
+		args["method"]="from";
+		Launch(target,args);
+	}
+	
+	#region Documentation
+	/// <summary>
+	/// Adds the supplied values to a GameObject's scale.
+	/// </summary>
+	/// <param name="amount">
+	/// A <see cref="Vector3"/>
+	/// </param>
+	/// <param name="x">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="y">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="z">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="time">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="delay">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="space">
+	/// A <see cref="Space"/> or <see cref="System.String"/>
+	/// </param>
+	/// <param name="easeType">
+	/// A <see cref="EaseType"/> or <see cref="System.String"/>
+	/// </param>   
+	/// <param name="loopType">
+	/// A <see cref="EaseType"/> or <see cref="System.String"/>
+	/// </param>
+	/// <param name="onStart">
+	/// A <see cref="System.String"/>
+	/// </param>
+	/// <param name="onStartTarget">
+	/// A <see cref="GameObject"/>
+	/// </param>
+	/// <param name="onStartParams">
+	/// A <see cref="System.Object"/>
+	/// </param>
+	/// <param name="onUpdate">
+	/// A <see cref="System.String"/>
+	/// </param>
+	/// <param name="onUpdateTarget">
+	/// A <see cref="GameObject"/>
+	/// </param>
+	/// <param name="onUpdateParams">
+	/// A <see cref="System.Object"/>
+	/// </param> 
+	/// <param name="onComplete">
+	/// A <see cref="System.String"/>
+	/// </param>
+	/// <param name="onCompleteTarget">
+	/// A <see cref="GameObject"/>.
+	/// </param>
+	/// <param name="onCompleteParams">
+	/// A <see cref="System.Object"/>
+	/// </param>
+	#endregion	
+	public static void ScaleAdd(GameObject target, Hashtable args){
+		args["type"]="scale";
+		args["method"]="add";
+		Launch(target,args);
+	}
+	
+	#region Documentation
+	/// <summary>
+	/// Multiplies the GameObject's scale by the supplied values.
+	/// </summary>
+	/// <param name="amount">
+	/// A <see cref="Vector3"/>
+	/// </param>
+	/// <param name="x">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="y">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="z">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="time">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="delay">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="space">
+	/// A <see cref="Space"/> or <see cref="System.String"/>
+	/// </param>
+	/// <param name="easeType">
+	/// A <see cref="EaseType"/> or <see cref="System.String"/>
+	/// </param>   
+	/// <param name="loopType">
+	/// A <see cref="EaseType"/> or <see cref="System.String"/>
+	/// </param>
+	/// <param name="onStart">
+	/// A <see cref="System.String"/>
+	/// </param>
+	/// <param name="onStartTarget">
+	/// A <see cref="GameObject"/>
+	/// </param>
+	/// <param name="onStartParams">
+	/// A <see cref="System.Object"/>
+	/// </param>
+	/// <param name="onUpdate">
+	/// A <see cref="System.String"/>
+	/// </param>
+	/// <param name="onUpdateTarget">
+	/// A <see cref="GameObject"/>
+	/// </param>
+	/// <param name="onUpdateParams">
+	/// A <see cref="System.Object"/>
+	/// </param> 
+	/// <param name="onComplete">
+	/// A <see cref="System.String"/>
+	/// </param>
+	/// <param name="onCompleteTarget">
+	/// A <see cref="GameObject"/>.
+	/// </param>
+	/// <param name="onCompleteParams">
+	/// A <see cref="System.Object"/>
+	/// </param>
+	#endregion	
+	public static void ScaleBy(GameObject target, Hashtable args){
+		args["type"]="scale";
+		args["method"]="by";
+		Launch(target,args);
+	}	
 #endregion
 	
 #region Application Segments
@@ -791,3 +1394,94 @@ public class iTween : MonoBehaviour{
     }
 #endregion	
 }
+
+
+/*
+Sample documentation
+	/// <summary>
+	/// Slides a <paramref name="GameObject"/> to a new position.
+	/// <remarks>
+	/// Base operation only requires the use of "position" or a combination of the "x", "y", or "z" parameters to function.  If <paramref name="GameObject"/> has a <paramref name="Rigidbody"/> component attached; isKinematic property will be toggled to true and then back to initial value ot avoid physics based anomalies
+	/// </remarks>
+	/// </summary>
+	/// <param name="position">
+	/// A <see cref="Vector3"/>
+	/// Coordinates in 3D space that the GameObject will animate to.
+	/// </param>
+	/// <param name="x">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// Do not use if "position" is being set. Sets a destination on the x-axis.
+	/// </param>
+	/// <param name="y">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// Do not use if "position" is being set. Sets a destination on the y-axis.
+	/// </param>
+	/// <param name="z">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// Do not use if "position" is being set. Sets a destination on the z-axis.
+	/// </param>
+	/// <param name="time">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// The length of time the iTween will run. If omitted, default value of 1 is used.
+	/// </param>
+	/// <param name="delay">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// The length of time iTween will wait before executing. If omitted, default value of 0 is used.
+	/// </param>
+	/// <param name="space">
+	/// A <see cref="Space"/> or <see cref="System.String"/>
+	/// The coordinate space in which to operate the movement. If omitted, default value of Space.World is used.
+	/// </param>
+	/// <param name="easeType">
+	/// A <see cref="EaseType"/> or <see cref="System.String"/>
+	/// What type of easing to apply using Robert Penner's open source easing equations. If omitted, default value of easeInOutCubic is used.
+	/// </param>   
+	/// <param name="loopType">
+	/// A <see cref="EaseType"/> or <see cref="System.String"/>
+	/// Sets if and how the motion will loop. If omitted, default value of LoopType.none.
+	/// </param>
+	/// <param name="orientToPath">
+	/// A <see cref="System.Boolean"/>
+	/// If true, GameObject will face the direction it is moving in. If omitted, default value of false is used.
+	/// </param>
+	/// <param name="lookTarget">
+	/// A <see cref="Vector3"/> or A <see cref="Transform"/>
+	/// A Transform or Vector3 the GameObject will face as it moves.  Will override "orientToPath".
+	/// </param>
+	/// <param name="onStart">
+	/// A <see cref="System.String"/>
+	/// A callback function that will execute as soon as the iTween begins (uses Unity's SendMessage).
+	/// </param>
+	/// <param name="onStartTarget">
+	/// A <see cref="GameObject"/>
+	/// Utilized by "onStart" callback as reference to a GameObject which holds the intended function to be called.  If omitted, iTween defaults to the GameObject that made the initial iTween call.
+	/// </param>
+	/// <param name="onStartParams">
+	/// A <see cref="System.Object"/>
+	/// Passes a <paramref name="System.Object"/> to the "onStart" callback (uses Unity's SendMessage).
+	/// </param>
+	/// <param name="onUpdate">
+	/// A <see cref="System.String"/>
+	/// A callback function that will execute as the GameObject updates (uses Unity's SendMessage).
+	/// </param>
+	/// <param name="onUpdateTarget">
+	/// A <see cref="GameObject"/>
+	/// Utilized by the "onUpdate" callback as reference to a <paramref name="GameObject"/> which holds the intended function to be called. If omitted, iTween defaults to the GameObject that made the initial iTween call.
+	/// </param>
+	/// <param name="onUpdateParams">
+	/// A <see cref="System.Object"/>
+	/// Passes a <paramref name="System.Object"/> to the "onUpdate" callback (uses Unity's SendMessage).
+	/// </param> 
+	/// <param name="onComplete">
+	/// A <see cref="System.String"/>
+	/// A callback function that will execute as soon as the iTween ends (uses Unity's SendMessage).
+	/// </param>
+	/// <param name="onCompleteTarget">
+	/// A <see cref="GameObject"/>
+	/// Utilized by the "onComplete" callback as reference to a <paramref name="GameObject"/> which holds the intended function to be called. If omitted, iTween defaults to the GameObject that made the initial iTween call.
+	/// </param>
+	/// <param name="onCompleteParams">
+	/// A <see cref="System.Object"/>
+	/// Passes a <paramref name="System.Object"/> to the "onComplete" callback (uses Unity's SendMessage).
+	/// </param>   
+*/
