@@ -379,10 +379,45 @@ public class iTween : MonoBehaviour{
 			GenerateScaleTargets();
 			apply = new ApplyTweenDelegate(ApplyScaleTargets);
 			break;
+		case "rotate":
+			GenerateRotateTargets();
+			apply = new ApplyTweenDelegate(ApplyRotateTargets);
+			break;
 		default:
 		break;
 		}
 	}
+	
+	void CallBack(string callbackType){
+		if (tweenArguments.Contains(callbackType) && !tweenArguments.Contains("isChild")) {
+			//establish target:
+			GameObject target;
+			if (tweenArguments.Contains(callbackType+"Target")) {
+				target=(GameObject)tweenArguments[callbackType+"Target"];
+			}else{
+				target=gameObject;	
+			}
+			
+			//throw an error if a string wasn't passed for callback:
+			if (tweenArguments[callbackType].GetType() == typeof(System.String)) {
+				target.SendMessage((string)tweenArguments[callbackType],(object)tweenArguments[callbackType+"Params"],SendMessageOptions.DontRequireReceiver);
+			}else{
+				Debug.LogError("iTween Error: Callback method references must be passed as a String!");
+				Destroy (this);
+			}
+		}
+	}
+	
+	void Dispose(){
+		for (int i = 0; i < tweens.Count; i++) {
+			Hashtable tweenEntry = (Hashtable)tweens[i];
+			if ((string)tweenEntry["id"] == id){
+				tweens.RemoveAt(i);
+				break;
+			}
+		}
+		Destroy(this);
+	}	
 #endregion
 	
 #region Set Methods	
@@ -507,6 +542,80 @@ public class iTween : MonoBehaviour{
 		}
 	}	
 	#endregion
+	
+	#region GenerateRotateTargets
+	void GenerateRotateTargets(){
+		if(percentage==1 && method=="from"){//if method is "from" and from has already been applied shuffle from and to values and reset percentage to 0:
+			vector3s[1]=vector3s[0];
+			if (space==Space.World) {
+				vector3s[0]=vector3s[3]=transform.eulerAngles;				
+			}else{
+				vector3s[0]=vector3s[3]=transform.localEulerAngles;
+			}
+			percentage=0;
+		}else{
+			//start values:
+			vector3s=new Vector3[4];//[0] from, [1] to, [2] calculated value from ease equation, [3] previous value for Translate usage to allow Space utilization
+			if (space==Space.World) {
+				vector3s[0]=vector3s[1]=vector3s[3]=transform.eulerAngles;				
+			}else{
+				vector3s[0]=vector3s[1]=vector3s[3]=transform.localEulerAngles;
+			}
+			
+			//end values:
+			switch (method) {
+			case "from":				
+			case "to":
+				if (tweenArguments.Contains("rotation")) {
+					vector3s[1]=(Vector3)tweenArguments["rotation"];
+				}else{
+					if (tweenArguments.Contains("x")) {
+						vector3s[1].x=(float)tweenArguments["x"];
+					}
+					if (tweenArguments.Contains("y")) {
+						vector3s[1].y=(float)tweenArguments["y"];
+					}
+					if (tweenArguments.Contains("z")) {
+						vector3s[1].z=(float)tweenArguments["z"];
+					}
+				}	
+				//calculate the shortest distance needed to rotate to the desired degrees:
+				vector3s[1]=vector3s[2]=new Vector3(clerp(vector3s[0].x,vector3s[1].x,1),clerp(vector3s[0].y,vector3s[1].y,1),clerp(vector3s[0].z,vector3s[1].z,1));		
+				break;
+			case "by":
+				if (tweenArguments.Contains("amount")) {
+					vector3s[1]+=(Vector3)tweenArguments["amount"];
+				}else{
+					if (tweenArguments.Contains("x")) {
+						vector3s[1].x+=(float)tweenArguments["x"];
+					}
+					if (tweenArguments.Contains("y")) {
+						vector3s[1].y+=(float)tweenArguments["y"];
+					}
+					if (tweenArguments.Contains("z")) {
+						vector3s[1].z+=(float)tweenArguments["z"];
+					}
+				}
+				break;				
+			case "add":
+				if (tweenArguments.Contains("amount")) {
+					vector3s[1]+=(Vector3)tweenArguments["amount"];
+				}else{
+					if (tweenArguments.Contains("x")) {
+						vector3s[1].x+=(float)tweenArguments["x"];
+					}
+					if (tweenArguments.Contains("y")) {
+						vector3s[1].y+=(float)tweenArguments["y"];
+					}
+					if (tweenArguments.Contains("z")) {
+						vector3s[1].z+=(float)tweenArguments["z"];
+					}
+				}
+				break;
+			}				
+		}
+	}
+	#endregion
 #endregion
 	
 #region Apply Methods
@@ -518,7 +627,21 @@ public class iTween : MonoBehaviour{
 		vector3s[2].z = ease(vector3s[0].z,vector3s[1].z,percentage);
 		
 		//apply:
-		transform.Translate(vector3s[2]-vector3s[3],space);
+		
+		switch (method) {
+		case "from":
+		case "to":
+			if (space==Space.World) {
+				transform.position=vector3s[2];		
+			}else{
+				transform.localPosition=vector3s[2];
+			}			
+			break;
+		case "by":
+		case "add":
+			transform.Translate(vector3s[2]-vector3s[3],space);
+			break;
+		}
 		
 		//record:
 		vector3s[3]=vector3s[2];
@@ -536,6 +659,31 @@ public class iTween : MonoBehaviour{
 		transform.localScale = vector3s[2];
 	}		
 	#endregion
+	
+	#region ApplyRotateTargets
+	void ApplyRotateTargets(){
+		//calculate:
+		vector3s[2].x = ease(vector3s[0].x,vector3s[1].x,percentage);
+		vector3s[2].y = ease(vector3s[0].y,vector3s[1].y,percentage);
+		vector3s[2].z = ease(vector3s[0].z,vector3s[1].z,percentage);
+				
+		//apply:
+		switch (method) {
+		case "from":
+		case "to":
+			transform.rotation = Quaternion.Euler(vector3s[2]);
+			break;
+			
+		case "by":
+		case "add":
+			transform.Rotate(vector3s[2]-vector3s[3],space);			
+			break;
+		}		
+		
+		//record:
+		vector3s[3]=vector3s[2];
+	}		
+	#endregion	
 #endregion
 		
 #region External Utilities
@@ -585,8 +733,8 @@ public class iTween : MonoBehaviour{
 	/// <param name="delay">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
 	/// </param>
-	/// <param name="space">
-	/// A <see cref="Space"/> or <see cref="System.String"/>
+	/// <param name="isLocal">
+	/// A <see cref="System.Boolean"/>
 	/// </param>
 	/// <param name="easeType">
 	/// A <see cref="EaseType"/> or <see cref="System.String"/>
@@ -656,8 +804,8 @@ public class iTween : MonoBehaviour{
 	/// <param name="delay">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
 	/// </param>
-	/// <param name="space">
-	/// A <see cref="Space"/> or <see cref="System.String"/>
+	/// <param name="isLocal">
+	/// A <see cref="System.Boolean"/>
 	/// </param>
 	/// <param name="easeType">
 	/// A <see cref="EaseType"/> or <see cref="System.String"/>
@@ -869,9 +1017,6 @@ public class iTween : MonoBehaviour{
 	/// <param name="delay">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
 	/// </param>
-	/// <param name="space">
-	/// A <see cref="Space"/> or <see cref="System.String"/>
-	/// </param>
 	/// <param name="easeType">
 	/// A <see cref="EaseType"/> or <see cref="System.String"/>
 	/// </param>   
@@ -933,9 +1078,6 @@ public class iTween : MonoBehaviour{
 	/// </param>
 	/// <param name="delay">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
-	/// </param>
-	/// <param name="space">
-	/// A <see cref="Space"/> or <see cref="System.String"/>
 	/// </param>
 	/// <param name="easeType">
 	/// A <see cref="EaseType"/> or <see cref="System.String"/>
@@ -999,9 +1141,6 @@ public class iTween : MonoBehaviour{
 	/// <param name="delay">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
 	/// </param>
-	/// <param name="space">
-	/// A <see cref="Space"/> or <see cref="System.String"/>
-	/// </param>
 	/// <param name="easeType">
 	/// A <see cref="EaseType"/> or <see cref="System.String"/>
 	/// </param>   
@@ -1044,7 +1183,7 @@ public class iTween : MonoBehaviour{
 	
 	#region Documentation
 	/// <summary>
-	/// Multiplies the GameObject's scale by the supplied values.
+	/// Multiplies a GameObject's scale by the supplied values.
 	/// </summary>
 	/// <param name="amount">
 	/// A <see cref="Vector3"/>
@@ -1063,9 +1202,6 @@ public class iTween : MonoBehaviour{
 	/// </param>
 	/// <param name="delay">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
-	/// </param>
-	/// <param name="space">
-	/// A <see cref="Space"/> or <see cref="System.String"/>
 	/// </param>
 	/// <param name="easeType">
 	/// A <see cref="EaseType"/> or <see cref="System.String"/>
@@ -1105,6 +1241,138 @@ public class iTween : MonoBehaviour{
 		args["type"]="scale";
 		args["method"]="by";
 		Launch(target,args);
+	}
+	
+	#region Documentation
+	/// <summary>
+	/// Rotates a GameObject to the supplied Euler angles in degrees.  Does not work with GUITexture and GUIText as they do not support rotation.
+	/// </summary>
+	/// <param name="rotation">
+	/// A <see cref="Vector3"/>
+	/// </param>
+	/// <param name="x">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="y">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="z">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="time">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="delay">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="isLocal">
+	/// A <see cref="System.Boolean"/>
+	/// </param>
+	/// <param nam
+	/// <param name="easeType">
+	/// A <see cref="EaseType"/> or <see cref="System.String"/>
+	/// </param>   
+	/// <param name="loopType">
+	/// A <see cref="EaseType"/> or <see cref="System.String"/>
+	/// </param>
+	/// <param name="onStart">
+	/// A <see cref="System.String"/>
+	/// </param>
+	/// <param name="onStartTarget">
+	/// A <see cref="GameObject"/>
+	/// </param>
+	/// <param name="onStartParams">
+	/// A <see cref="System.Object"/>
+	/// </param>
+	/// <param name="onUpdate">
+	/// A <see cref="System.String"/>
+	/// </param>
+	/// <param name="onUpdateTarget">
+	/// A <see cref="GameObject"/>
+	/// </param>
+	/// <param name="onUpdateParams">
+	/// A <see cref="System.Object"/>
+	/// </param> 
+	/// <param name="onComplete">
+	/// A <see cref="System.String"/>
+	/// </param>
+	/// <param name="onCompleteTarget">
+	/// A <see cref="GameObject"/>.
+	/// </param>
+	/// <param name="onCompleteParams">
+	/// A <see cref="System.Object"/>
+	/// </param>
+	#endregion	
+	public static void RotateTo(GameObject target, Hashtable args){
+		args["type"]="rotate";
+		args["method"]="to";
+		Launch(target,args);
+	}	
+	
+	#region Documentation
+	/// <summary>
+	/// Rotates a GameObject from the supplied Euler angles in degrees to its starting Euler angles in degrees.  Does not work with GUITexture and GUIText as they do not support rotation.
+	/// </summary>
+	/// <param name="rotation">
+	/// A <see cref="Vector3"/>
+	/// </param>
+	/// <param name="x">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="y">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="z">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="time">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="delay">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="isLocal">
+	/// A <see cref="System.Boolean"/>
+	/// </param>
+	/// <param nam
+	/// <param name="easeType">
+	/// A <see cref="EaseType"/> or <see cref="System.String"/>
+	/// </param>   
+	/// <param name="loopType">
+	/// A <see cref="EaseType"/> or <see cref="System.String"/>
+	/// </param>
+	/// <param name="onStart">
+	/// A <see cref="System.String"/>
+	/// </param>
+	/// <param name="onStartTarget">
+	/// A <see cref="GameObject"/>
+	/// </param>
+	/// <param name="onStartParams">
+	/// A <see cref="System.Object"/>
+	/// </param>
+	/// <param name="onUpdate">
+	/// A <see cref="System.String"/>
+	/// </param>
+	/// <param name="onUpdateTarget">
+	/// A <see cref="GameObject"/>
+	/// </param>
+	/// <param name="onUpdateParams">
+	/// A <see cref="System.Object"/>
+	/// </param> 
+	/// <param name="onComplete">
+	/// A <see cref="System.String"/>
+	/// </param>
+	/// <param name="onCompleteTarget">
+	/// A <see cref="GameObject"/>.
+	/// </param>
+	/// <param name="onCompleteParams">
+	/// A <see cref="System.Object"/>
+	/// </param>
+	#endregion	
+	public static void RotateFrom(GameObject target, Hashtable args){
+		args["type"]="rotate";
+		args["method"]="from";
+		Launch(target,args);
 	}	
 #endregion
 	
@@ -1121,17 +1389,17 @@ public class iTween : MonoBehaviour{
 	}	
 	
 	void TweenStart(){
-		//fire start callback
+		CallBack("onStart");
 		//handle destruction of running duplicate types
 		//handle kinematic toggle
-		//run stab adn anything else that doesn't loop?
+		//run stab and anything else that doesn't loop?
 		//setup curve crap?
 		GenerateTargets();
 		isRunning = true;
 	}
 	
 	void TweenUpdate(){
-		//fire update callback
+		CallBack("onUpdate");
 		apply();
 		UpdatePercentage();		
 	}
@@ -1141,11 +1409,13 @@ public class iTween : MonoBehaviour{
 	}
 	
 	void TweenComplete(){
-		//fire complete callback
+		//delete iTween component and remove entry from tweens registry
+		CallBack("onComplete");
 		//dial in percentage to 1 for final run
 		isRunning=false;
-		percentage=1.0f;
+		percentage=1;
         apply();
+		Dispose(); //Don't dispose if there is a loop!
 		/*
 		print("temp test for loop method will need delay reapplication");
 		percentage=0;
