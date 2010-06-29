@@ -23,14 +23,11 @@ public class iTween : MonoBehaviour{
 	public float time, delay;
 	public LoopType loopType;
 	public bool isRunning,isPaused;
-	//make these private:
-	public float percentage;
-	public bool reverse;
 		
 	//private members:
- 	private float runningTime;
+ 	private float runningTime, percentage;
 	protected float delayStarted; //probably not neccesary that this be protected but it shuts Unity's compiler up about this being "never used"
-	private bool kinematic, isLocal, loop;
+	private bool kinematic, isLocal, loop, reverse;
 	private Hashtable tweenArguments;
 	private iTween.EaseType easeType;
 	private Space space;
