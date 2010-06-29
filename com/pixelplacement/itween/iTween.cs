@@ -1070,6 +1070,186 @@ public class iTween : MonoBehaviour{
 		Launch(target,args);
 	}		
 	
+	/// <summary>
+	/// Randomly shakes a GameObject's position by a diminishing amount over time.
+	/// </summary>
+	/// <param name="amount">
+	/// A <see cref="Vector3"/>
+	/// </param>
+	/// <param name="x">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="y">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="z">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="time">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="delay">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="space">
+	/// A <see cref="Space"/>
+	/// </param> 
+	/// <param name="onStart">
+	/// A <see cref="System.String"/>
+	/// </param>
+	/// <param name="onStartTarget">
+	/// A <see cref="GameObject"/>
+	/// </param>
+	/// <param name="onStartParams">
+	/// A <see cref="System.Object"/>
+	/// </param>
+	/// <param name="onUpdate">
+	/// A <see cref="System.String"/>
+	/// </param>
+	/// <param name="onUpdateTarget">
+	/// A <see cref="GameObject"/>
+	/// </param>
+	/// <param name="onUpdateParams">
+	/// A <see cref="System.Object"/>
+	/// </param> 
+	/// <param name="onComplete">
+	/// A <see cref="System.String"/>
+	/// </param>
+	/// <param name="onCompleteTarget">
+	/// A <see cref="GameObject"/>.
+	/// </param>
+	/// <param name="onCompleteParams">
+	/// A <see cref="System.Object"/>
+	/// </param>
+	public static void ShakePosition(GameObject target, Hashtable args){
+		//clean args:
+		args = iTween.CleanArgs(args);
+		
+		//establish iTween
+		args["type"]="shake";
+		args["method"]="position";
+		Launch(target,args);
+	}		
+	
+	/// <summary>
+	/// Randomly shakes a GameObject's scale by a diminishing amount over time.
+	/// </summary>
+	/// <param name="amount">
+	/// A <see cref="Vector3"/>
+	/// </param>
+	/// <param name="x">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="y">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="z">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="time">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="delay">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="onStart">
+	/// A <see cref="System.String"/>
+	/// </param>
+	/// <param name="onStartTarget">
+	/// A <see cref="GameObject"/>
+	/// </param>
+	/// <param name="onStartParams">
+	/// A <see cref="System.Object"/>
+	/// </param>
+	/// <param name="onUpdate">
+	/// A <see cref="System.String"/>
+	/// </param>
+	/// <param name="onUpdateTarget">
+	/// A <see cref="GameObject"/>
+	/// </param>
+	/// <param name="onUpdateParams">
+	/// A <see cref="System.Object"/>
+	/// </param> 
+	/// <param name="onComplete">
+	/// A <see cref="System.String"/>
+	/// </param>
+	/// <param name="onCompleteTarget">
+	/// A <see cref="GameObject"/>.
+	/// </param>
+	/// <param name="onCompleteParams">
+	/// A <see cref="System.Object"/>
+	/// </param>
+	public static void ShakeScale(GameObject target, Hashtable args){
+		//clean args:
+		args = iTween.CleanArgs(args);
+		
+		//establish iTween
+		args["type"]="shake";
+		args["method"]="scale";
+		Launch(target,args);
+	}		
+	
+	/// <summary>
+	/// Randomly shakes a GameObject's rotation by a diminishing amount over time.
+	/// </summary>
+	/// <param name="amount">
+	/// A <see cref="Vector3"/>
+	/// </param>
+	/// <param name="x">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="y">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="z">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="time">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="space">
+	/// A <see cref="Space"/>
+	/// </param>
+	/// <param name="delay">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="onStart">
+	/// A <see cref="System.String"/>
+	/// </param>
+	/// <param name="onStartTarget">
+	/// A <see cref="GameObject"/>
+	/// </param>
+	/// <param name="onStartParams">
+	/// A <see cref="System.Object"/>
+	/// </param>
+	/// <param name="onUpdate">
+	/// A <see cref="System.String"/>
+	/// </param>
+	/// <param name="onUpdateTarget">
+	/// A <see cref="GameObject"/>
+	/// </param>
+	/// <param name="onUpdateParams">
+	/// A <see cref="System.Object"/>
+	/// </param> 
+	/// <param name="onComplete">
+	/// A <see cref="System.String"/>
+	/// </param>
+	/// <param name="onCompleteTarget">
+	/// A <see cref="GameObject"/>.
+	/// </param>
+	/// <param name="onCompleteParams">
+	/// A <see cref="System.Object"/>
+	/// </param>
+	public static void ShakeRotation(GameObject target, Hashtable args){
+		//clean args:
+		args = iTween.CleanArgs(args);
+		
+		//establish iTween
+		args["type"]="shake";
+		args["method"]="rotation";
+		Launch(target,args);
+	}			
+	
 	#endregion
 	
 	#region Generate Targets
@@ -1122,6 +1302,23 @@ public class iTween : MonoBehaviour{
 					break;				
 				}
 			break;
+			case "shake":
+				switch (method) {
+					case "position":
+						GenerateShakePositionTargets();
+						apply = new ApplyTween(ApplyShakePositionTargets);
+					break;		
+					case "scale":
+						GenerateShakeScaleTargets();
+						apply = new ApplyTween(ApplyShakeScaleTargets);
+					break;
+					case "rotation":
+						GenerateShakeRotationTargets();
+						apply = new ApplyTween(ApplyShakeRotationTargets);
+					break;
+				}
+			break;			
+			
 		}
 	}
 	
@@ -1318,9 +1515,78 @@ public class iTween : MonoBehaviour{
 		}
 	}		
 	
+	void GenerateShakePositionTargets(){
+		//values holder [0] root value, [1] amount, [2] generated amount:
+		vector3s=new Vector3[3];
+		
+		//root:
+		vector3s[0]=transform.position;
+		
+		//amount:
+		if (tweenArguments.Contains("amount")) {
+			vector3s[1]=(Vector3)tweenArguments["amount"];
+		}else{
+			if (tweenArguments.Contains("x")) {
+				vector3s[1].x=(float)tweenArguments["x"];
+			}
+			if (tweenArguments.Contains("y")) {
+				vector3s[1].y=(float)tweenArguments["y"];
+			}
+			if (tweenArguments.Contains("z")) {
+				vector3s[1].z=(float)tweenArguments["z"];
+			}
+		}
+	}		
+	
+	void GenerateShakeScaleTargets(){
+		//values holder [0] root value, [1] amount, [2] generated amount:
+		vector3s=new Vector3[3];
+		
+		//root:
+		vector3s[0]=transform.localScale;
+		
+		//amount:
+		if (tweenArguments.Contains("amount")) {
+			vector3s[1]=(Vector3)tweenArguments["amount"];
+		}else{
+			if (tweenArguments.Contains("x")) {
+				vector3s[1].x=(float)tweenArguments["x"];
+			}
+			if (tweenArguments.Contains("y")) {
+				vector3s[1].y=(float)tweenArguments["y"];
+			}
+			if (tweenArguments.Contains("z")) {
+				vector3s[1].z=(float)tweenArguments["z"];
+			}
+		}
+	}		
+		
+	void GenerateShakeRotationTargets(){
+		//values holder [0] root value, [1] amount, [2] generated amount:
+		vector3s=new Vector3[3];
+		
+		//root:
+		vector3s[0]=transform.eulerAngles;
+		
+		//amount:
+		if (tweenArguments.Contains("amount")) {
+			vector3s[1]=(Vector3)tweenArguments["amount"];
+		}else{
+			if (tweenArguments.Contains("x")) {
+				vector3s[1].x=(float)tweenArguments["x"];
+			}
+			if (tweenArguments.Contains("y")) {
+				vector3s[1].y=(float)tweenArguments["y"];
+			}
+			if (tweenArguments.Contains("z")) {
+				vector3s[1].z=(float)tweenArguments["z"];
+			}
+		}
+	}	
+	
 	#endregion
 	
-	#region Apply Methods
+	#region Apply Targets
 	
 	void ApplyMoveToTargets(){
 		//calculate:
@@ -1386,6 +1652,63 @@ public class iTween : MonoBehaviour{
 		//record:
 		vector3s[3]=vector3s[2];
 	}	
+	
+	void ApplyShakePositionTargets(){
+		//impact:
+		if (percentage==0) {
+			transform.Translate(vector3s[1],space);
+		}
+		
+		//reset:
+		transform.position=vector3s[0];
+		
+		//generate:
+		float diminishingControl = 1-percentage;
+		vector3s[2].x= UnityEngine.Random.Range(-vector3s[1].x*diminishingControl, vector3s[1].x*diminishingControl);
+		vector3s[2].y= UnityEngine.Random.Range(-vector3s[1].y*diminishingControl, vector3s[1].y*diminishingControl);
+		vector3s[2].z= UnityEngine.Random.Range(-vector3s[1].z*diminishingControl, vector3s[1].z*diminishingControl);
+
+		//apply:
+		transform.Translate(vector3s[2],space);	
+	}	
+	
+	void ApplyShakeScaleTargets(){
+		//impact:
+		if (percentage==0) {
+			transform.localScale=vector3s[1];
+		}
+		
+		//reset:
+		transform.localScale=vector3s[0];
+		
+		//generate:
+		float diminishingControl = 1-percentage;
+		vector3s[2].x= UnityEngine.Random.Range(-vector3s[1].x*diminishingControl, vector3s[1].x*diminishingControl);
+		vector3s[2].y= UnityEngine.Random.Range(-vector3s[1].y*diminishingControl, vector3s[1].y*diminishingControl);
+		vector3s[2].z= UnityEngine.Random.Range(-vector3s[1].z*diminishingControl, vector3s[1].z*diminishingControl);
+
+		//apply:
+		transform.localScale+=vector3s[2];
+	}		
+	
+	void ApplyShakeRotationTargets(){
+		//impact:
+		if (percentage==0) {
+			transform.Rotate(vector3s[1],space);
+		}
+		
+		//reset:
+		transform.eulerAngles=vector3s[0];
+		
+		//generate:
+		float diminishingControl = 1-percentage;
+		vector3s[2].x= UnityEngine.Random.Range(-vector3s[1].x*diminishingControl, vector3s[1].x*diminishingControl);
+		vector3s[2].y= UnityEngine.Random.Range(-vector3s[1].y*diminishingControl, vector3s[1].y*diminishingControl);
+		vector3s[2].z= UnityEngine.Random.Range(-vector3s[1].z*diminishingControl, vector3s[1].z*diminishingControl);
+
+		//apply:
+		transform.Rotate(vector3s[2],space);	
+	}		
 	
 	#endregion	
 	
@@ -2063,4 +2386,4 @@ public class iTween : MonoBehaviour{
     }
 	#endregion	
 	
-}
+} 
