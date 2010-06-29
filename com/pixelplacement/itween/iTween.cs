@@ -73,7 +73,8 @@ public class iTween : MonoBehaviour{
 		bounce,
 		easeInBack,
 		easeOutBack,
-		easeInOutBack
+		easeInOutBack,
+		punch
 	}
 	
 	/// <summary>
@@ -1094,6 +1095,9 @@ public class iTween : MonoBehaviour{
 	/// <param name="space">
 	/// A <see cref="Space"/>
 	/// </param> 
+	/// <param name="lookTarget">
+	/// A <see cref="Vector3"/> or A <see cref="Transform"/>
+	/// </param>
 	/// <param name="onStart">
 	/// A <see cref="System.String"/>
 	/// </param>
@@ -1250,6 +1254,195 @@ public class iTween : MonoBehaviour{
 		Launch(target,args);
 	}			
 	
+	/// <summary>
+	/// Applies a jolt of force to a GameObject's position and wobbles it back to its initial position.
+	/// </summary>
+	/// <param name="amount">
+	/// A <see cref="Vector3"/>
+	/// </param>
+	/// <param name="x">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="y">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="z">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="time">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="delay">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="space">
+	/// A <see cref="Space"/>
+	/// </param> 
+	/// <param name="lookTarget">
+	/// A <see cref="Vector3"/> or A <see cref="Transform"/>
+	/// </param>
+	/// <param name="onStart">
+	/// A <see cref="System.String"/>
+	/// </param>
+	/// <param name="onStartTarget">
+	/// A <see cref="GameObject"/>
+	/// </param>
+	/// <param name="onStartParams">
+	/// A <see cref="System.Object"/>
+	/// </param>
+	/// <param name="onUpdate">
+	/// A <see cref="System.String"/>
+	/// </param>
+	/// <param name="onUpdateTarget">
+	/// A <see cref="GameObject"/>
+	/// </param>
+	/// <param name="onUpdateParams">
+	/// A <see cref="System.Object"/>
+	/// </param> 
+	/// <param name="onComplete">
+	/// A <see cref="System.String"/>
+	/// </param>
+	/// <param name="onCompleteTarget">
+	/// A <see cref="GameObject"/>.
+	/// </param>
+	/// <param name="onCompleteParams">
+	/// A <see cref="System.Object"/>
+	/// </param>
+	public static void PunchPosition(GameObject target, Hashtable args){
+		//clean args:
+		args = iTween.CleanArgs(args);
+		
+		//establish iTween
+		args["type"]="punch";
+		args["method"]="position";
+		args["easeType"]=EaseType.punch;
+		Launch(target,args);
+	}		
+	
+	/// <summary>
+	/// Applies a jolt of force to a GameObject's rotation and wobbles it back to its initial rotation.
+	/// </summary>
+	/// <param name="amount">
+	/// A <see cref="Vector3"/>
+	/// </param>
+	/// <param name="x">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="y">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="z">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="time">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="delay">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="space">
+	/// A <see cref="Space"/>
+	/// </param> 
+	/// <param name="onStart">
+	/// A <see cref="System.String"/>
+	/// </param>
+	/// <param name="onStartTarget">
+	/// A <see cref="GameObject"/>
+	/// </param>
+	/// <param name="onStartParams">
+	/// A <see cref="System.Object"/>
+	/// </param>
+	/// <param name="onUpdate">
+	/// A <see cref="System.String"/>
+	/// </param>
+	/// <param name="onUpdateTarget">
+	/// A <see cref="GameObject"/>
+	/// </param>
+	/// <param name="onUpdateParams">
+	/// A <see cref="System.Object"/>
+	/// </param> 
+	/// <param name="onComplete">
+	/// A <see cref="System.String"/>
+	/// </param>
+	/// <param name="onCompleteTarget">
+	/// A <see cref="GameObject"/>.
+	/// </param>
+	/// <param name="onCompleteParams">
+	/// A <see cref="System.Object"/>
+	/// </param>
+	public static void PunchRotation(GameObject target, Hashtable args){
+		//clean args:
+		args = iTween.CleanArgs(args);
+		
+		//establish iTween
+		args["type"]="punch";
+		args["method"]="rotation";
+		args["easeType"]=EaseType.punch;
+		Launch(target,args);
+	}	
+	
+	/// <summary>
+	/// Applies a jolt of force to a GameObject's scale and wobbles it back to its initial scale.
+	/// </summary>
+	/// <param name="amount">
+	/// A <see cref="Vector3"/>
+	/// </param>
+	/// <param name="x">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="y">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="z">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="time">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="delay">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="space">
+	/// A <see cref="Space"/>
+	/// </param> 
+	/// <param name="onStart">
+	/// A <see cref="System.String"/>
+	/// </param>
+	/// <param name="onStartTarget">
+	/// A <see cref="GameObject"/>
+	/// </param>
+	/// <param name="onStartParams">
+	/// A <see cref="System.Object"/>
+	/// </param>
+	/// <param name="onUpdate">
+	/// A <see cref="System.String"/>
+	/// </param>
+	/// <param name="onUpdateTarget">
+	/// A <see cref="GameObject"/>
+	/// </param>
+	/// <param name="onUpdateParams">
+	/// A <see cref="System.Object"/>
+	/// </param> 
+	/// <param name="onComplete">
+	/// A <see cref="System.String"/>
+	/// </param>
+	/// <param name="onCompleteTarget">
+	/// A <see cref="GameObject"/>.
+	/// </param>
+	/// <param name="onCompleteParams">
+	/// A <see cref="System.Object"/>
+	/// </param>
+	public static void PunchScale(GameObject target, Hashtable args){
+		//clean args:
+		args = iTween.CleanArgs(args);
+		
+		//establish iTween
+		args["type"]="punch";
+		args["method"]="scale";
+		args["easeType"]=EaseType.punch;
+		Launch(target,args);
+	}	
+	
 	#endregion
 	
 	#region Generate Targets
@@ -1318,7 +1511,22 @@ public class iTween : MonoBehaviour{
 					break;
 				}
 			break;			
-			
+			case "punch":
+				switch (method) {
+					case "position":
+						GeneratePunchPositionTargets();
+						apply = new ApplyTween(ApplyPunchPositionTargets);
+					break;	
+					case "rotation":
+						GeneratePunchRotationTargets();
+						apply = new ApplyTween(ApplyPunchRotationTargets);
+					break;	
+					case "scale":
+						GeneratePunchScaleTargets();
+						apply = new ApplyTween(ApplyPunchScaleTargets);
+					break;
+				}
+			break;
 		}
 	}
 	
@@ -1584,6 +1792,78 @@ public class iTween : MonoBehaviour{
 		}
 	}	
 	
+	void GeneratePunchPositionTargets(){
+		//values holder [0] from, [1] to, [2] calculated value from ease equation, [3] previous value for Translate usage to allow Space utilization:
+		vector3s=new Vector3[4];
+		
+		//from values:
+		vector3s[0]=transform.position;
+		vector3s[1]=vector3s[3]=Vector3.zero;
+				
+		//to values:
+		if (tweenArguments.Contains("amount")) {
+			vector3s[1]=(Vector3)tweenArguments["amount"];
+		}else{
+			if (tweenArguments.Contains("x")) {
+				vector3s[1].x=(float)tweenArguments["x"];
+			}
+			if (tweenArguments.Contains("y")) {
+				vector3s[1].y=(float)tweenArguments["y"];
+			}
+			if (tweenArguments.Contains("z")) {
+				vector3s[1].z=(float)tweenArguments["z"];
+			}
+		}
+	}	
+	
+	void GeneratePunchRotationTargets(){
+		//values holder [0] from, [1] to, [2] calculated value from ease equation, [3] previous value for Translate usage to allow Space utilization:
+		vector3s=new Vector3[4];
+		
+		//from values:
+		vector3s[0]=transform.eulerAngles;
+		vector3s[1]=vector3s[3]=Vector3.zero;
+				
+		//to values:
+		if (tweenArguments.Contains("amount")) {
+			vector3s[1]=(Vector3)tweenArguments["amount"];
+		}else{
+			if (tweenArguments.Contains("x")) {
+				vector3s[1].x=(float)tweenArguments["x"];
+			}
+			if (tweenArguments.Contains("y")) {
+				vector3s[1].y=(float)tweenArguments["y"];
+			}
+			if (tweenArguments.Contains("z")) {
+				vector3s[1].z=(float)tweenArguments["z"];
+			}
+		}
+	}		
+	
+	void GeneratePunchScaleTargets(){
+		//values holder [0] from, [1] to, [2] calculated value from ease equation:
+		vector3s=new Vector3[3];
+		
+		//from values:
+		vector3s[0]=transform.localScale;
+		vector3s[1]=Vector3.zero;
+				
+		//to values:
+		if (tweenArguments.Contains("amount")) {
+			vector3s[1]=(Vector3)tweenArguments["amount"];
+		}else{
+			if (tweenArguments.Contains("x")) {
+				vector3s[1].x=(float)tweenArguments["x"];
+			}
+			if (tweenArguments.Contains("y")) {
+				vector3s[1].y=(float)tweenArguments["y"];
+			}
+			if (tweenArguments.Contains("z")) {
+				vector3s[1].z=(float)tweenArguments["z"];
+			}
+		}
+	}
+	
 	#endregion
 	
 	#region Apply Targets
@@ -1613,7 +1893,6 @@ public class iTween : MonoBehaviour{
 
 		//record:
 		vector3s[3]=vector3s[2];
-
 	}	
 	
 	void ApplyScaleToTargets(){
@@ -1708,6 +1987,78 @@ public class iTween : MonoBehaviour{
 
 		//apply:
 		transform.Rotate(vector3s[2],space);	
+	}		
+	
+	void ApplyPunchPositionTargets(){
+		//calculate:
+		if(vector3s[1].x>0){
+			vector3s[2].x = punch(vector3s[1].x,percentage);
+		}else if(vector3s[1].x<0){
+			vector3s[2].x=-punch(Mathf.Abs(vector3s[1].x),percentage); 
+		}
+		if(vector3s[1].y>0){
+			vector3s[2].y=punch(vector3s[1].y,percentage);
+		}else if(vector3s[1].y<0){
+			vector3s[2].y=-punch(Mathf.Abs(vector3s[1].y),percentage); 
+		}
+		if(vector3s[1].z>0){
+			vector3s[2].z=punch(vector3s[1].z,percentage);
+		}else if(vector3s[1].z<0){
+			vector3s[2].z=-punch(Mathf.Abs(vector3s[1].z),percentage); 
+		}
+		
+		//apply:
+		transform.Translate(vector3s[2]-vector3s[3],space);
+
+		//record:
+		vector3s[3]=vector3s[2];
+	}		
+	
+	void ApplyPunchRotationTargets(){
+		//calculate:
+		if(vector3s[1].x>0){
+			vector3s[2].x = punch(vector3s[1].x,percentage);
+		}else if(vector3s[1].x<0){
+			vector3s[2].x=-punch(Mathf.Abs(vector3s[1].x),percentage); 
+		}
+		if(vector3s[1].y>0){
+			vector3s[2].y=punch(vector3s[1].y,percentage);
+		}else if(vector3s[1].y<0){
+			vector3s[2].y=-punch(Mathf.Abs(vector3s[1].y),percentage); 
+		}
+		if(vector3s[1].z>0){
+			vector3s[2].z=punch(vector3s[1].z,percentage);
+		}else if(vector3s[1].z<0){
+			vector3s[2].z=-punch(Mathf.Abs(vector3s[1].z),percentage); 
+		}
+		
+		//apply:
+		transform.Rotate(vector3s[2]-vector3s[3],space);
+
+		//record:
+		vector3s[3]=vector3s[2];
+	}	
+	
+	void ApplyPunchScaleTargets(){
+		//calculate:
+		if(vector3s[1].x>0){
+			vector3s[2].x = punch(vector3s[1].x,percentage);
+		}else if(vector3s[1].x<0){
+			vector3s[2].x=-punch(Mathf.Abs(vector3s[1].x),percentage); 
+		}
+		if(vector3s[1].y>0){
+			vector3s[2].y=punch(vector3s[1].y,percentage);
+		}else if(vector3s[1].y<0){
+			vector3s[2].y=-punch(Mathf.Abs(vector3s[1].y),percentage); 
+		}
+		if(vector3s[1].z>0){
+			vector3s[2].z=punch(vector3s[1].z,percentage);
+		}else if(vector3s[1].z<0){
+			vector3s[2].z=-punch(Mathf.Abs(vector3s[1].z),percentage); 
+		}
+		
+		//apply:
+		transform.localScale=vector3s[0]+vector3s[2];
 	}		
 	
 	#endregion	
