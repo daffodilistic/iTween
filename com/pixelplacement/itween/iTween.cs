@@ -108,16 +108,7 @@ public class iTween : MonoBehaviour{
 		/// </summary>
 		hermite
 	}
-	
-	/// <summary>
-	/// The axis to use.
-	/// </summary>
-	public enum Axis{
-		x,
-		y,
-		z
-	}
-		
+			
 	#endregion
 	
 	#region Defaults
@@ -153,6 +144,60 @@ public class iTween : MonoBehaviour{
 	#region Static Registers
 	
 	/// <summary>
+	/// Plays an AudioClip once based on supplied volume and pitch and following any delay.
+	/// </summary>
+	/// <param name="audioClip">
+	/// A <see cref="AudioClip"/>
+	/// </param> 
+	/// <param name="audioSource">
+	/// A <see cref="AudioSource"/>
+	/// </param> 
+	/// <param name="volume">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="pitch">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="delay">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="onStart">
+	/// A <see cref="System.String"/>
+	/// </param>
+	/// <param name="onStartTarget">
+	/// A <see cref="GameObject"/>
+	/// </param>
+	/// <param name="onStartParams">
+	/// A <see cref="System.Object"/>
+	/// </param>
+	/// <param name="onUpdate">
+	/// A <see cref="System.String"/>
+	/// </param>
+	/// <param name="onUpdateTarget">
+	/// A <see cref="GameObject"/>
+	/// </param>
+	/// <param name="onUpdateParams">
+	/// A <see cref="System.Object"/>
+	/// </param>
+	/// <param name="onComplete">
+	/// A <see cref="System.String"/>
+	/// </param>
+	/// <param name="onCompleteTarget">
+	/// A <see cref="GameObject"/>.
+	/// </param>
+	/// <param name="onCompleteParams">
+	/// A <see cref="System.Object"/>
+	/// </param>
+	public static void Stab(GameObject target, Hashtable args){
+		//clean args:
+		args = iTween.CleanArgs(args);
+		
+		//establish iTween:
+		args["type"]="stab";
+		Launch(target,args);			
+	}
+	
+	/// <summary>
 	/// Instantly rotates a GameObject to look at a supplied Transform or Vector3 then returns it to it's starting rotation over time (if allowed). 
 	/// </summary>
 	/// <param name="lookTarget">
@@ -160,7 +205,7 @@ public class iTween : MonoBehaviour{
 	/// </param>
 	/// <param name="axis">
 	/// A <see cref="System.String"/>
-	/// </param>/// 
+	/// </param>
 	/// <param name="time">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
 	/// </param>
@@ -252,7 +297,7 @@ public class iTween : MonoBehaviour{
 	/// </param>
 	/// <param name="axis">
 	/// A <see cref="System.String"/>
-	/// </param>/// 
+	/// </param>
 	/// <param name="time">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
 	/// </param>
@@ -1697,8 +1742,43 @@ public class iTween : MonoBehaviour{
 						apply = new ApplyTween(ApplyRotateToTargets);
 					break;	
 				}
-			break;			
+			break;	
+			case "stab":
+				GenerateStabTargets();
+				apply = new ApplyTween(ApplyStabTargets);
+			break;	
 		}
+	}
+	
+	void GenerateStabTargets(){
+		//set audioSource:
+		if(tweenArguments.Contains("audioSource")){
+			audioSource=(AudioSource)tweenArguments["audioSource"];
+		}else{
+			if(GetComponent(typeof(AudioSource))){
+				audioSource=audio;
+			}else{
+				//add and populate AudioSource if one doesn't exist:
+				gameObject.AddComponent(typeof(AudioSource));
+				audioSource=audio;
+				audioSource.playOnAwake=false;
+				
+			}
+		}
+		
+		//populate audioSource's clip:
+		audioSource.clip=(AudioClip)tweenArguments["audioClip"];
+		
+		//set audio's pitch and volume if requested:
+		if(tweenArguments.Contains("pitch")){
+			audioSource.pitch=(float)tweenArguments["pitch"];
+		}
+		if(tweenArguments.Contains("volume")){
+			audioSource.volume=(float)tweenArguments["volume"];
+		}
+			
+		//set run time based on length of clip after pitch is augmented
+		time=audioSource.clip.length/audioSource.pitch;
 	}
 	
 	void GenerateLookToTargets(){
@@ -2081,6 +2161,10 @@ public class iTween : MonoBehaviour{
 	
 	#region Apply Targets
 	
+	void ApplyStabTargets(){
+		print("audio is playing");	
+	}
+	
 	void ApplyMoveToTargets(){
 		//calculate:
 		vector3s[2].x = ease(vector3s[0].x,vector3s[1].x,percentage);
@@ -2283,14 +2367,24 @@ public class iTween : MonoBehaviour{
 		yield return new WaitForSeconds (delay);
 	}	
 	
-	void TweenStart(){
-		//run stab and anything else that doesn't loop?
+	void TweenStart(){		
 		//setup curve crap?
+		//
 		if(!loop){//only if this is not a loop
 			ConflictCheck();
 			GenerateTargets();
 		}
-		EnableKinematic();
+		
+		//run stab:
+		if(type == "stab"){
+			audioSource.PlayOneShot(audioSource.clip);
+		}
+		
+		//toggle isKinematic for iTweens that may interfere with physics:
+		if (type == "move" || type=="scale" || type=="rotate" || type=="punch" || type=="shake" || type=="curve" || type=="look") {
+			EnableKinematic();
+		}
+		
 		CallBack("onStart");
 		isRunning = true;
 	}
