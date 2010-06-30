@@ -144,7 +144,7 @@ public class iTween : MonoBehaviour{
 	#region Static Registers
 	
 	/// <summary>
-	/// Plays an AudioClip once based on supplied volume and pitch and following any delay.
+	/// Plays an AudioClip once based on supplied volume and pitch and following any delay. AudioSource is optional as iTween will provide one.
 	/// </summary>
 	/// <param name="audioClip">
 	/// A <see cref="AudioClip"/>
