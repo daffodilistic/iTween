@@ -109,6 +109,15 @@ public class iTween : MonoBehaviour{
 		hermite
 	}
 	
+	/// <summary>
+	/// The axis to use.
+	/// </summary>
+	public enum Axis{
+		x,
+		y,
+		z
+	}
+		
 	#endregion
 	
 	#region Defaults
@@ -142,7 +151,157 @@ public class iTween : MonoBehaviour{
 	#endregion
 				
 	#region Static Registers
+	
+	/// <summary>
+	/// Instantly rotates a GameObject to look at a supplied Transform or Vector3 then returns it to it's starting rotation over time (if allowed). 
+	/// </summary>
+	/// <param name="lookTarget">
+	/// A <see cref="Transform"/> or <see cref="Vector3"/>
+	/// </param>
+	/// <param name="axis">
+	/// A <see cref="System.String"/>
+	/// </param>/// 
+	/// <param name="time">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="delay">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="easeType">
+	/// A <see cref="EaseType"/> or <see cref="System.String"/>
+	/// </param>   
+	/// <param name="loopType">
+	/// A <see cref="EaseType"/> or <see cref="System.String"/>
+	/// </param>
+	/// <param name="onStart">
+	/// A <see cref="System.String"/>
+	/// </param>
+	/// <param name="onStartTarget">
+	/// A <see cref="GameObject"/>
+	/// </param>
+	/// <param name="onStartParams">
+	/// A <see cref="System.Object"/>
+	/// </param>
+	/// <param name="onUpdate">
+	/// A <see cref="System.String"/>
+	/// </param>
+	/// <param name="onUpdateTarget">
+	/// A <see cref="GameObject"/>
+	/// </param>
+	/// <param name="onUpdateParams">
+	/// A <see cref="System.Object"/>
+	/// </param> 
+	/// <param name="onComplete">
+	/// A <see cref="System.String"/>
+	/// </param>
+	/// <param name="onCompleteTarget">
+	/// A <see cref="GameObject"/>.
+	/// </param>
+	/// <param name="onCompleteParams">
+	/// A <see cref="System.Object"/>
+	/// </param>
+	public static void LookFrom(GameObject target, Hashtable args){
+		Vector3 tempRotation;
+		Vector3 tempRestriction;
 		
+		//clean args:
+		args = iTween.CleanArgs(args);
+		
+		//set look:
+		tempRotation=target.transform.eulerAngles;
+		if (args["lookTarget"].GetType() == typeof(Transform)) {
+			target.transform.LookAt((Transform)args["lookTarget"]);
+		}else if(args["lookTarget"].GetType() == typeof(Vector3)){
+			target.transform.LookAt((Vector3)args["lookTarget"]);
+		}
+		
+		//axis restriction:
+		if(args.Contains("axis")){
+			tempRestriction=target.transform.eulerAngles;
+			switch((string)args["axis"]){
+				case "x":
+				 	tempRestriction.y=tempRotation.y;
+					tempRestriction.z=tempRotation.z;
+				break;
+				case "y":
+					tempRestriction.x=tempRotation.x;
+					tempRestriction.z=tempRotation.z;
+				break;
+				case "z":
+					tempRestriction.x=tempRotation.x;
+					tempRestriction.y=tempRotation.y;
+				break;
+			}
+			target.transform.eulerAngles=tempRestriction;
+		}		
+		
+		//set new rotation:
+		args["rotation"] = tempRotation;
+		
+		//establish iTween
+		args["type"]="look";
+		args["method"]="from";
+		Launch(target,args);
+	}		
+	
+	/// <summary>
+	/// Rotates a GameObject to look at a supplied Transform or Vector3 over time (if allowed). 
+	/// </summary>
+	/// <param name="lookTarget">
+	/// A <see cref="Transform"/> or <see cref="Vector3"/>
+	/// </param>
+	/// <param name="axis">
+	/// A <see cref="System.String"/>
+	/// </param>/// 
+	/// <param name="time">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="delay">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="easeType">
+	/// A <see cref="EaseType"/> or <see cref="System.String"/>
+	/// </param>   
+	/// <param name="loopType">
+	/// A <see cref="EaseType"/> or <see cref="System.String"/>
+	/// </param>
+	/// <param name="onStart">
+	/// A <see cref="System.String"/>
+	/// </param>
+	/// <param name="onStartTarget">
+	/// A <see cref="GameObject"/>
+	/// </param>
+	/// <param name="onStartParams">
+	/// A <see cref="System.Object"/>
+	/// </param>
+	/// <param name="onUpdate">
+	/// A <see cref="System.String"/>
+	/// </param>
+	/// <param name="onUpdateTarget">
+	/// A <see cref="GameObject"/>
+	/// </param>
+	/// <param name="onUpdateParams">
+	/// A <see cref="System.Object"/>
+	/// </param> 
+	/// <param name="onComplete">
+	/// A <see cref="System.String"/>
+	/// </param>
+	/// <param name="onCompleteTarget">
+	/// A <see cref="GameObject"/>.
+	/// </param>
+	/// <param name="onCompleteParams">
+	/// A <see cref="System.Object"/>
+	/// </param>
+	public static void LookTo(GameObject target, Hashtable args){
+		//clean args:
+		args = iTween.CleanArgs(args);
+		
+		//establish iTween
+		args["type"]="look";
+		args["method"]="to";
+		Launch(target,args);
+	}		
+	
 	/// <summary>
 	/// Changes a GameObject's position over time.
 	/// </summary>
@@ -158,26 +317,26 @@ public class iTween : MonoBehaviour{
 	/// <param name="z">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
 	/// </param>
+	/// <param name="orientToPath">
+	/// A <see cref="System.Boolean"/>
+	/// </param>
+	/// <param name="lookTarget">
+	/// A <see cref="Vector3"/> or A <see cref="Transform"/>
+	/// </param>
+	/// <param name="isLocal">
+	/// A <see cref="System.Boolean"/>
+	/// </param>
 	/// <param name="time">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
 	/// </param>
 	/// <param name="delay">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
 	/// </param>
-	/// <param name="isLocal">
-	/// A <see cref="System.Boolean"/>
-	/// </param>
 	/// <param name="easeType">
 	/// A <see cref="EaseType"/> or <see cref="System.String"/>
 	/// </param>   
 	/// <param name="loopType">
 	/// A <see cref="EaseType"/> or <see cref="System.String"/>
-	/// </param>
-	/// <param name="orientToPath">
-	/// A <see cref="System.Boolean"/>
-	/// </param>
-	/// <param name="lookTarget">
-	/// A <see cref="Vector3"/> or A <see cref="Transform"/>
 	/// </param>
 	/// <param name="onStart">
 	/// A <see cref="System.String"/>
@@ -231,26 +390,26 @@ public class iTween : MonoBehaviour{
 	/// <param name="z">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
 	/// </param>
+	/// <param name="orientToPath">
+	/// A <see cref="System.Boolean"/>
+	/// </param>
+	/// <param name="lookTarget">
+	/// A <see cref="Vector3"/> or A <see cref="Transform"/>
+	/// </param>
+	/// <param name="isLocal">
+	/// A <see cref="System.Boolean"/>
+	/// </param>
 	/// <param name="time">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
 	/// </param>
 	/// <param name="delay">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
 	/// </param>
-	/// <param name="isLocal">
-	/// A <see cref="System.Boolean"/>
-	/// </param>
 	/// <param name="easeType">
 	/// A <see cref="EaseType"/> or <see cref="System.String"/>
 	/// </param>   
 	/// <param name="loopType">
 	/// A <see cref="EaseType"/> or <see cref="System.String"/>
-	/// </param>
-	/// <param name="orientToPath">
-	/// A <see cref="System.Boolean"/>
-	/// </param>
-	/// <param name="lookTarget">
-	/// A <see cref="Vector3"/> or A <see cref="Transform"/>
 	/// </param>
 	/// <param name="onStart">
 	/// A <see cref="System.String"/>
@@ -347,26 +506,26 @@ public class iTween : MonoBehaviour{
 	/// <param name="z">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
 	/// </param>
+	/// <param name="orientToPath">
+	/// A <see cref="System.Boolean"/>
+	/// </param>
+	/// <param name="lookTarget">
+	/// A <see cref="Vector3"/> or A <see cref="Transform"/>
+	/// </param>
+	/// <param name="space">
+	/// A <see cref="Space"/> or <see cref="System.String"/>
+	/// </param>
 	/// <param name="time">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
 	/// </param>
 	/// <param name="delay">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
 	/// </param>
-	/// <param name="space">
-	/// A <see cref="Space"/> or <see cref="System.String"/>
-	/// </param>
 	/// <param name="easeType">
 	/// A <see cref="EaseType"/> or <see cref="System.String"/>
 	/// </param>   
 	/// <param name="loopType">
 	/// A <see cref="EaseType"/> or <see cref="System.String"/>
-	/// </param>
-	/// <param name="orientToPath">
-	/// A <see cref="System.Boolean"/>
-	/// </param>
-	/// <param name="lookTarget">
-	/// A <see cref="Vector3"/> or A <see cref="Transform"/>
 	/// </param>
 	/// <param name="onStart">
 	/// A <see cref="System.String"/>
@@ -420,26 +579,26 @@ public class iTween : MonoBehaviour{
 	/// <param name="z">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
 	/// </param>
+	/// <param name="orientToPath">
+	/// A <see cref="System.Boolean"/>
+	/// </param>
+	/// <param name="lookTarget">
+	/// A <see cref="Vector3"/> or A <see cref="Transform"/>
+	/// </param>
+	/// <param name="space">
+	/// A <see cref="Space"/> or <see cref="System.String"/>
+	/// </param>
 	/// <param name="time">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
 	/// </param>
 	/// <param name="delay">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
 	/// </param>
-	/// <param name="space">
-	/// A <see cref="Space"/> or <see cref="System.String"/>
-	/// </param>
 	/// <param name="easeType">
 	/// A <see cref="EaseType"/> or <see cref="System.String"/>
 	/// </param>   
 	/// <param name="loopType">
 	/// A <see cref="EaseType"/> or <see cref="System.String"/>
-	/// </param>
-	/// <param name="orientToPath">
-	/// A <see cref="System.Boolean"/>
-	/// </param>
-	/// <param name="lookTarget">
-	/// A <see cref="Vector3"/> or A <see cref="Transform"/>
 	/// </param>
 	/// <param name="onStart">
 	/// A <see cref="System.String"/>
@@ -776,14 +935,14 @@ public class iTween : MonoBehaviour{
 	/// <param name="z">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
 	/// </param>
+	/// <param name="isLocal">
+	/// A <see cref="System.Boolean"/>
+	/// </param>
 	/// <param name="time">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
 	/// </param>
 	/// <param name="delay">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
-	/// </param>
-	/// <param name="isLocal">
-	/// A <see cref="System.Boolean"/>
 	/// </param>
 	/// <param name="easeType">
 	/// A <see cref="EaseType"/> or <see cref="System.String"/>
@@ -843,14 +1002,14 @@ public class iTween : MonoBehaviour{
 	/// <param name="z">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
 	/// </param>
+	/// <param name="isLocal">
+	/// A <see cref="System.Boolean"/>
+	/// </param>
 	/// <param name="time">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
 	/// </param>
 	/// <param name="delay">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
-	/// </param>
-	/// <param name="isLocal">
-	/// A <see cref="System.Boolean"/>
 	/// </param>
 	/// <param name="easeType">
 	/// A <see cref="EaseType"/> or <see cref="System.String"/>
@@ -953,14 +1112,14 @@ public class iTween : MonoBehaviour{
 	/// <param name="z">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
 	/// </param>
+	/// <param name="space">
+	/// A <see cref="Space"/> or <see cref="System.String"/>
+	/// </param>
 	/// <param name="time">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
 	/// </param>
 	/// <param name="delay">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
-	/// </param>
-	/// <param name="space">
-	/// A <see cref="Space"/> or <see cref="System.String"/>
 	/// </param>
 	/// <param name="easeType">
 	/// A <see cref="EaseType"/> or <see cref="System.String"/>
@@ -1019,14 +1178,14 @@ public class iTween : MonoBehaviour{
 	/// <param name="z">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
 	/// </param>
+	/// <param name="space">
+	/// A <see cref="Space"/>
+	/// </param>
 	/// <param name="time">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
 	/// </param>
 	/// <param name="delay">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
-	/// </param>
-	/// <param name="space">
-	/// A <see cref="Space"/>
 	/// </param>
 	/// <param name="easeType">
 	/// A <see cref="EaseType"/> or <see cref="System.String"/>
@@ -1086,17 +1245,17 @@ public class iTween : MonoBehaviour{
 	/// <param name="z">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
 	/// </param>
-	/// <param name="time">
-	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
-	/// </param>
-	/// <param name="delay">
-	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
-	/// </param>
 	/// <param name="space">
 	/// A <see cref="Space"/>
 	/// </param> 
 	/// <param name="lookTarget">
 	/// A <see cref="Vector3"/> or A <see cref="Transform"/>
+	/// </param>
+	/// <param name="time">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="delay">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
 	/// </param>
 	/// <param name="onStart">
 	/// A <see cref="System.String"/>
@@ -1208,11 +1367,11 @@ public class iTween : MonoBehaviour{
 	/// <param name="z">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
 	/// </param>
-	/// <param name="time">
-	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
-	/// </param>
 	/// <param name="space">
 	/// A <see cref="Space"/>
+	/// </param>
+	/// <param name="time">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
 	/// </param>
 	/// <param name="delay">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
@@ -1269,17 +1428,17 @@ public class iTween : MonoBehaviour{
 	/// <param name="z">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
 	/// </param>
-	/// <param name="time">
-	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
-	/// </param>
-	/// <param name="delay">
-	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
-	/// </param>
 	/// <param name="space">
 	/// A <see cref="Space"/>
 	/// </param> 
 	/// <param name="lookTarget">
 	/// A <see cref="Vector3"/> or A <see cref="Transform"/>
+	/// </param>
+	/// <param name="time">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="delay">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
 	/// </param>
 	/// <param name="onStart">
 	/// A <see cref="System.String"/>
@@ -1334,15 +1493,15 @@ public class iTween : MonoBehaviour{
 	/// <param name="z">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
 	/// </param>
+	/// <param name="space">
+	/// A <see cref="Space"/>
+	/// </param> 
 	/// <param name="time">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
 	/// </param>
 	/// <param name="delay">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
 	/// </param>
-	/// <param name="space">
-	/// A <see cref="Space"/>
-	/// </param> 
 	/// <param name="onStart">
 	/// A <see cref="System.String"/>
 	/// </param>
@@ -1396,15 +1555,15 @@ public class iTween : MonoBehaviour{
 	/// <param name="z">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
 	/// </param>
+	/// <param name="space">
+	/// A <see cref="Space"/>
+	/// </param> 
 	/// <param name="time">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
 	/// </param>
 	/// <param name="delay">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
 	/// </param>
-	/// <param name="space">
-	/// A <see cref="Space"/>
-	/// </param> 
 	/// <param name="onStart">
 	/// A <see cref="System.String"/>
 	/// </param>
@@ -1527,8 +1686,60 @@ public class iTween : MonoBehaviour{
 					break;
 				}
 			break;
+			case "look":
+				switch (method) {
+					case "to":
+						GenerateLookToTargets();
+						apply = new ApplyTween(ApplyRotateToTargets);
+					break;	
+					case "from":
+						GenerateRotateToTargets();
+						apply = new ApplyTween(ApplyRotateToTargets);
+					break;	
+				}
+			break;			
 		}
 	}
+	
+	void GenerateLookToTargets(){
+		//values holder [0] from, [1] to, [2] calculated value from ease equation:
+		vector3s=new Vector3[3];
+		
+		//from values:
+		vector3s[0]=transform.eulerAngles;
+		
+		//set look:
+		if (tweenArguments["lookTarget"].GetType() == typeof(Transform)) {
+			transform.LookAt((Transform)tweenArguments["lookTarget"]);
+		}else if(tweenArguments["lookTarget"].GetType() == typeof(Vector3)){
+			transform.LookAt((Vector3)tweenArguments["lookTarget"]);
+		}
+
+		//to values:
+		vector3s[1]=transform.eulerAngles;
+		transform.eulerAngles=vector3s[0];
+		
+		//axis restriction:
+		if(tweenArguments.Contains("axis")){
+			switch((string)tweenArguments["axis"]){
+				case "x":
+					vector3s[1].y=vector3s[0].y;
+					vector3s[1].z=vector3s[0].z;
+				break;
+				case "y":
+					vector3s[1].x=vector3s[0].x;
+					vector3s[1].z=vector3s[0].z;
+				break;
+				case "z":
+					vector3s[1].x=vector3s[0].x;
+					vector3s[1].y=vector3s[0].y;
+				break;
+			}
+		}
+		
+		//shortest distance:
+		vector3s[1]=new Vector3(clerp(vector3s[0].x,vector3s[1].x,1),clerp(vector3s[0].y,vector3s[1].y,1),clerp(vector3s[0].z,vector3s[1].z,1));
+	}	
 	
 	void GenerateMoveToTargets(){
 		//values holder [0] from, [1] to, [2] calculated value from ease equation:
@@ -1674,6 +1885,8 @@ public class iTween : MonoBehaviour{
 				vector3s[1].z=(float)tweenArguments["z"];
 			}
 		}
+		
+		//shortest distance:
 		vector3s[1]=new Vector3(clerp(vector3s[0].x,vector3s[1].x,1),clerp(vector3s[0].y,vector3s[1].y,1),clerp(vector3s[0].z,vector3s[1].z,1));
 	}
 	
@@ -2288,7 +2501,7 @@ public class iTween : MonoBehaviour{
 		}else{
 			delay=Defaults.delay;
 		}
-		
+				
 		if(tweenArguments.Contains("loopType")){
 			//allows loopType to be set as either an enum(C# friendly) or a string(JS friendly), string case usage doesn't matter to further increase usability:
 			if(tweenArguments["loopType"].GetType() == typeof(LoopType)){
