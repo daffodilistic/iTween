@@ -142,7 +142,7 @@ public class iTween : MonoBehaviour{
 	#endregion
 				
 	#region Static Registers
-	
+		
 	/// <summary>
 	/// Changes a GameObject's position over time.
 	/// </summary>
@@ -1879,7 +1879,7 @@ public class iTween : MonoBehaviour{
 			transform.localPosition=vector3s[2];		
 		}else{
 			transform.position=vector3s[2];
-		}	
+		}
 	}	
 	
 	void ApplyMoveByTargets(){
@@ -2192,25 +2192,26 @@ public class iTween : MonoBehaviour{
 	#endregion
 	
 	#region External Utilities
+	public static Hashtable Hash(params object[] args){
+		Hashtable hashTable = new Hashtable(args.Length/2);
+		if (args.Length %2 != 0) {
+			Debug.LogError("Tween Error: Hash requires an even number of arguments!"); 
+			return null;
+		}else{
+			int i = 0;
+			while(i < args.Length - 1) {
+				hashTable.Add(args[i], args[i+1]);
+				i += 2;
+			}
+			return hashTable;
+		}
+	}
+	
 //	stops
 //	pauses
 //	completes
 //	rewinds
-//	counts
-//	public static Hashtable Hash(params object[] args){
-//		Hashtable hashTable = new Hashtable(args.Length/2);
-//		if (args.Length %2 != 0) {
-//			Debug.LogError("Tween Error: Hash requires an even number of arguments!"); 
-//			return null;
-//		}else{
-//			int i = 0;
-//			while(i < args.Length - 1) {
-//				hashTable.Add(args[i], args[i+1]);
-//				i += 2;
-//			}
-//			return hashTable;
-//		}
-//	}
+//	counts	
 	#endregion	
 	
 	#region Internal Helpers
@@ -2474,29 +2475,31 @@ public class iTween : MonoBehaviour{
 		Destroy(this);
 	}	
 	
-	void ConflictCheck(){
+	void ConflictCheck(){//if a new iTween is about to run and is of the same type as an in progress iTween this will destroy the previous if the new one is NOT identical in every way or it will destroy the new iTween if they are
 		Component[] tweens = GetComponents(typeof(iTween));
 		foreach (iTween item in tweens) {
 			if(item.isRunning && item.type==type){
-				switch(type){
-					//exception for types that have "sub" methods, given the extreme method differences and lack of argumentative transform modifications per method:
-					case "value":
-					case "punch":
-					case "shake":
-						if(item.method == method){
-							item.Dispose();
-						}
-						break;
-					case "audio":
-						if (item.audioSource==audioSource) {
-							item.Dispose();
-						}
-						break;
-				default:
-					item.DisableKinematic(); //rushed isKinematic swapping to avoid sequence issues when handing off isKinematic status
+				//step 1: check for length first since it's the fastest:
+				if(item.tweenArguments.Count != tweenArguments.Count){
 					item.Dispose();
-					break;
-				}			
+					return;
+				}
+				
+				//step 2: side-by-side check to figure out if this is an identical tween scenario to handle Update usages of iTween:
+				foreach (DictionaryEntry currentProp in tweenArguments) {
+					if(!item.tweenArguments.Contains(currentProp.Key)){
+						item.Dispose();
+						return;
+					}else{
+						if(!item.tweenArguments[currentProp.Key].Equals(tweenArguments[currentProp.Key]) && (string)currentProp.Key != "id"){//if we aren't comparing ids and something isn't exactly the same replace the running iTween
+							item.Dispose();
+							return;
+						}
+					}
+				}
+				
+				//step 3: prevent a new iTween addition if it is identical to the currently running iTween
+				Destroy(this);	
 			}
 		}
 	}
