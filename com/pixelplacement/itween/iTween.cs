@@ -498,11 +498,7 @@ public class iTween : MonoBehaviour{
 		//clean args:
 		args = iTween.CleanArgs(args);			
 		
-		//additional property to ensure ConflictCheck can work correctly since Transforms are refrences:
-		if(args["lookTarget"] is Transform){
-			print("a");
-		}
-		
+		//additional property to ensure ConflictCheck can work correctly since Transforms are refrences:		
 		if(args.Contains("looktarget")){
 			if (args["looktarget"].GetType() == typeof(Transform)) {
 				Transform transform = (Transform)args["looktarget"];
