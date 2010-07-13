@@ -20,6 +20,7 @@ public class iTween : MonoBehaviour{
 	
 	//status members (made public for visual troubleshooting in the inspector):
 	public string id, type, method;
+	public iTween.EaseType easeType;
 	public float time, delay;
 	public LoopType loopType;
 	public bool isRunning,isPaused;
@@ -29,7 +30,6 @@ public class iTween : MonoBehaviour{
 	protected float delayStarted; //probably not neccesary that this be protected but it shuts Unity's compiler up about this being "never used"
 	private bool kinematic, isLocal, loop, reverse;
 	private Hashtable tweenArguments;
-	private iTween.EaseType easeType;
 	private Space space;
 	private delegate float EasingFunction(float start, float end, float value);
 	private delegate void ApplyTween();
@@ -121,7 +121,7 @@ public class iTween : MonoBehaviour{
 		public static float time = 1f;
 		public static float delay = 0f;	
 		public static LoopType loopType = LoopType.none;
-		public static EaseType easeType = iTween.EaseType.easeInOutCubic;
+		public static EaseType easeType = iTween.EaseType.easeOutExpo;
 		public static float lookSpeed = 3f;
 		public static bool isLocal = false;
 		public static Space space = Space.Self;
@@ -141,15 +141,12 @@ public class iTween : MonoBehaviour{
 	
 	#endregion
 	
-	#region Static Registers
+	#region #1 Static Registers
 	
 	/// <summary>
-	/// Plays an AudioClip once based on supplied volume and pitch and following any delay. AudioSource is optional as iTween will provide one.
+	/// Instantly changes an AudioSource's volume and pitch then returns it to it's starting volume and pitch over time. Default AudioSource attached to GameObject will be used (if one exists) if not supplied. 
 	/// </summary>
-	/// <param name="audioClip">
-	/// A <see cref="AudioClip"/>
-	/// </param> 
-	/// <param name="audioSource">
+	/// <param name="audiosource">
 	/// A <see cref="AudioSource"/>
 	/// </param> 
 	/// <param name="volume">
@@ -161,31 +158,191 @@ public class iTween : MonoBehaviour{
 	/// <param name="delay">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
 	/// </param>
-	/// <param name="onStart">
+	/// <param name="easetype">
+	/// A <see cref="EaseType"/> or <see cref="System.String"/>
+	/// </param> 
+	/// <param name="onstart">
 	/// A <see cref="System.String"/>
 	/// </param>
-	/// <param name="onStartTarget">
+	/// <param name="onstarttarget">
 	/// A <see cref="GameObject"/>
 	/// </param>
-	/// <param name="onStartParams">
+	/// <param name="onstartparams">
 	/// A <see cref="System.Object"/>
 	/// </param>
-	/// <param name="onUpdate">
+	/// <param name="onupdate">
 	/// A <see cref="System.String"/>
 	/// </param>
-	/// <param name="onUpdateTarget">
+	/// <param name="onupdatetarget">
 	/// A <see cref="GameObject"/>
 	/// </param>
-	/// <param name="onUpdateParams">
+	/// <param name="onupdateparams">
 	/// A <see cref="System.Object"/>
 	/// </param>
-	/// <param name="onComplete">
+	/// <param name="oncomplete">
 	/// A <see cref="System.String"/>
 	/// </param>
-	/// <param name="onCompleteTarget">
+	/// <param name="oncompletetarget">
 	/// A <see cref="GameObject"/>.
 	/// </param>
-	/// <param name="onCompleteParams">
+	/// <param name="oncompleteparams">
+	/// A <see cref="System.Object"/>
+	/// </param>
+	public static void AudioFrom(GameObject target, Hashtable args){
+		Vector2 tempAudioProperties;
+		Vector2 fromAudioProperties;
+		AudioSource tempAudioSource;
+		
+		//clean args:
+		args = iTween.CleanArgs(args);
+		
+		//set tempAudioSource:
+		if(args.Contains("audiosource")){
+			tempAudioSource=(AudioSource)args["audiosource"];
+		}else{
+			if(target.GetComponent(typeof(AudioSource))){
+				tempAudioSource=target.audio;
+			}else{
+				//throw error if no AudioSource is available:
+				Debug.LogError("iTween Error: AudioFrom requires an AudioSource.");
+				return;
+			}
+		}			
+		
+		//set tempAudioProperties:
+		tempAudioProperties.x=fromAudioProperties.x=tempAudioSource.volume;
+		tempAudioProperties.y=fromAudioProperties.y=tempAudioSource.pitch;
+		
+		//set augmented fromAudioProperties:
+		if(args.Contains("volume")){
+			fromAudioProperties.x=(float)args["volume"];
+		}
+		if(args.Contains("pitch")){
+			fromAudioProperties.y=(float)args["pitch"];
+		}
+		
+		//apply fromAudioProperties:
+		tempAudioSource.volume=fromAudioProperties.x;
+		tempAudioSource.pitch=fromAudioProperties.y;
+				
+		//set new volume and pitch args:
+		args["volume"]=tempAudioProperties.x;
+		args["pitch"]=tempAudioProperties.y;
+		
+		//set a default easeType of linear if none is supplied since eased audio interpolation is nearly unrecognizable:
+		if (!args.Contains("easetype")) {
+			args.Add("easetype",EaseType.linear);
+		}
+		
+		//establish iTween:
+		args["type"]="audio";
+		args["method"]="to";
+		Launch(target,args);			
+	}		
+
+	/// <summary>
+	/// Fades volume and pitch of an AudioSource.  Default AudioSource attached to GameObject will be used (if one exists) if not supplied. 
+	/// </summary>
+	/// <param name="audiosource">
+	/// A <see cref="AudioSource"/>
+	/// </param> 
+	/// <param name="volume">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="pitch">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="delay">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="easetype">
+	/// A <see cref="EaseType"/> or <see cref="System.String"/>
+	/// </param> 
+	/// <param name="onstart">
+	/// A <see cref="System.String"/>
+	/// </param>
+	/// <param name="onstarttarget">
+	/// A <see cref="GameObject"/>
+	/// </param>
+	/// <param name="onstartparams">
+	/// A <see cref="System.Object"/>
+	/// </param>
+	/// <param name="onupdate">
+	/// A <see cref="System.String"/>
+	/// </param>
+	/// <param name="onupdatetarget">
+	/// A <see cref="GameObject"/>
+	/// </param>
+	/// <param name="onupdateparams">
+	/// A <see cref="System.Object"/>
+	/// </param>
+	/// <param name="oncomplete">
+	/// A <see cref="System.String"/>
+	/// </param>
+	/// <param name="oncompletetarget">
+	/// A <see cref="GameObject"/>.
+	/// </param>
+	/// <param name="oncompleteparams">
+	/// A <see cref="System.Object"/>
+	/// </param>
+	public static void AudioTo(GameObject target, Hashtable args){
+		//clean args:
+		args = iTween.CleanArgs(args);
+		
+		//set a default easeType of linear if none is supplied since eased audio interpolation is nearly unrecognizable:
+		if (!args.Contains("easetype")) {
+			args.Add("easetype",EaseType.linear);
+		}
+		
+		//establish iTween:
+		args["type"]="audio";
+		args["method"]="to";
+		Launch(target,args);			
+	}	
+	
+	/// <summary>
+	/// Plays an AudioClip once based on supplied volume and pitch and following any delay. AudioSource is optional as iTween will provide one.
+	/// </summary>
+	/// <param name="audioclip">
+	/// A <see cref="AudioClip"/>
+	/// </param> 
+	/// <param name="audiosource">
+	/// A <see cref="AudioSource"/>
+	/// </param> 
+	/// <param name="volume">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="pitch">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="delay">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="onstart">
+	/// A <see cref="System.String"/>
+	/// </param>
+	/// <param name="onstarttarget">
+	/// A <see cref="GameObject"/>
+	/// </param>
+	/// <param name="onstartparams">
+	/// A <see cref="System.Object"/>
+	/// </param>
+	/// <param name="onupdate">
+	/// A <see cref="System.String"/>
+	/// </param>
+	/// <param name="onupdatetarget">
+	/// A <see cref="GameObject"/>
+	/// </param>
+	/// <param name="onupdateparams">
+	/// A <see cref="System.Object"/>
+	/// </param>
+	/// <param name="oncomplete">
+	/// A <see cref="System.String"/>
+	/// </param>
+	/// <param name="oncompletetarget">
+	/// A <see cref="GameObject"/>.
+	/// </param>
+	/// <param name="oncompleteparams">
 	/// A <see cref="System.Object"/>
 	/// </param>
 	public static void Stab(GameObject target, Hashtable args){
@@ -200,7 +357,7 @@ public class iTween : MonoBehaviour{
 	/// <summary>
 	/// Instantly rotates a GameObject to look at a supplied Transform or Vector3 then returns it to it's starting rotation over time (if allowed). 
 	/// </summary>
-	/// <param name="lookTarget">
+	/// <param name="looktarget">
 	/// A <see cref="Transform"/> or <see cref="Vector3"/>
 	/// </param>
 	/// <param name="axis">
@@ -212,37 +369,37 @@ public class iTween : MonoBehaviour{
 	/// <param name="delay">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
 	/// </param>
-	/// <param name="easeType">
+	/// <param name="easetype">
 	/// A <see cref="EaseType"/> or <see cref="System.String"/>
 	/// </param>   
-	/// <param name="loopType">
+	/// <param name="looptype">
 	/// A <see cref="EaseType"/> or <see cref="System.String"/>
 	/// </param>
-	/// <param name="onStart">
+	/// <param name="onstart">
 	/// A <see cref="System.String"/>
 	/// </param>
-	/// <param name="onStartTarget">
+	/// <param name="onstarttarget">
 	/// A <see cref="GameObject"/>
 	/// </param>
-	/// <param name="onStartParams">
+	/// <param name="onstartparams">
 	/// A <see cref="System.Object"/>
 	/// </param>
-	/// <param name="onUpdate">
+	/// <param name="onupdate">
 	/// A <see cref="System.String"/>
 	/// </param>
-	/// <param name="onUpdateTarget">
+	/// <param name="onupdatetarget">
 	/// A <see cref="GameObject"/>
 	/// </param>
-	/// <param name="onUpdateParams">
+	/// <param name="onupdateparams">
 	/// A <see cref="System.Object"/>
 	/// </param> 
-	/// <param name="onComplete">
+	/// <param name="oncomplete">
 	/// A <see cref="System.String"/>
 	/// </param>
-	/// <param name="onCompleteTarget">
+	/// <param name="oncompletetarget">
 	/// A <see cref="GameObject"/>.
 	/// </param>
-	/// <param name="onCompleteParams">
+	/// <param name="oncompleteparams">
 	/// A <see cref="System.Object"/>
 	/// </param>
 	public static void LookFrom(GameObject target, Hashtable args){
@@ -254,10 +411,10 @@ public class iTween : MonoBehaviour{
 		
 		//set look:
 		tempRotation=target.transform.eulerAngles;
-		if (args["lookTarget"].GetType() == typeof(Transform)) {
-			target.transform.LookAt((Transform)args["lookTarget"]);
-		}else if(args["lookTarget"].GetType() == typeof(Vector3)){
-			target.transform.LookAt((Vector3)args["lookTarget"]);
+		if (args["looktarget"].GetType() == typeof(Transform)) {
+			target.transform.LookAt((Transform)args["looktarget"]);
+		}else if(args["looktarget"].GetType() == typeof(Vector3)){
+			target.transform.LookAt((Vector3)args["looktarget"]);
 		}
 		
 		//axis restriction:
@@ -284,15 +441,15 @@ public class iTween : MonoBehaviour{
 		args["rotation"] = tempRotation;
 		
 		//establish iTween
-		args["type"]="look";
-		args["method"]="from";
+		args["type"]="rotate";
+		args["method"]="to";
 		Launch(target,args);
 	}		
 	
 	/// <summary>
 	/// Rotates a GameObject to look at a supplied Transform or Vector3 over time (if allowed). 
 	/// </summary>
-	/// <param name="lookTarget">
+	/// <param name="looktarget">
 	/// A <see cref="Transform"/> or <see cref="Vector3"/>
 	/// </param>
 	/// <param name="axis">
@@ -304,42 +461,55 @@ public class iTween : MonoBehaviour{
 	/// <param name="delay">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
 	/// </param>
-	/// <param name="easeType">
+	/// <param name="easetype">
 	/// A <see cref="EaseType"/> or <see cref="System.String"/>
 	/// </param>   
-	/// <param name="loopType">
+	/// <param name="looptype">
 	/// A <see cref="EaseType"/> or <see cref="System.String"/>
 	/// </param>
-	/// <param name="onStart">
+	/// <param name="onstart">
 	/// A <see cref="System.String"/>
 	/// </param>
-	/// <param name="onStartTarget">
+	/// <param name="onstarttarget">
 	/// A <see cref="GameObject"/>
 	/// </param>
-	/// <param name="onStartParams">
+	/// <param name="onstartparams">
 	/// A <see cref="System.Object"/>
 	/// </param>
-	/// <param name="onUpdate">
+	/// <param name="onupdate">
 	/// A <see cref="System.String"/>
 	/// </param>
-	/// <param name="onUpdateTarget">
+	/// <param name="onupdatetarget">
 	/// A <see cref="GameObject"/>
 	/// </param>
-	/// <param name="onUpdateParams">
+	/// <param name="onupdateparams">
 	/// A <see cref="System.Object"/>
 	/// </param> 
-	/// <param name="onComplete">
+	/// <param name="oncomplete">
 	/// A <see cref="System.String"/>
 	/// </param>
-	/// <param name="onCompleteTarget">
+	/// <param name="oncompletetarget">
 	/// A <see cref="GameObject"/>.
 	/// </param>
-	/// <param name="onCompleteParams">
+	/// <param name="oncompleteparams">
 	/// A <see cref="System.Object"/>
 	/// </param>
-	public static void LookTo(GameObject target, Hashtable args){
+	public static void LookTo(GameObject target, Hashtable args){		
 		//clean args:
-		args = iTween.CleanArgs(args);
+		args = iTween.CleanArgs(args);			
+		
+		//additional property to ensure ConflictCheck can work correctly since Transforms are refrences:
+		if(args["lookTarget"] is Transform){
+			print("a");
+		}
+		
+		if(args.Contains("looktarget")){
+			if (args["looktarget"].GetType() == typeof(Transform)) {
+				Transform transform = (Transform)args["looktarget"];
+				args["position"]=new Vector3(transform.position.x,transform.position.y,transform.position.z);
+				args["rotation"]=new Vector3(transform.eulerAngles.x,transform.eulerAngles.y,transform.eulerAngles.z);
+			}
+		}
 		
 		//establish iTween
 		args["type"]="look";
@@ -362,10 +532,10 @@ public class iTween : MonoBehaviour{
 	/// <param name="z">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
 	/// </param>
-	/// <param name="orientToPath">
+	/// <param name="orienttopath">
 	/// A <see cref="System.Boolean"/>
 	/// </param>
-	/// <param name="lookTarget">
+	/// <param name="looktarget">
 	/// A <see cref="Vector3"/> or A <see cref="Transform"/>
 	/// </param>
 	/// <param name="isLocal">
@@ -377,37 +547,37 @@ public class iTween : MonoBehaviour{
 	/// <param name="delay">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
 	/// </param>
-	/// <param name="easeType">
+	/// <param name="easetype">
 	/// A <see cref="EaseType"/> or <see cref="System.String"/>
 	/// </param>   
-	/// <param name="loopType">
+	/// <param name="looptype">
 	/// A <see cref="EaseType"/> or <see cref="System.String"/>
 	/// </param>
-	/// <param name="onStart">
+	/// <param name="onstart">
 	/// A <see cref="System.String"/>
 	/// </param>
-	/// <param name="onStartTarget">
+	/// <param name="onstarttarget">
 	/// A <see cref="GameObject"/>
 	/// </param>
-	/// <param name="onStartParams">
+	/// <param name="onstartparams">
 	/// A <see cref="System.Object"/>
 	/// </param>
-	/// <param name="onUpdate">
+	/// <param name="onupdate">
 	/// A <see cref="System.String"/>
 	/// </param>
-	/// <param name="onUpdateTarget">
+	/// <param name="onupdatetarget">
 	/// A <see cref="GameObject"/>
 	/// </param>
-	/// <param name="onUpdateParams">
+	/// <param name="onupdateparams">
 	/// A <see cref="System.Object"/>
 	/// </param> 
-	/// <param name="onComplete">
+	/// <param name="oncomplete">
 	/// A <see cref="System.String"/>
 	/// </param>
-	/// <param name="onCompleteTarget">
+	/// <param name="oncompletetarget">
 	/// A <see cref="GameObject"/>.
 	/// </param>
-	/// <param name="onCompleteParams">
+	/// <param name="oncompleteparams">
 	/// A <see cref="System.Object"/>
 	/// </param>
 	public static void MoveTo(GameObject target, Hashtable args){
@@ -435,10 +605,10 @@ public class iTween : MonoBehaviour{
 	/// <param name="z">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
 	/// </param>
-	/// <param name="orientToPath">
+	/// <param name="orienttopath">
 	/// A <see cref="System.Boolean"/>
 	/// </param>
-	/// <param name="lookTarget">
+	/// <param name="looktarget">
 	/// A <see cref="Vector3"/> or A <see cref="Transform"/>
 	/// </param>
 	/// <param name="isLocal">
@@ -450,37 +620,37 @@ public class iTween : MonoBehaviour{
 	/// <param name="delay">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
 	/// </param>
-	/// <param name="easeType">
+	/// <param name="easetype">
 	/// A <see cref="EaseType"/> or <see cref="System.String"/>
 	/// </param>   
-	/// <param name="loopType">
+	/// <param name="looptype">
 	/// A <see cref="EaseType"/> or <see cref="System.String"/>
 	/// </param>
-	/// <param name="onStart">
+	/// <param name="onstart">
 	/// A <see cref="System.String"/>
 	/// </param>
-	/// <param name="onStartTarget">
+	/// <param name="onstarttarget">
 	/// A <see cref="GameObject"/>
 	/// </param>
-	/// <param name="onStartParams">
+	/// <param name="onstartparams">
 	/// A <see cref="System.Object"/>
 	/// </param>
-	/// <param name="onUpdate">
+	/// <param name="onupdate">
 	/// A <see cref="System.String"/>
 	/// </param>
-	/// <param name="onUpdateTarget">
+	/// <param name="onupdatetarget">
 	/// A <see cref="GameObject"/>
 	/// </param>
-	/// <param name="onUpdateParams">
+	/// <param name="onupdateparams">
 	/// A <see cref="System.Object"/>
 	/// </param> 
-	/// <param name="onComplete">
+	/// <param name="oncomplete">
 	/// A <see cref="System.String"/>
 	/// </param>
-	/// <param name="onCompleteTarget">
+	/// <param name="oncompletetarget">
 	/// A <see cref="GameObject"/>.
 	/// </param>
-	/// <param name="onCompleteParams">
+	/// <param name="oncompleteparams">
 	/// A <see cref="System.Object"/>
 	/// </param>
 	public static void MoveFrom(GameObject target, Hashtable args){
@@ -551,10 +721,10 @@ public class iTween : MonoBehaviour{
 	/// <param name="z">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
 	/// </param>
-	/// <param name="orientToPath">
+	/// <param name="orienttopath">
 	/// A <see cref="System.Boolean"/>
 	/// </param>
-	/// <param name="lookTarget">
+	/// <param name="looktarget">
 	/// A <see cref="Vector3"/> or A <see cref="Transform"/>
 	/// </param>
 	/// <param name="space">
@@ -566,37 +736,37 @@ public class iTween : MonoBehaviour{
 	/// <param name="delay">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
 	/// </param>
-	/// <param name="easeType">
+	/// <param name="easetype">
 	/// A <see cref="EaseType"/> or <see cref="System.String"/>
 	/// </param>   
-	/// <param name="loopType">
+	/// <param name="looptype">
 	/// A <see cref="EaseType"/> or <see cref="System.String"/>
 	/// </param>
-	/// <param name="onStart">
+	/// <param name="onstart">
 	/// A <see cref="System.String"/>
 	/// </param>
-	/// <param name="onStartTarget">
+	/// <param name="onstarttarget">
 	/// A <see cref="GameObject"/>
 	/// </param>
-	/// <param name="onStartParams">
+	/// <param name="onstartparams">
 	/// A <see cref="System.Object"/>
 	/// </param>
-	/// <param name="onUpdate">
+	/// <param name="onupdate">
 	/// A <see cref="System.String"/>
 	/// </param>
-	/// <param name="onUpdateTarget">
+	/// <param name="onupdatetarget">
 	/// A <see cref="GameObject"/>
 	/// </param>
-	/// <param name="onUpdateParams">
+	/// <param name="onupdateparams">
 	/// A <see cref="System.Object"/>
 	/// </param> 
-	/// <param name="onComplete">
+	/// <param name="oncomplete">
 	/// A <see cref="System.String"/>
 	/// </param>
-	/// <param name="onCompleteTarget">
+	/// <param name="oncompletetarget">
 	/// A <see cref="GameObject"/>.
 	/// </param>
-	/// <param name="onCompleteParams">
+	/// <param name="oncompleteparams">
 	/// A <see cref="System.Object"/>
 	/// </param>
 	public static void MoveAdd(GameObject target, Hashtable args){
@@ -624,10 +794,10 @@ public class iTween : MonoBehaviour{
 	/// <param name="z">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
 	/// </param>
-	/// <param name="orientToPath">
+	/// <param name="orienttopath">
 	/// A <see cref="System.Boolean"/>
 	/// </param>
-	/// <param name="lookTarget">
+	/// <param name="looktarget">
 	/// A <see cref="Vector3"/> or A <see cref="Transform"/>
 	/// </param>
 	/// <param name="space">
@@ -639,37 +809,37 @@ public class iTween : MonoBehaviour{
 	/// <param name="delay">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
 	/// </param>
-	/// <param name="easeType">
+	/// <param name="easetype">
 	/// A <see cref="EaseType"/> or <see cref="System.String"/>
 	/// </param>   
-	/// <param name="loopType">
+	/// <param name="looptype">
 	/// A <see cref="EaseType"/> or <see cref="System.String"/>
 	/// </param>
-	/// <param name="onStart">
+	/// <param name="onstart">
 	/// A <see cref="System.String"/>
 	/// </param>
-	/// <param name="onStartTarget">
+	/// <param name="onstarttarget">
 	/// A <see cref="GameObject"/>
 	/// </param>
-	/// <param name="onStartParams">
+	/// <param name="onstartparams">
 	/// A <see cref="System.Object"/>
 	/// </param>
-	/// <param name="onUpdate">
+	/// <param name="onupdate">
 	/// A <see cref="System.String"/>
 	/// </param>
-	/// <param name="onUpdateTarget">
+	/// <param name="onupdatetarget">
 	/// A <see cref="GameObject"/>
 	/// </param>
-	/// <param name="onUpdateParams">
+	/// <param name="onupdateparams">
 	/// A <see cref="System.Object"/>
 	/// </param> 
-	/// <param name="onComplete">
+	/// <param name="oncomplete">
 	/// A <see cref="System.String"/>
 	/// </param>
-	/// <param name="onCompleteTarget">
+	/// <param name="oncompletetarget">
 	/// A <see cref="GameObject"/>.
 	/// </param>
-	/// <param name="onCompleteParams">
+	/// <param name="oncompleteparams">
 	/// A <see cref="System.Object"/>
 	/// </param>
 	public static void MoveBy(GameObject target, Hashtable args){
@@ -703,37 +873,37 @@ public class iTween : MonoBehaviour{
 	/// <param name="delay">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
 	/// </param>
-	/// <param name="easeType">
+	/// <param name="easetype">
 	/// A <see cref="EaseType"/> or <see cref="System.String"/>
 	/// </param>   
-	/// <param name="loopType">
+	/// <param name="looptype">
 	/// A <see cref="EaseType"/> or <see cref="System.String"/>
 	/// </param>
-	/// <param name="onStart">
+	/// <param name="onstart">
 	/// A <see cref="System.String"/>
 	/// </param>
-	/// <param name="onStartTarget">
+	/// <param name="onstarttarget">
 	/// A <see cref="GameObject"/>
 	/// </param>
-	/// <param name="onStartParams">
+	/// <param name="onstartparams">
 	/// A <see cref="System.Object"/>
 	/// </param>
-	/// <param name="onUpdate">
+	/// <param name="onupdate">
 	/// A <see cref="System.String"/>
 	/// </param>
-	/// <param name="onUpdateTarget">
+	/// <param name="onupdatetarget">
 	/// A <see cref="GameObject"/>
 	/// </param>
-	/// <param name="onUpdateParams">
+	/// <param name="onupdateparams">
 	/// A <see cref="System.Object"/>
 	/// </param> 
-	/// <param name="onComplete">
+	/// <param name="oncomplete">
 	/// A <see cref="System.String"/>
 	/// </param>
-	/// <param name="onCompleteTarget">
+	/// <param name="oncompletetarget">
 	/// A <see cref="GameObject"/>.
 	/// </param>
-	/// <param name="onCompleteParams">
+	/// <param name="oncompleteparams">
 	/// A <see cref="System.Object"/>
 	/// </param>
 	public static void ScaleTo(GameObject target, Hashtable args){
@@ -767,37 +937,37 @@ public class iTween : MonoBehaviour{
 	/// <param name="delay">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
 	/// </param>
-	/// <param name="easeType">
+	/// <param name="easetype">
 	/// A <see cref="EaseType"/> or <see cref="System.String"/>
 	/// </param>   
-	/// <param name="loopType">
+	/// <param name="looptype">
 	/// A <see cref="EaseType"/> or <see cref="System.String"/>
 	/// </param>
-	/// <param name="onStart">
+	/// <param name="onstart">
 	/// A <see cref="System.String"/>
 	/// </param>
-	/// <param name="onStartTarget">
+	/// <param name="onstarttarget">
 	/// A <see cref="GameObject"/>
 	/// </param>
-	/// <param name="onStartParams">
+	/// <param name="onstartparams">
 	/// A <see cref="System.Object"/>
 	/// </param>
-	/// <param name="onUpdate">
+	/// <param name="onupdate">
 	/// A <see cref="System.String"/>
 	/// </param>
-	/// <param name="onUpdateTarget">
+	/// <param name="onupdatetarget">
 	/// A <see cref="GameObject"/>
 	/// </param>
-	/// <param name="onUpdateParams">
+	/// <param name="onupdateparams">
 	/// A <see cref="System.Object"/>
 	/// </param> 
-	/// <param name="onComplete">
+	/// <param name="oncomplete">
 	/// A <see cref="System.String"/>
 	/// </param>
-	/// <param name="onCompleteTarget">
+	/// <param name="oncompletetarget">
 	/// A <see cref="GameObject"/>.
 	/// </param>
-	/// <param name="onCompleteParams">
+	/// <param name="oncompleteparams">
 	/// A <see cref="System.Object"/>
 	/// </param>
 	public static void ScaleFrom(GameObject target, Hashtable args){
@@ -858,37 +1028,37 @@ public class iTween : MonoBehaviour{
 	/// <param name="delay">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
 	/// </param>
-	/// <param name="easeType">
+	/// <param name="easetype">
 	/// A <see cref="EaseType"/> or <see cref="System.String"/>
 	/// </param>   
-	/// <param name="loopType">
+	/// <param name="looptype">
 	/// A <see cref="EaseType"/> or <see cref="System.String"/>
 	/// </param>
-	/// <param name="onStart">
+	/// <param name="onstart">
 	/// A <see cref="System.String"/>
 	/// </param>
-	/// <param name="onStartTarget">
+	/// <param name="onstarttarget">
 	/// A <see cref="GameObject"/>
 	/// </param>
-	/// <param name="onStartParams">
+	/// <param name="onstartparams">
 	/// A <see cref="System.Object"/>
 	/// </param>
-	/// <param name="onUpdate">
+	/// <param name="onupdate">
 	/// A <see cref="System.String"/>
 	/// </param>
-	/// <param name="onUpdateTarget">
+	/// <param name="onupdatetarget">
 	/// A <see cref="GameObject"/>
 	/// </param>
-	/// <param name="onUpdateParams">
+	/// <param name="onupdateparams">
 	/// A <see cref="System.Object"/>
 	/// </param> 
-	/// <param name="onComplete">
+	/// <param name="oncomplete">
 	/// A <see cref="System.String"/>
 	/// </param>
-	/// <param name="onCompleteTarget">
+	/// <param name="oncompletetarget">
 	/// A <see cref="GameObject"/>.
 	/// </param>
-	/// <param name="onCompleteParams">
+	/// <param name="oncompleteparams">
 	/// A <see cref="System.Object"/>
 	/// </param>
 	public static void ScaleAdd(GameObject target, Hashtable args){
@@ -922,37 +1092,37 @@ public class iTween : MonoBehaviour{
 	/// <param name="delay">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
 	/// </param>
-	/// <param name="easeType">
+	/// <param name="easetype">
 	/// A <see cref="EaseType"/> or <see cref="System.String"/>
 	/// </param>   
-	/// <param name="loopType">
+	/// <param name="looptype">
 	/// A <see cref="EaseType"/> or <see cref="System.String"/>
 	/// </param>
-	/// <param name="onStart">
+	/// <param name="onstart">
 	/// A <see cref="System.String"/>
 	/// </param>
-	/// <param name="onStartTarget">
+	/// <param name="onstarttarget">
 	/// A <see cref="GameObject"/>
 	/// </param>
-	/// <param name="onStartParams">
+	/// <param name="onstartparams">
 	/// A <see cref="System.Object"/>
 	/// </param>
-	/// <param name="onUpdate">
+	/// <param name="onupdate">
 	/// A <see cref="System.String"/>
 	/// </param>
-	/// <param name="onUpdateTarget">
+	/// <param name="onupdatetarget">
 	/// A <see cref="GameObject"/>
 	/// </param>
-	/// <param name="onUpdateParams">
+	/// <param name="onupdateparams">
 	/// A <see cref="System.Object"/>
 	/// </param> 
-	/// <param name="onComplete">
+	/// <param name="oncomplete">
 	/// A <see cref="System.String"/>
 	/// </param>
-	/// <param name="onCompleteTarget">
+	/// <param name="oncompletetarget">
 	/// A <see cref="GameObject"/>.
 	/// </param>
-	/// <param name="onCompleteParams">
+	/// <param name="oncompleteparams">
 	/// A <see cref="System.Object"/>
 	/// </param>
 	public static void ScaleBy(GameObject target, Hashtable args){
@@ -966,7 +1136,7 @@ public class iTween : MonoBehaviour{
 	}
 	
 	/// <summary>
-	/// Rotates a GameObject to the supplied angles in degrees over time (if allowed). 
+	/// Rotates a GameObject to the supplied angles in euler angles over time (if allowed). 
 	/// </summary>
 	/// <param name="rotation">
 	/// A <see cref="Vector3"/>
@@ -989,37 +1159,37 @@ public class iTween : MonoBehaviour{
 	/// <param name="delay">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
 	/// </param>
-	/// <param name="easeType">
+	/// <param name="easetype">
 	/// A <see cref="EaseType"/> or <see cref="System.String"/>
 	/// </param>   
-	/// <param name="loopType">
+	/// <param name="looptype">
 	/// A <see cref="EaseType"/> or <see cref="System.String"/>
 	/// </param>
-	/// <param name="onStart">
+	/// <param name="onstart">
 	/// A <see cref="System.String"/>
 	/// </param>
-	/// <param name="onStartTarget">
+	/// <param name="onstarttarget">
 	/// A <see cref="GameObject"/>
 	/// </param>
-	/// <param name="onStartParams">
+	/// <param name="onstartparams">
 	/// A <see cref="System.Object"/>
 	/// </param>
-	/// <param name="onUpdate">
+	/// <param name="onupdate">
 	/// A <see cref="System.String"/>
 	/// </param>
-	/// <param name="onUpdateTarget">
+	/// <param name="onupdatetarget">
 	/// A <see cref="GameObject"/>
 	/// </param>
-	/// <param name="onUpdateParams">
+	/// <param name="onupdateparams">
 	/// A <see cref="System.Object"/>
 	/// </param> 
-	/// <param name="onComplete">
+	/// <param name="oncomplete">
 	/// A <see cref="System.String"/>
 	/// </param>
-	/// <param name="onCompleteTarget">
+	/// <param name="oncompletetarget">
 	/// A <see cref="GameObject"/>.
 	/// </param>
-	/// <param name="onCompleteParams">
+	/// <param name="oncompleteparams">
 	/// A <see cref="System.Object"/>
 	/// </param>
 	public static void RotateTo(GameObject target, Hashtable args){
@@ -1033,7 +1203,7 @@ public class iTween : MonoBehaviour{
 	}	
 	
 	/// <summary>
-	/// Instantly changes a GameObject's rotation then returns it to it's starting rotation over time (if allowed).
+	/// Instantly changes a GameObject's rotation in euler angles then returns it to it's starting rotation over time (if allowed).
 	/// </summary>
 	/// <param name="rotation">
 	/// A <see cref="Vector3"/>
@@ -1056,37 +1226,37 @@ public class iTween : MonoBehaviour{
 	/// <param name="delay">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
 	/// </param>
-	/// <param name="easeType">
+	/// <param name="easetype">
 	/// A <see cref="EaseType"/> or <see cref="System.String"/>
 	/// </param>   
-	/// <param name="loopType">
+	/// <param name="looptype">
 	/// A <see cref="EaseType"/> or <see cref="System.String"/>
 	/// </param>
-	/// <param name="onStart">
+	/// <param name="onstart">
 	/// A <see cref="System.String"/>
 	/// </param>
-	/// <param name="onStartTarget">
+	/// <param name="onstarttarget">
 	/// A <see cref="GameObject"/>
 	/// </param>
-	/// <param name="onStartParams">
+	/// <param name="onstartparams">
 	/// A <see cref="System.Object"/>
 	/// </param>
-	/// <param name="onUpdate">
+	/// <param name="onupdate">
 	/// A <see cref="System.String"/>
 	/// </param>
-	/// <param name="onUpdateTarget">
+	/// <param name="onupdatetarget">
 	/// A <see cref="GameObject"/>
 	/// </param>
-	/// <param name="onUpdateParams">
+	/// <param name="onupdateparams">
 	/// A <see cref="System.Object"/>
 	/// </param> 
-	/// <param name="onComplete">
+	/// <param name="oncomplete">
 	/// A <see cref="System.String"/>
 	/// </param>
-	/// <param name="onCompleteTarget">
+	/// <param name="oncompletetarget">
 	/// A <see cref="GameObject"/>.
 	/// </param>
-	/// <param name="onCompleteParams">
+	/// <param name="oncompleteparams">
 	/// A <see cref="System.Object"/>
 	/// </param>
 	public static void RotateFrom(GameObject target, Hashtable args){
@@ -1143,7 +1313,7 @@ public class iTween : MonoBehaviour{
 	}	
 	
 	/// <summary>
-	/// Adds supplied values to a GameObject's rotation over time (if allowed).
+	/// Adds supplied euler angles to a GameObject's rotation over time (if allowed).
 	/// </summary>
 	/// <param name="amount">
 	/// A <see cref="Vector3"/>
@@ -1166,37 +1336,37 @@ public class iTween : MonoBehaviour{
 	/// <param name="delay">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
 	/// </param>
-	/// <param name="easeType">
+	/// <param name="easetype">
 	/// A <see cref="EaseType"/> or <see cref="System.String"/>
 	/// </param>   
-	/// <param name="loopType">
+	/// <param name="looptype">
 	/// A <see cref="EaseType"/> or <see cref="System.String"/>
 	/// </param>
-	/// <param name="onStart">
+	/// <param name="onstart">
 	/// A <see cref="System.String"/>
 	/// </param>
-	/// <param name="onStartTarget">
+	/// <param name="onstarttarget">
 	/// A <see cref="GameObject"/>
 	/// </param>
-	/// <param name="onStartParams">
+	/// <param name="onstartparams">
 	/// A <see cref="System.Object"/>
 	/// </param>
-	/// <param name="onUpdate">
+	/// <param name="onupdate">
 	/// A <see cref="System.String"/>
 	/// </param>
-	/// <param name="onUpdateTarget">
+	/// <param name="onupdatetarget">
 	/// A <see cref="GameObject"/>
 	/// </param>
-	/// <param name="onUpdateParams">
+	/// <param name="onupdateparams">
 	/// A <see cref="System.Object"/>
 	/// </param> 
-	/// <param name="onComplete">
+	/// <param name="oncomplete">
 	/// A <see cref="System.String"/>
 	/// </param>
-	/// <param name="onCompleteTarget">
+	/// <param name="oncompletetarget">
 	/// A <see cref="GameObject"/>.
 	/// </param>
-	/// <param name="onCompleteParams">
+	/// <param name="oncompleteparams">
 	/// A <see cr	
 	public static void RotateAdd(GameObject target, Hashtable args){
 		//clean args:
@@ -1232,37 +1402,37 @@ public class iTween : MonoBehaviour{
 	/// <param name="delay">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
 	/// </param>
-	/// <param name="easeType">
+	/// <param name="easetype">
 	/// A <see cref="EaseType"/> or <see cref="System.String"/>
 	/// </param>   
-	/// <param name="loopType">
+	/// <param name="looptype">
 	/// A <see cref="EaseType"/> or <see cref="System.String"/>
 	/// </param>
-	/// <param name="onStart">
+	/// <param name="onstart">
 	/// A <see cref="System.String"/>
 	/// </param>
-	/// <param name="onStartTarget">
+	/// <param name="onstarttarget">
 	/// A <see cref="GameObject"/>
 	/// </param>
-	/// <param name="onStartParams">
+	/// <param name="onstartparams">
 	/// A <see cref="System.Object"/>
 	/// </param>
-	/// <param name="onUpdate">
+	/// <param name="onupdate">
 	/// A <see cref="System.String"/>
 	/// </param>
-	/// <param name="onUpdateTarget">
+	/// <param name="onupdatetarget">
 	/// A <see cref="GameObject"/>
 	/// </param>
-	/// <param name="onUpdateParams">
+	/// <param name="onupdateparams">
 	/// A <see cref="System.Object"/>
 	/// </param> 
-	/// <param name="onComplete">
+	/// <param name="oncomplete">
 	/// A <see cref="System.String"/>
 	/// </param>
-	/// <param name="onCompleteTarget">
+	/// <param name="oncompletetarget">
 	/// A <see cref="GameObject"/>.
 	/// </param>
-	/// <param name="onCompleteParams">
+	/// <param name="oncompleteparams">
 	/// A <see cref="System.Object"/>
 	/// </param>
 	public static void RotateBy(GameObject target, Hashtable args){
@@ -1293,7 +1463,7 @@ public class iTween : MonoBehaviour{
 	/// <param name="space">
 	/// A <see cref="Space"/>
 	/// </param> 
-	/// <param name="lookTarget">
+	/// <param name="looktarget">
 	/// A <see cref="Vector3"/> or A <see cref="Transform"/>
 	/// </param>
 	/// <param name="time">
@@ -1302,31 +1472,31 @@ public class iTween : MonoBehaviour{
 	/// <param name="delay">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
 	/// </param>
-	/// <param name="onStart">
+	/// <param name="onstart">
 	/// A <see cref="System.String"/>
 	/// </param>
-	/// <param name="onStartTarget">
+	/// <param name="onstarttarget">
 	/// A <see cref="GameObject"/>
 	/// </param>
-	/// <param name="onStartParams">
+	/// <param name="onstartparams">
 	/// A <see cref="System.Object"/>
 	/// </param>
-	/// <param name="onUpdate">
+	/// <param name="onupdate">
 	/// A <see cref="System.String"/>
 	/// </param>
-	/// <param name="onUpdateTarget">
+	/// <param name="onupdatetarget">
 	/// A <see cref="GameObject"/>
 	/// </param>
-	/// <param name="onUpdateParams">
+	/// <param name="onupdateparams">
 	/// A <see cref="System.Object"/>
 	/// </param> 
-	/// <param name="onComplete">
+	/// <param name="oncomplete">
 	/// A <see cref="System.String"/>
 	/// </param>
-	/// <param name="onCompleteTarget">
+	/// <param name="oncompletetarget">
 	/// A <see cref="GameObject"/>.
 	/// </param>
-	/// <param name="onCompleteParams">
+	/// <param name="oncompleteparams">
 	/// A <see cref="System.Object"/>
 	/// </param>
 	public static void ShakePosition(GameObject target, Hashtable args){
@@ -1360,31 +1530,31 @@ public class iTween : MonoBehaviour{
 	/// <param name="delay">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
 	/// </param>
-	/// <param name="onStart">
+	/// <param name="onstart">
 	/// A <see cref="System.String"/>
 	/// </param>
-	/// <param name="onStartTarget">
+	/// <param name="onstarttarget">
 	/// A <see cref="GameObject"/>
 	/// </param>
-	/// <param name="onStartParams">
+	/// <param name="onstartparams">
 	/// A <see cref="System.Object"/>
 	/// </param>
-	/// <param name="onUpdate">
+	/// <param name="onupdate">
 	/// A <see cref="System.String"/>
 	/// </param>
-	/// <param name="onUpdateTarget">
+	/// <param name="onupdatetarget">
 	/// A <see cref="GameObject"/>
 	/// </param>
-	/// <param name="onUpdateParams">
+	/// <param name="onupdateparams">
 	/// A <see cref="System.Object"/>
 	/// </param> 
-	/// <param name="onComplete">
+	/// <param name="oncomplete">
 	/// A <see cref="System.String"/>
 	/// </param>
-	/// <param name="onCompleteTarget">
+	/// <param name="oncompletetarget">
 	/// A <see cref="GameObject"/>.
 	/// </param>
-	/// <param name="onCompleteParams">
+	/// <param name="oncompleteparams">
 	/// A <see cref="System.Object"/>
 	/// </param>
 	public static void ShakeScale(GameObject target, Hashtable args){
@@ -1421,31 +1591,31 @@ public class iTween : MonoBehaviour{
 	/// <param name="delay">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
 	/// </param>
-	/// <param name="onStart">
+	/// <param name="onstart">
 	/// A <see cref="System.String"/>
 	/// </param>
-	/// <param name="onStartTarget">
+	/// <param name="onstarttarget">
 	/// A <see cref="GameObject"/>
 	/// </param>
-	/// <param name="onStartParams">
+	/// <param name="onstartparams">
 	/// A <see cref="System.Object"/>
 	/// </param>
-	/// <param name="onUpdate">
+	/// <param name="onupdate">
 	/// A <see cref="System.String"/>
 	/// </param>
-	/// <param name="onUpdateTarget">
+	/// <param name="onupdatetarget">
 	/// A <see cref="GameObject"/>
 	/// </param>
-	/// <param name="onUpdateParams">
+	/// <param name="onupdateparams">
 	/// A <see cref="System.Object"/>
 	/// </param> 
-	/// <param name="onComplete">
+	/// <param name="oncomplete">
 	/// A <see cref="System.String"/>
 	/// </param>
-	/// <param name="onCompleteTarget">
+	/// <param name="oncompletetarget">
 	/// A <see cref="GameObject"/>.
 	/// </param>
-	/// <param name="onCompleteParams">
+	/// <param name="oncompleteparams">
 	/// A <see cref="System.Object"/>
 	/// </param>
 	public static void ShakeRotation(GameObject target, Hashtable args){
@@ -1476,7 +1646,7 @@ public class iTween : MonoBehaviour{
 	/// <param name="space">
 	/// A <see cref="Space"/>
 	/// </param> 
-	/// <param name="lookTarget">
+	/// <param name="looktarget">
 	/// A <see cref="Vector3"/> or A <see cref="Transform"/>
 	/// </param>
 	/// <param name="time">
@@ -1485,31 +1655,31 @@ public class iTween : MonoBehaviour{
 	/// <param name="delay">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
 	/// </param>
-	/// <param name="onStart">
+	/// <param name="onstart">
 	/// A <see cref="System.String"/>
 	/// </param>
-	/// <param name="onStartTarget">
+	/// <param name="onstarttarget">
 	/// A <see cref="GameObject"/>
 	/// </param>
-	/// <param name="onStartParams">
+	/// <param name="onstartparams">
 	/// A <see cref="System.Object"/>
 	/// </param>
-	/// <param name="onUpdate">
+	/// <param name="onupdate">
 	/// A <see cref="System.String"/>
 	/// </param>
-	/// <param name="onUpdateTarget">
+	/// <param name="onupdatetarget">
 	/// A <see cref="GameObject"/>
 	/// </param>
-	/// <param name="onUpdateParams">
+	/// <param name="onupdateparams">
 	/// A <see cref="System.Object"/>
 	/// </param> 
-	/// <param name="onComplete">
+	/// <param name="oncomplete">
 	/// A <see cref="System.String"/>
 	/// </param>
-	/// <param name="onCompleteTarget">
+	/// <param name="oncompletetarget">
 	/// A <see cref="GameObject"/>.
 	/// </param>
-	/// <param name="onCompleteParams">
+	/// <param name="oncompleteparams">
 	/// A <see cref="System.Object"/>
 	/// </param>
 	public static void PunchPosition(GameObject target, Hashtable args){
@@ -1519,7 +1689,7 @@ public class iTween : MonoBehaviour{
 		//establish iTween
 		args["type"]="punch";
 		args["method"]="position";
-		args["easeType"]=EaseType.punch;
+		args["easetype"]=EaseType.punch;
 		Launch(target,args);
 	}		
 	
@@ -1547,31 +1717,31 @@ public class iTween : MonoBehaviour{
 	/// <param name="delay">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
 	/// </param>
-	/// <param name="onStart">
+	/// <param name="onstart">
 	/// A <see cref="System.String"/>
 	/// </param>
-	/// <param name="onStartTarget">
+	/// <param name="onstarttarget">
 	/// A <see cref="GameObject"/>
 	/// </param>
-	/// <param name="onStartParams">
+	/// <param name="onstartparams">
 	/// A <see cref="System.Object"/>
 	/// </param>
-	/// <param name="onUpdate">
+	/// <param name="onupdate">
 	/// A <see cref="System.String"/>
 	/// </param>
-	/// <param name="onUpdateTarget">
+	/// <param name="onupdatetarget">
 	/// A <see cref="GameObject"/>
 	/// </param>
-	/// <param name="onUpdateParams">
+	/// <param name="onupdateparams">
 	/// A <see cref="System.Object"/>
 	/// </param> 
-	/// <param name="onComplete">
+	/// <param name="oncomplete">
 	/// A <see cref="System.String"/>
 	/// </param>
-	/// <param name="onCompleteTarget">
+	/// <param name="oncompletetarget">
 	/// A <see cref="GameObject"/>.
 	/// </param>
-	/// <param name="onCompleteParams">
+	/// <param name="oncompleteparams">
 	/// A <see cref="System.Object"/>
 	/// </param>
 	public static void PunchRotation(GameObject target, Hashtable args){
@@ -1581,7 +1751,7 @@ public class iTween : MonoBehaviour{
 		//establish iTween
 		args["type"]="punch";
 		args["method"]="rotation";
-		args["easeType"]=EaseType.punch;
+		args["easetype"]=EaseType.punch;
 		Launch(target,args);
 	}	
 	
@@ -1609,31 +1779,31 @@ public class iTween : MonoBehaviour{
 	/// <param name="delay">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
 	/// </param>
-	/// <param name="onStart">
+	/// <param name="onstart">
 	/// A <see cref="System.String"/>
 	/// </param>
-	/// <param name="onStartTarget">
+	/// <param name="onstarttarget">
 	/// A <see cref="GameObject"/>
 	/// </param>
-	/// <param name="onStartParams">
+	/// <param name="onstartparams">
 	/// A <see cref="System.Object"/>
 	/// </param>
-	/// <param name="onUpdate">
+	/// <param name="onupdate">
 	/// A <see cref="System.String"/>
 	/// </param>
-	/// <param name="onUpdateTarget">
+	/// <param name="onupdatetarget">
 	/// A <see cref="GameObject"/>
 	/// </param>
-	/// <param name="onUpdateParams">
+	/// <param name="onupdateparams">
 	/// A <see cref="System.Object"/>
 	/// </param> 
-	/// <param name="onComplete">
+	/// <param name="oncomplete">
 	/// A <see cref="System.String"/>
 	/// </param>
-	/// <param name="onCompleteTarget">
+	/// <param name="oncompletetarget">
 	/// A <see cref="GameObject"/>.
 	/// </param>
-	/// <param name="onCompleteParams">
+	/// <param name="oncompleteparams">
 	/// A <see cref="System.Object"/>
 	/// </param>
 	public static void PunchScale(GameObject target, Hashtable args){
@@ -1643,17 +1813,25 @@ public class iTween : MonoBehaviour{
 		//establish iTween
 		args["type"]="punch";
 		args["method"]="scale";
-		args["easeType"]=EaseType.punch;
+		args["easetype"]=EaseType.punch;
 		Launch(target,args);
 	}	
 	
 	#endregion
 	
-	#region Generate Targets
+	#region #2 Generate Method Targets
 	
 	//call correct set target method and set tween application delegate:
 	void GenerateTargets(){
 		switch (type) {
+			case "audio":
+				switch (method) {
+					case "to":
+						GenerateAudioToTargets();
+						apply = new ApplyTween(ApplyAudioToTargets);
+					break;
+				}
+			break;
 			case "move":
 				switch (method) {
 					case "to":
@@ -1735,11 +1913,7 @@ public class iTween : MonoBehaviour{
 				switch (method) {
 					case "to":
 						GenerateLookToTargets();
-						apply = new ApplyTween(ApplyRotateToTargets);
-					break;	
-					case "from":
-						GenerateRotateToTargets();
-						apply = new ApplyTween(ApplyRotateToTargets);
+						apply = new ApplyTween(ApplyLookToTargets);
 					break;	
 				}
 			break;	
@@ -1750,10 +1924,43 @@ public class iTween : MonoBehaviour{
 		}
 	}
 	
+	#endregion
+	
+	#region #3 Generate Specific Targets
+	
+	void GenerateAudioToTargets(){
+		//values holder [0] from, [1] to, [2] calculated value from ease equation:
+		vector2s=new Vector2[3];
+		
+		//set audioSource:
+		if(tweenArguments.Contains("audiosource")){
+			audioSource=(AudioSource)tweenArguments["audiosource"];
+		}else{
+			if(GetComponent(typeof(AudioSource))){
+				audioSource=audio;
+			}else{
+				//throw error if no AudioSource is available:
+				Debug.LogError("iTween Error: AudioTo requires an AudioSource.");
+				Dispose();
+			}
+		}		
+		
+		//from values and default to values:
+		vector2s[0]=vector2s[1]=new Vector2(audioSource.volume,audioSource.pitch);
+				
+		//to values:
+		if (tweenArguments.Contains("volume")) {
+			vector2s[1].x=(float)tweenArguments["volume"];	
+		}
+		if (tweenArguments.Contains("pitch")) {
+			vector2s[1].y=(float)tweenArguments["pitch"];	
+		}
+	}
+	
 	void GenerateStabTargets(){
 		//set audioSource:
-		if(tweenArguments.Contains("audioSource")){
-			audioSource=(AudioSource)tweenArguments["audioSource"];
+		if(tweenArguments.Contains("audiosource")){
+			audioSource=(AudioSource)tweenArguments["audiosource"];
 		}else{
 			if(GetComponent(typeof(AudioSource))){
 				audioSource=audio;
@@ -1767,7 +1974,7 @@ public class iTween : MonoBehaviour{
 		}
 		
 		//populate audioSource's clip:
-		audioSource.clip=(AudioClip)tweenArguments["audioClip"];
+		audioSource.clip=(AudioClip)tweenArguments["audioclip"];
 		
 		//set audio's pitch and volume if requested:
 		if(tweenArguments.Contains("pitch")){
@@ -1789,10 +1996,15 @@ public class iTween : MonoBehaviour{
 		vector3s[0]=transform.eulerAngles;
 		
 		//set look:
-		if (tweenArguments["lookTarget"].GetType() == typeof(Transform)) {
-			transform.LookAt((Transform)tweenArguments["lookTarget"]);
-		}else if(tweenArguments["lookTarget"].GetType() == typeof(Vector3)){
-			transform.LookAt((Vector3)tweenArguments["lookTarget"]);
+		if(tweenArguments.Contains("looktarget")){
+			if (tweenArguments["looktarget"].GetType() == typeof(Transform)) {
+				transform.LookAt((Transform)tweenArguments["looktarget"]);
+			}else if(tweenArguments["looktarget"].GetType() == typeof(Vector3)){
+				transform.LookAt((Vector3)tweenArguments["looktarget"]);
+			}
+		}else{
+			Debug.LogError("iTween Error: LookTo needs a 'looktarget' property!");
+			Dispose();
 		}
 
 		//to values:
@@ -2159,10 +2371,20 @@ public class iTween : MonoBehaviour{
 	
 	#endregion
 	
-	#region Apply Targets
+	#region #4 Apply Targets
+	
+	void ApplyAudioToTargets(){
+		//calculate:
+		vector2s[2].x = ease(vector2s[0].x,vector2s[1].x,percentage);
+		vector2s[2].y = ease(vector2s[0].y,vector2s[1].y,percentage);
+		
+		//apply:
+		audioSource.volume=vector2s[2].x;
+		audioSource.pitch=vector2s[2].y;
+	}	
 	
 	void ApplyStabTargets(){
-		print("audio is playing");	
+		//unnecessary but here just in case
 	}
 	
 	void ApplyMoveToTargets(){
@@ -2201,6 +2423,20 @@ public class iTween : MonoBehaviour{
 		//apply:
 		transform.localScale=vector3s[2];	
 	}
+	
+	void ApplyLookToTargets(){
+		//calculate:
+		vector3s[2].x = ease(vector3s[0].x,vector3s[1].x,percentage);
+		vector3s[2].y = ease(vector3s[0].y,vector3s[1].y,percentage);
+		vector3s[2].z = ease(vector3s[0].z,vector3s[1].z,percentage);
+		
+		//apply:
+		if (isLocal) {
+			transform.localRotation = Quaternion.Euler(vector3s[2]);
+		}else{
+			transform.rotation = Quaternion.Euler(vector3s[2]);
+		};	
+	}	
 	
 	void ApplyRotateToTargets(){
 		//calculate:
@@ -2360,7 +2596,7 @@ public class iTween : MonoBehaviour{
 	
 	#endregion	
 	
-	#region Tween Steps
+	#region #5 Tween Steps
 	
 	IEnumerator TweenDelay(){
 		delayStarted = Time.time;
@@ -2368,12 +2604,13 @@ public class iTween : MonoBehaviour{
 	}	
 	
 	void TweenStart(){		
-		//setup curve crap?
-		//
 		if(!loop){//only if this is not a loop
 			ConflictCheck();
 			GenerateTargets();
 		}
+		
+		//setup curve crap?
+		//		
 		
 		//run stab:
 		if(type == "stab"){
@@ -2385,7 +2622,7 @@ public class iTween : MonoBehaviour{
 			EnableKinematic();
 		}
 		
-		CallBack("onStart");
+		CallBack("onstart");
 		isRunning = true;
 	}
 	
@@ -2399,13 +2636,13 @@ public class iTween : MonoBehaviour{
 	}	
 	
 	void TweenUpdate(){
-		CallBack("onUpdate");
+		CallBack("onupdate");
 		apply();
 		UpdatePercentage();		
 	}
 			
 	void TweenComplete(){
-		CallBack("onComplete");
+		CallBack("oncomplete");
 		isRunning=false;
 		
 		//dial in percentage to 1 or 0 for final run:
@@ -2535,9 +2772,10 @@ public class iTween : MonoBehaviour{
 		target.AddComponent("iTween");
 	}		
 	
-	//cast any accidentally supplied doubles and ints as floats as iTween only uses floats internally:
+	//cast any accidentally supplied doubles and ints as floats as iTween only uses floats internally and unify parameter case:
 	static Hashtable CleanArgs(Hashtable args){
 		Hashtable argsCopy = new Hashtable(args.Count);
+		Hashtable argsCaseUnified = new Hashtable(args.Count);
 		
 		foreach (DictionaryEntry item in args) {
 			argsCopy.Add(item.Key, item.Value);
@@ -2556,6 +2794,14 @@ public class iTween : MonoBehaviour{
 			}
 		}	
 		
+		//unify parameter case:
+		foreach (DictionaryEntry item in args) {
+			argsCaseUnified.Add(item.Key.ToString().ToLower(), item.Value);
+		}	
+		
+		//swap back case unification:
+		args = argsCaseUnified;
+				
 		return args;
 	}	
 	
@@ -2596,13 +2842,13 @@ public class iTween : MonoBehaviour{
 			delay=Defaults.delay;
 		}
 				
-		if(tweenArguments.Contains("loopType")){
+		if(tweenArguments.Contains("looptype")){
 			//allows loopType to be set as either an enum(C# friendly) or a string(JS friendly), string case usage doesn't matter to further increase usability:
-			if(tweenArguments["loopType"].GetType() == typeof(LoopType)){
-				loopType=(LoopType)tweenArguments["loopType"];
+			if(tweenArguments["looptype"].GetType() == typeof(LoopType)){
+				loopType=(LoopType)tweenArguments["looptype"];
 			}else{
 				try {
-					loopType=(LoopType)Enum.Parse(typeof(LoopType),(string)tweenArguments["loopType"],true); 
+					loopType=(LoopType)Enum.Parse(typeof(LoopType),(string)tweenArguments["looptype"],true); 
 				} catch {
 					Debug.LogWarning("iTween: Unsupported loopType supplied! Default will be used.");
 					loopType = iTween.LoopType.none;	
@@ -2612,13 +2858,13 @@ public class iTween : MonoBehaviour{
 			loopType = iTween.LoopType.none;	
 		}		
          
-		if(tweenArguments.Contains("easeType")){
+		if(tweenArguments.Contains("easetype")){
 			//allows easeType to be set as either an enum(C# friendly) or a string(JS friendly), string case usage doesn't matter to further increase usability:
-			if(tweenArguments["easeType"].GetType() == typeof(EaseType)){
-				easeType=(EaseType)tweenArguments["easeType"];
+			if(tweenArguments["easetype"].GetType() == typeof(EaseType)){
+				easeType=(EaseType)tweenArguments["easetype"];
 			}else{
 				try {
-					easeType=(EaseType)Enum.Parse(typeof(EaseType),(string)tweenArguments["easeType"],true); 
+					easeType=(EaseType)Enum.Parse(typeof(EaseType),(string)tweenArguments["easetype"],true); 
 				} catch {
 					Debug.LogWarning("iTween: Unsupported easeType supplied! Default will be used.");
 					easeType=Defaults.easeType;
@@ -2794,11 +3040,13 @@ public class iTween : MonoBehaviour{
 				
 				//step 2: side-by-side check to figure out if this is an identical tween scenario to handle Update usages of iTween:
 				foreach (DictionaryEntry currentProp in tweenArguments) {
+
 					if(!item.tweenArguments.Contains(currentProp.Key)){
 						item.Dispose();
 						return;
 					}else{
 						if(!item.tweenArguments[currentProp.Key].Equals(tweenArguments[currentProp.Key]) && (string)currentProp.Key != "id"){//if we aren't comparing ids and something isn't exactly the same replace the running iTween
+
 							item.Dispose();
 							return;
 						}
@@ -3048,10 +3296,9 @@ public class iTween : MonoBehaviour{
 	#endregion	
 	
 	#region Deprecated and Renamed
+	/*
 	public static void audioFrom(GameObject target, Hashtable args){Debug.LogError("iTween Error: audioFrom() has been renamed to AudioFrom().");}
 	public static void audioTo(GameObject target, Hashtable args){Debug.LogError("iTween Error: audioTo() has been renamed to AudioTo().");}
-	public static void colorFrom(GameObject target, Hashtable args){Debug.LogError("iTween Error: colorFrom() has been renamed to ColorFrom().");}
-	public static void colorTo(GameObject target, Hashtable args){Debug.LogError("iTween Error: colorTo() has been renamed to ColorTo().");}
 	public static void colorFrom(GameObject target, Hashtable args){Debug.LogError("iTween Error: colorFrom() has been renamed to ColorFrom().");}
 	public static void colorTo(GameObject target, Hashtable args){Debug.LogError("iTween Error: colorTo() has been renamed to ColorTo().");}
 	public static void fadeFrom(GameObject target, Hashtable args){Debug.LogError("iTween Error: fadeFrom() has been renamed to FadeFrom().");}
@@ -3093,5 +3340,6 @@ public class iTween : MonoBehaviour{
 	public static void stop(GameObject target, Hashtable args){Debug.LogError("iTween Error: stop() has been renamed to Stop().");}
 	public static void stopType(GameObject target, Hashtable args){Debug.LogError("iTween Error: stopType() has been deprecated. Please investigate Stop().");}
 	public static void tweenCount(GameObject target, Hashtable args){Debug.LogError("iTween Error: tweenCount() has been deprecated. Please investigate Count().");}
+	*/
 	#endregion
-} 
+}
