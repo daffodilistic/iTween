@@ -142,6 +142,220 @@ public class iTween : MonoBehaviour{
 	#endregion
 	
 	#region #1 Static Registers
+
+	/// <summary>
+	/// Changes a GameObject's color values instantly the returns them to the provided properties over time.  If a GUIText or GUITexture component is attached, they will become the target of the animation.
+	/// </summary>
+	/// <param name="color">
+	/// A <see cref="Color"/>
+	/// </param>
+	/// <param name="r">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="g">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="b">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="a">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param> 
+	/// <param name="includechildren">
+	/// A <see cref="System.Boolean"/>
+	/// </param>
+	/// <param name="time">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="delay">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="easetype">
+	/// A <see cref="EaseType"/> or <see cref="System.String"/>
+	/// </param>   
+	/// <param name="looptype">
+	/// A <see cref="EaseType"/> or <see cref="System.String"/>
+	/// </param>
+	/// <param name="onstart">
+	/// A <see cref="System.String"/>
+	/// </param>
+	/// <param name="onstarttarget">
+	/// A <see cref="GameObject"/>
+	/// </param>
+	/// <param name="onstartparams">
+	/// A <see cref="System.Object"/>
+	/// </param>
+	/// <param name="onupdate">
+	/// A <see cref="System.String"/>
+	/// </param>
+	/// <param name="onupdatetarget">
+	/// A <see cref="GameObject"/>
+	/// </param>
+	/// <param name="onupdateparams">
+	/// A <see cref="System.Object"/>
+	/// </param> 
+	/// <param name="oncomplete">
+	/// A <see cref="System.String"/>
+	/// </param>
+	/// <param name="oncompletetarget">
+	/// A <see cref="GameObject"/>.
+	/// </param>
+	/// <param name="oncompleteparams">
+	/// A <see cref="System.Object"/>
+	/// </param>
+	public static void ColorFrom(GameObject target, Hashtable args){	
+		Color fromColor = new Color();
+		Color tempColor = new Color();
+		
+		//clean args:
+		args = iTween.CleanArgs(args);
+		
+		//handle children:
+		if(!args.Contains("includechildren") || (bool)args["includechildren"]){
+			foreach(Transform child in target.transform){
+				Hashtable argsCopy = (Hashtable)args.Clone();
+				argsCopy["ischild"]=true;
+				ColorFrom(child.gameObject,argsCopy);
+			}
+		}
+		
+		//set a default easeType of linear if none is supplied since eased color interpolation is nearly unrecognizable:
+		if (!args.Contains("easetype")) {
+			args.Add("easetype",EaseType.linear);
+		}
+		
+		//set tempColor and base fromColor:
+		if(target.GetComponent(typeof(GUITexture))){
+			tempColor=fromColor=target.guiTexture.color;	
+		}else if(target.GetComponent(typeof(GUIText))){
+			tempColor=fromColor=target.guiText.material.color;
+		}else if(target.renderer){
+			tempColor=fromColor=target.renderer.material.color;
+		}else if(target.light){
+			tempColor=fromColor=target.light.color;
+		}
+		
+		//set augmented fromColor:
+		if(args.Contains("color")){
+			fromColor=(Color)args["color"];
+		}else{
+			if (args.Contains("r")) {
+				fromColor.r=(float)args["r"];
+			}
+			if (args.Contains("g")) {
+				fromColor.g=(float)args["g"];
+			}
+			if (args.Contains("b")) {
+				fromColor.b=(float)args["b"];
+			}
+			if (args.Contains("a")) {
+				fromColor.a=(float)args["a"];
+			}
+		}
+		
+		//apply fromColor:
+		if(target.GetComponent(typeof(GUITexture))){
+			target.guiTexture.color=fromColor;	
+		}else if(target.GetComponent(typeof(GUIText))){
+			target.guiText.material.color=fromColor;
+		}else if(target.renderer){
+			target.renderer.material.color=fromColor;
+		}else if(target.light){
+			target.light.color=fromColor;
+		}
+		
+		//set new color arg:
+		args["color"]=tempColor;
+		
+		//establish iTween:
+		args["type"]="color";
+		args["method"]="to";
+		Launch(target,args);
+	}		
+	
+	/// <summary>
+	/// Changes a GameObject's color values over time.  If a GUIText or GUITexture component is attached, they will become the target of the animation.
+	/// </summary>
+	/// <param name="color">
+	/// A <see cref="Color"/>
+	/// </param>
+	/// <param name="r">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="g">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="b">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="a">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param> 
+	/// <param name="includechildren">
+	/// A <see cref="System.Boolean"/>
+	/// </param>
+	/// <param name="time">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="delay">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="easetype">
+	/// A <see cref="EaseType"/> or <see cref="System.String"/>
+	/// </param>   
+	/// <param name="looptype">
+	/// A <see cref="EaseType"/> or <see cref="System.String"/>
+	/// </param>
+	/// <param name="onstart">
+	/// A <see cref="System.String"/>
+	/// </param>
+	/// <param name="onstarttarget">
+	/// A <see cref="GameObject"/>
+	/// </param>
+	/// <param name="onstartparams">
+	/// A <see cref="System.Object"/>
+	/// </param>
+	/// <param name="onupdate">
+	/// A <see cref="System.String"/>
+	/// </param>
+	/// <param name="onupdatetarget">
+	/// A <see cref="GameObject"/>
+	/// </param>
+	/// <param name="onupdateparams">
+	/// A <see cref="System.Object"/>
+	/// </param> 
+	/// <param name="oncomplete">
+	/// A <see cref="System.String"/>
+	/// </param>
+	/// <param name="oncompletetarget">
+	/// A <see cref="GameObject"/>.
+	/// </param>
+	/// <param name="oncompleteparams">
+	/// A <see cref="System.Object"/>
+	/// </param>
+	public static void ColorTo(GameObject target, Hashtable args){	
+		//clean args:
+		args = iTween.CleanArgs(args);
+		
+		//handle children:
+		if(!args.Contains("includechildren") || (bool)args["includechildren"]){
+			foreach(Transform child in target.transform){
+				Hashtable argsCopy = (Hashtable)args.Clone();
+				argsCopy["ischild"]=true;
+				ColorTo(child.gameObject,argsCopy);
+			}
+		}
+		
+		//set a default easeType of linear if none is supplied since eased color interpolation is nearly unrecognizable:
+		if (!args.Contains("easetype")) {
+			args.Add("easetype",EaseType.linear);
+		}
+		
+		//establish iTween:
+		args["type"]="color";
+		args["method"]="to";
+		Launch(target,args);
+	}	
 	
 	/// <summary>
 	/// Instantly changes an AudioSource's volume and pitch then returns it to it's starting volume and pitch over time. Default AudioSource attached to GameObject will be used (if one exists) if not supplied. 
@@ -1820,6 +2034,14 @@ public class iTween : MonoBehaviour{
 	//call correct set target method and set tween application delegate:
 	void GenerateTargets(){
 		switch (type) {
+			case "color":
+				switch (method) {
+					case "to":
+						GenerateColorToTargets();
+						apply = new ApplyTween(ApplyColorToTargets);
+					break;
+				}
+			break;
 			case "audio":
 				switch (method) {
 					case "to":
@@ -1923,6 +2145,40 @@ public class iTween : MonoBehaviour{
 	#endregion
 	
 	#region #3 Generate Specific Targets
+	
+	void GenerateColorToTargets(){
+		//values holder [0] from, [1] to, [2] calculated value from ease equation:
+		colors = new Color[3];
+		
+		//from and init to values:
+		if(GetComponent(typeof(GUITexture))){
+			colors[0] = colors[1] = guiTexture.color;
+		}else if(GetComponent(typeof(GUIText))){
+			colors[0] = colors[1] = guiText.material.color;
+		}else if(renderer){
+			colors[0] = colors[1] = renderer.material.color;	
+		}else if(light){
+			colors[0] = colors[1] = light.color;	
+		}
+		
+		//to values:
+		if (tweenArguments.Contains("color")) {
+			colors[1]=(Color)tweenArguments["color"];
+		}else{
+			if (tweenArguments.Contains("r")) {
+				colors[1].r=(float)tweenArguments["r"];
+			}
+			if (tweenArguments.Contains("g")) {
+				colors[1].g=(float)tweenArguments["g"];
+			}
+			if (tweenArguments.Contains("b")) {
+				colors[1].b=(float)tweenArguments["b"];
+			}
+			if (tweenArguments.Contains("a")) {
+				colors[1].a=(float)tweenArguments["a"];
+			}
+		}
+	}
 	
 	void GenerateAudioToTargets(){
 		//values holder [0] from, [1] to, [2] calculated value from ease equation:
@@ -2368,6 +2624,25 @@ public class iTween : MonoBehaviour{
 	#endregion
 	
 	#region #4 Apply Targets
+	
+	void ApplyColorToTargets(){
+		//calculate:
+		colors[2].r = ease(colors[0].r,colors[1].r,percentage);
+		colors[2].g = ease(colors[0].g,colors[1].g,percentage);
+		colors[2].b = ease(colors[0].b,colors[1].b,percentage);
+		colors[2].a = ease(colors[0].a,colors[1].a,percentage);
+		
+		//apply:
+		if(GetComponent(typeof(GUITexture))){
+			guiTexture.color=colors[2];
+		}else if(GetComponent(typeof(GUIText))){
+			guiText.material.color=colors[2];
+		}else if(renderer){
+			renderer.material.color=colors[2];	
+		}else if(light){
+			light.color=colors[2];	
+		}
+	}	
 	
 	void ApplyAudioToTargets(){
 		//calculate:
@@ -2994,7 +3269,7 @@ public class iTween : MonoBehaviour{
 	}
 	
 	void CallBack(string callbackType){
-		if (tweenArguments.Contains(callbackType) && !tweenArguments.Contains("isChild")) {
+		if (tweenArguments.Contains(callbackType) && !tweenArguments.Contains("ischild")) {
 			//establish target:
 			GameObject target;
 			if (tweenArguments.Contains(callbackType+"Target")) {
