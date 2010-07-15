@@ -142,9 +142,115 @@ public class iTween : MonoBehaviour{
 	#endregion
 	
 	#region #1 Static Registers
+	
+	/// <summary>
+	/// Changes a GameObject's alpha value instantly then returns it to the provided alpha over time.  If a GUIText or GUITexture component is attached, it will become the target of the animation. Identical to using ColorFrom and using the "a" parameter.
+	/// </summary>
+	/// <param name="alpha">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="includechildren">
+	/// A <see cref="System.Boolean"/>
+	/// </param>
+	/// <param name="time">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="delay">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="easetype">
+	/// A <see cref="EaseType"/> or <see cref="System.String"/>
+	/// </param>   
+	/// <param name="looptype">
+	/// A <see cref="EaseType"/> or <see cref="System.String"/>
+	/// </param>
+	/// <param name="onstart">
+	/// A <see cref="System.String"/>
+	/// </param>
+	/// <param name="onstarttarget">
+	/// A <see cref="GameObject"/>
+	/// </param>
+	/// <param name="onstartparams">
+	/// A <see cref="System.Object"/>
+	/// </param>
+	/// <param name="onupdate">
+	/// A <see cref="System.String"/>
+	/// </param>
+	/// <param name="onupdatetarget">
+	/// A <see cref="GameObject"/>
+	/// </param>
+	/// <param name="onupdateparams">
+	/// A <see cref="System.Object"/>
+	/// </param> 
+	/// <param name="oncomplete">
+	/// A <see cref="System.String"/>
+	/// </param>
+	/// <param name="oncompletetarget">
+	/// A <see cref="GameObject"/>.
+	/// </param>
+	/// <param name="oncompleteparams">
+	/// A <see cref="System.Object"/>
+	/// </param>
+	public static void FadeFrom(GameObject target, Hashtable args){	
+		args["a"]=args["alpha"];
+		ColorFrom(target,args);
+	}		
 
 	/// <summary>
-	/// Changes a GameObject's color values instantly the returns them to the provided properties over time.  If a GUIText or GUITexture component is attached, they will become the target of the animation.
+	/// Changes a GameObject's alpha value over time.  If a GUIText or GUITexture component is attached, it will become the target of the animation. Identical to using ColorTo and using the "a" parameter.
+	/// </summary>
+	/// <param name="alpha">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="includechildren">
+	/// A <see cref="System.Boolean"/>
+	/// </param>
+	/// <param name="time">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="delay">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="easetype">
+	/// A <see cref="EaseType"/> or <see cref="System.String"/>
+	/// </param>   
+	/// <param name="looptype">
+	/// A <see cref="EaseType"/> or <see cref="System.String"/>
+	/// </param>
+	/// <param name="onstart">
+	/// A <see cref="System.String"/>
+	/// </param>
+	/// <param name="onstarttarget">
+	/// A <see cref="GameObject"/>
+	/// </param>
+	/// <param name="onstartparams">
+	/// A <see cref="System.Object"/>
+	/// </param>
+	/// <param name="onupdate">
+	/// A <see cref="System.String"/>
+	/// </param>
+	/// <param name="onupdatetarget">
+	/// A <see cref="GameObject"/>
+	/// </param>
+	/// <param name="onupdateparams">
+	/// A <see cref="System.Object"/>
+	/// </param> 
+	/// <param name="oncomplete">
+	/// A <see cref="System.String"/>
+	/// </param>
+	/// <param name="oncompletetarget">
+	/// A <see cref="GameObject"/>.
+	/// </param>
+	/// <param name="oncompleteparams">
+	/// A <see cref="System.Object"/>
+	/// </param>
+	public static void FadeTo(GameObject target, Hashtable args){	
+		args["a"]=args["alpha"];
+		ColorTo(target,args);
+	}		
+	
+	/// <summary>
+	/// Changes a GameObject's color values instantly then returns them to the provided properties over time.  If a GUIText or GUITexture component is attached, it will become the target of the animation.
 	/// </summary>
 	/// <param name="color">
 	/// A <see cref="Color"/>
