@@ -128,13 +128,9 @@ public class iTween : MonoBehaviour{
 		public static bool orientToPath = false;
 		public static CurveType curveType = CurveType.bezier; // clean this up!
 		//moveUpdate defaults:
-		public static float moveUpdateTime = .05f;
+		public static float updateMoveSpeed = .05f;
 		//lookUpdate defaults:
-		public static float lookUpdateSpeed = 3f;
-		//color defaults:
-		public static EaseType colorEaseType = iTween.EaseType.linear;
-		//audio defaults:
-		public static EaseType audioEaseType = iTween.EaseType.linear;
+		public static float updateLookSpeed = 3f;
 		//cameraFade defaults:
 		public static int cameraFadeDepth = 999999;
 	}
@@ -142,6 +138,90 @@ public class iTween : MonoBehaviour{
 	#endregion
 	
 	#region #1 Static Registers
+	
+	/// <summary>
+	/// Returns a value to an 'oncallback' method interpolated between the supplied 'from' and 'to' for application as desired.  Requires an 'oncomplete' callback that accepts the same type as the supplied 'from' and 'to' properties.
+	/// </summary>
+	/// <param name="from">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/> or <see cref="Vector3"/> or <see cref="Vector2"/> or <see cref="Color"/> or <see cref="Rect"/>
+	/// </param> 
+	/// <param name="to">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/> or <see cref="Vector3"/> or <see cref="Vector2"/> or <see cref="Color"/> or <see cref="Rect"/>
+	/// </param> 
+	/// <param name="time">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="delay">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="easetype">
+	/// A <see cref="EaseType"/> or <see cref="System.String"/>
+	/// </param>   
+	/// <param name="looptype">
+	/// A <see cref="EaseType"/> or <see cref="System.String"/>
+	/// </param>
+	/// <param name="onstart">
+	/// A <see cref="System.String"/>
+	/// </param>
+	/// <param name="onstarttarget">
+	/// A <see cref="GameObject"/>
+	/// </param>
+	/// <param name="onstartparams">
+	/// A <see cref="System.Object"/>
+	/// </param>
+	/// <param name="onupdate">
+	/// A <see cref="System.String"/>
+	/// </param>
+	/// <param name="onupdatetarget">
+	/// A <see cref="GameObject"/>
+	/// </param>
+	/// <param name="onupdateparams">
+	/// A <see cref="System.Object"/>
+	/// </param> 
+	/// <param name="oncomplete">
+	/// A <see cref="System.String"/>
+	/// </param>
+	/// <param name="oncompletetarget">
+	/// A <see cref="GameObject"/>.
+	/// </param>
+	/// <param name="oncompleteparams">
+	/// A <see cref="System.Object"/>
+	/// </param>
+	
+	public static void ValueTo(GameObject target, Hashtable args){
+		//clean args:
+		args = iTween.CleanArgs(args);
+		
+		if (!args.Contains("onupdate") || !args.Contains("from") || !args.Contains("to")) {
+			Debug.LogError("iTween Error: ValueTo() requires an 'onupdate' callback function and a 'from' and 'to' property.  The supplied 'onupdate' callback must accept a single argument that is the same type as the supplied 'from' and 'to' properties!");
+			return;
+		}else{
+			//establish iTween:
+			args["type"]="value";
+			
+			if (args["from"].GetType() == typeof(Vector2)) {
+				args["method"]="vector2";
+			}else if (args["from"].GetType() == typeof(Vector3)) {
+				args["method"]="vector3";
+			}else if (args["from"].GetType() == typeof(Rect)) {
+				args["method"]="rect";
+			}else if (args["from"].GetType() == typeof(Single)) {
+				args["method"]="float";
+			}else if (args["from"].GetType() == typeof(Color)) {
+				args["method"]="color";
+			}else{
+				Debug.LogError("iTween Error: ValueTo() only works with interpolating Vector3s, Vector2s, floats, ints, Rects and Colors!");
+				return;	
+			}
+			
+			//set a default easeType of linear if none is supplied since eased color interpolation is nearly unrecognizable:
+			if (!args.Contains("easetype")) {
+				args.Add("easetype",EaseType.linear);
+			}
+			
+			Launch(target,args);
+		}
+	}
 	
 	/// <summary>
 	/// Changes a GameObject's alpha value instantly then returns it to the provided alpha over time.  If a GUIText or GUITexture component is attached, it will become the target of the animation. Identical to using ColorFrom and using the "a" parameter.
@@ -2140,6 +2220,30 @@ public class iTween : MonoBehaviour{
 	//call correct set target method and set tween application delegate:
 	void GenerateTargets(){
 		switch (type) {
+			case "value":
+				switch (method) {
+					case "float":
+						GenerateFloatTargets();
+						apply = new ApplyTween(ApplyFloatTargets);
+					break;
+				case "vector2":
+						GenerateVector2Targets();
+						apply = new ApplyTween(ApplyVector2Targets);
+					break;
+				case "vector3":
+						GenerateVector3Targets();
+						apply = new ApplyTween(ApplyVector3Targets);
+					break;
+				case "color":
+						GenerateColorTargets();
+						apply = new ApplyTween(ApplyColorTargets);
+					break;
+				case "rect":
+						GenerateRectTargets();
+						apply = new ApplyTween(ApplyRectTargets);
+					break;
+				}
+			break;
 			case "color":
 				switch (method) {
 					case "to":
@@ -2252,6 +2356,51 @@ public class iTween : MonoBehaviour{
 	
 	#region #3 Generate Specific Targets
 	
+	void GenerateRectTargets(){
+		//values holder [0] from, [1] to, [2] calculated value from ease equation:
+		rects=new Rect[3];
+		
+		//from and to values:
+		rects[0]=(Rect)tweenArguments["from"];
+		rects[1]=(Rect)tweenArguments["to"];
+	}		
+	
+	void GenerateColorTargets(){
+		//values holder [0] from, [1] to, [2] calculated value from ease equation:
+		colors=new Color[3];
+		
+		//from and to values:
+		colors[0]=(Color)tweenArguments["from"];
+		colors[1]=(Color)tweenArguments["to"];
+	}	
+	
+	void GenerateVector3Targets(){
+		//values holder [0] from, [1] to, [2] calculated value from ease equation:
+		vector3s=new Vector3[3];
+		
+		//from and to values:
+		vector3s[0]=(Vector3)tweenArguments["from"];
+		vector3s[1]=(Vector3)tweenArguments["to"];
+	}
+	
+	void GenerateVector2Targets(){
+		//values holder [0] from, [1] to, [2] calculated value from ease equation:
+		vector2s=new Vector2[3];
+		
+		//from and to values:
+		vector2s[0]=(Vector2)tweenArguments["from"];
+		vector2s[1]=(Vector2)tweenArguments["to"];
+	}
+	
+	void GenerateFloatTargets(){
+		//values holder [0] from, [1] to, [2] calculated value from ease equation:
+		floats=new float[3];
+		
+		//from and to values:
+		floats[0]=(float)tweenArguments["from"];
+		floats[1]=(float)tweenArguments["to"];
+	}
+		
 	void GenerateColorToTargets(){
 		//values holder [0] from, [1] to, [2] calculated value from ease equation:
 		colors = new Color[3];
@@ -2389,7 +2538,7 @@ public class iTween : MonoBehaviour{
 		
 		//shortest distance:
 		vector3s[1]=new Vector3(clerp(vector3s[0].x,vector3s[1].x,1),clerp(vector3s[0].y,vector3s[1].y,1),clerp(vector3s[0].z,vector3s[1].z,1));
-	}	
+	}		
 	
 	void GenerateMoveToTargets(){
 		//values holder [0] from, [1] to, [2] calculated value from ease equation:
@@ -2416,29 +2565,43 @@ public class iTween : MonoBehaviour{
 				vector3s[1].z=(float)tweenArguments["z"];
 			}
 		}
+		
+		
+		//handle orient to path request:
+		if(tweenArguments.Contains("orienttopath") && (bool)tweenArguments["orienttopath"]){
+			tweenArguments["looktarget"] = vector3s[1];
+		}
 	}
 	
 	void GenerateMoveByTargets(){
-		//values holder [0] from, [1] to, [2] calculated value from ease equation, [3] previous value for Translate usage to allow Space utilization:
-		vector3s=new Vector3[4];
+		//values holder [0] from, [1] to, [2] calculated value from ease equation, [3] previous value for Translate usage to allow Space utilization, [4] original rotation to make sure look requests don't interfere with the direction object should move in:
+		vector3s=new Vector3[5];
+		
+		//grab starting rotation:
+		vector3s[4] = transform.eulerAngles;
 		
 		//from values:
 		vector3s[0]=vector3s[1]=vector3s[3]=transform.position;
 				
 		//to values:
 		if (tweenArguments.Contains("amount")) {
-			vector3s[1]=(Vector3)tweenArguments["amount"];
+			vector3s[1]=vector3s[0] + (Vector3)tweenArguments["amount"];
 		}else{
 			if (tweenArguments.Contains("x")) {
-				vector3s[1].x=(float)tweenArguments["x"];
+				vector3s[1].x=vector3s[0].x + (float)tweenArguments["x"];
 			}
 			if (tweenArguments.Contains("y")) {
-				vector3s[1].y=(float)tweenArguments["y"];
+				vector3s[1].y=vector3s[0].y +(float)tweenArguments["y"];
 			}
 			if (tweenArguments.Contains("z")) {
-				vector3s[1].z=(float)tweenArguments["z"];
+				vector3s[1].z=vector3s[0].z + (float)tweenArguments["z"];
 			}
-		}		
+		}	
+		
+		//handle orient to path request:
+		if(tweenArguments.Contains("orienttopath") && (bool)tweenArguments["orienttopath"]){
+			tweenArguments["looktarget"] = vector3s[1];
+		}
 	}
 	
 	void GenerateScaleToTargets(){
@@ -2587,8 +2750,11 @@ public class iTween : MonoBehaviour{
 	}		
 	
 	void GenerateShakePositionTargets(){
-		//values holder [0] root value, [1] amount, [2] generated amount:
-		vector3s=new Vector3[3];
+		//values holder [0] from, [1] to, [2] calculated value from ease equation, [3] original rotation to make sure look requests don't interfere with the direction object should move in:
+		vector3s=new Vector3[4];
+		
+		//grab starting rotation:
+		vector3s[3] = transform.eulerAngles;		
 		
 		//root:
 		vector3s[0]=transform.position;
@@ -2656,8 +2822,11 @@ public class iTween : MonoBehaviour{
 	}	
 	
 	void GeneratePunchPositionTargets(){
-		//values holder [0] from, [1] to, [2] calculated value from ease equation, [3] previous value for Translate usage to allow Space utilization:
-		vector3s=new Vector3[4];
+		//values holder [0] from, [1] to, [2] calculated value from ease equation, [3] previous value for Translate usage to allow Space utilization, [4] original rotation to make sure look requests don't interfere with the direction object should move in:
+		vector3s=new Vector3[5];
+		
+		//grab starting rotation:
+		vector3s[4] = transform.eulerAngles;
 		
 		//from values:
 		vector3s[0]=transform.position;
@@ -2731,6 +2900,55 @@ public class iTween : MonoBehaviour{
 	
 	#region #4 Apply Targets
 	
+	void ApplyRectTargets(){
+		//calculate:
+		rects[2].x = ease(rects[0].x,rects[1].x,percentage);
+		rects[2].y = ease(rects[0].y,rects[1].y,percentage);
+		rects[2].width = ease(rects[0].width,rects[1].width,percentage);
+		rects[2].height = ease(rects[0].height,rects[1].height,percentage);
+		
+		//apply:
+		tweenArguments["onupdateparams"]=rects[2];
+	}		
+	
+	void ApplyColorTargets(){
+		//calculate:
+		colors[2].r = ease(colors[0].r,colors[1].r,percentage);
+		colors[2].g = ease(colors[0].g,colors[1].g,percentage);
+		colors[2].b = ease(colors[0].b,colors[1].b,percentage);
+		colors[2].a = ease(colors[0].a,colors[1].a,percentage);
+		
+		//apply:
+		tweenArguments["onupdateparams"]=colors[2];
+	}	
+	
+	void ApplyVector3Targets(){
+		//calculate:
+		vector3s[2].x = ease(vector3s[0].x,vector3s[1].x,percentage);
+		vector3s[2].y = ease(vector3s[0].y,vector3s[1].y,percentage);
+		vector3s[2].z = ease(vector3s[0].z,vector3s[1].z,percentage);
+		
+		//apply:
+		tweenArguments["onupdateparams"]=vector3s[2];
+	}		
+	
+	void ApplyVector2Targets(){
+		//calculate:
+		vector2s[2].x = ease(vector2s[0].x,vector2s[1].x,percentage);
+		vector2s[2].y = ease(vector2s[0].y,vector2s[1].y,percentage);
+		
+		//apply:
+		tweenArguments["onupdateparams"]=vector2s[2];
+	}	
+	
+	void ApplyFloatTargets(){
+		//calculate:
+		floats[2] = ease(floats[0],floats[1],percentage);
+		
+		//apply:
+		tweenArguments["onupdateparams"]=floats[2];
+	}	
+	
 	void ApplyColorToTargets(){
 		//calculate:
 		colors[2].r = ease(colors[0].r,colors[1].r,percentage);
@@ -2778,17 +2996,30 @@ public class iTween : MonoBehaviour{
 		}
 	}	
 	
-	void ApplyMoveByTargets(){
+	void ApplyMoveByTargets(){	
+		//reset rotation to prevent look interferences as object rotates and attempts to move with translate and record current rotation
+		Vector3 currentRotation = new Vector3();
+		
+		if(tweenArguments.Contains("looktarget")){
+			currentRotation = transform.eulerAngles;
+			transform.eulerAngles = vector3s[4];	
+		}
+		
 		//calculate:
 		vector3s[2].x = ease(vector3s[0].x,vector3s[1].x,percentage);
 		vector3s[2].y = ease(vector3s[0].y,vector3s[1].y,percentage);
 		vector3s[2].z = ease(vector3s[0].z,vector3s[1].z,percentage);
-		
+				
 		//apply:
 		transform.Translate(vector3s[2]-vector3s[3],space);
-
+		
 		//record:
 		vector3s[3]=vector3s[2];
+		
+		//reset rotation:
+		if(tweenArguments.Contains("looktarget")){
+			transform.eulerAngles = currentRotation;	
+		}
 	}	
 	
 	void ApplyScaleToTargets(){
@@ -2843,6 +3074,14 @@ public class iTween : MonoBehaviour{
 	}	
 	
 	void ApplyShakePositionTargets(){
+		//reset rotation to prevent look interferences as object rotates and attempts to move with translate and record current rotation
+		Vector3 currentRotation = new Vector3();
+		
+		if(tweenArguments.Contains("looktarget")){
+			currentRotation = transform.eulerAngles;
+			transform.eulerAngles = vector3s[3];	
+		}
+		
 		//impact:
 		if (percentage==0) {
 			transform.Translate(vector3s[1],space);
@@ -2859,6 +3098,11 @@ public class iTween : MonoBehaviour{
 
 		//apply:
 		transform.Translate(vector3s[2],space);	
+		
+		//reset rotation:
+		if(tweenArguments.Contains("looktarget")){
+			transform.eulerAngles = currentRotation;	
+		}		
 	}	
 	
 	void ApplyShakeScaleTargets(){
@@ -2900,6 +3144,14 @@ public class iTween : MonoBehaviour{
 	}		
 	
 	void ApplyPunchPositionTargets(){
+		//reset rotation to prevent look interferences as object rotates and attempts to move with translate and record current rotation
+		Vector3 currentRotation = new Vector3();
+		
+		if(tweenArguments.Contains("looktarget")){
+			currentRotation = transform.eulerAngles;
+			transform.eulerAngles = vector3s[4];	
+		}
+		
 		//calculate:
 		if(vector3s[1].x>0){
 			vector3s[2].x = punch(vector3s[1].x,percentage);
@@ -2922,6 +3174,11 @@ public class iTween : MonoBehaviour{
 
 		//record:
 		vector3s[3]=vector3s[2];
+		
+		//reset rotation:
+		if(tweenArguments.Contains("looktarget")){
+			transform.eulerAngles = currentRotation;	
+		}
 	}		
 	
 	void ApplyPunchRotationTargets(){
@@ -3013,8 +3270,8 @@ public class iTween : MonoBehaviour{
 	}	
 	
 	void TweenUpdate(){
-		CallBack("onupdate");
 		apply();
+		CallBack("onupdate");
 		UpdatePercentage();		
 	}
 			
@@ -3023,14 +3280,17 @@ public class iTween : MonoBehaviour{
 		isRunning=false;
 		
 		//dial in percentage to 1 or 0 for final run:
-		if(percentage>.5){
-			percentage=1;
+		if(percentage>.5f){
+			percentage=1f;
 		}else{
 			percentage=0;	
 		}
 		
-		//apply dial in final run:
-        apply();
+		//apply dial in and final run:
+		if(type == "value"){
+			CallBack("onupdate"); //CallBack run for ValueTo since it only calculates and applies in the update callback
+		}
+		apply();
 		
 		//loop or dispose?
 		if(loopType==LoopType.none){
@@ -3062,6 +3322,119 @@ public class iTween : MonoBehaviour{
 		}
 	}	
 	
+	#endregion
+	
+	#region #6 Update Callable
+	
+	/// <summary>
+	/// Identical to LookTo but incredibly less expensive for usage inside the Update or similar looping situations involving a "live" set of changing values. 
+	/// </summary>
+	/// <param name="looktarget">
+	/// A <see cref="Transform"/> or <see cref="Vector3"/>
+	/// </param>
+	/// <param name="axis">
+	/// A <see cref="System.String"/>
+	/// </param>
+	/// <param name="time">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="delay">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="easetype">
+	/// A <see cref="EaseType"/> or <see cref="System.String"/>
+	/// </param>   
+	/// <param name="looptype">
+	/// A <see cref="EaseType"/> or <see cref="System.String"/>
+	/// </param>
+	/// <param name="onstart">
+	/// A <see cref="System.String"/>
+	/// </param>
+	/// <param name="onstarttarget">
+	/// A <see cref="GameObject"/>
+	/// </param>
+	/// <param name="onstartparams">
+	/// A <see cref="System.Object"/>
+	/// </param>
+	/// <param name="onupdate">
+	/// A <see cref="System.String"/>
+	/// </param>
+	/// <param name="onupdatetarget">
+	/// A <see cref="GameObject"/>
+	/// </param>
+	/// <param name="onupdateparams">
+	/// A <see cref="System.Object"/>
+	/// </param> 
+	/// <param name="oncomplete">
+	/// A <see cref="System.String"/>
+	/// </param>
+	/// <param name="oncompletetarget">
+	/// A <see cref="GameObject"/>.
+	/// </param>
+	/// <param name="oncompleteparams">
+	/// A <see cref="System.Object"/>
+	/// </param>
+	
+	public static void UpdateLook(GameObject target, Hashtable args){
+		CleanArgs(args);
+		
+		//markers:
+		Vector3 startRotation = target.transform.eulerAngles;
+		Quaternion[] quaternions = new Quaternion[2];
+		Vector3 axisRestriction = new Vector3();
+		
+		//from values:
+		quaternions[0]=target.transform.rotation;
+		
+		//set look:
+		if(args.Contains("looktarget")){
+			if (args["looktarget"].GetType() == typeof(Transform)) {
+				target.transform.LookAt((Transform)args["looktarget"]);
+			}else if(args["looktarget"].GetType() == typeof(Vector3)){
+				target.transform.LookAt((Vector3)args["looktarget"]);
+			}
+		}else{
+			Debug.LogError("iTween Error: UpdateLook needs a 'looktarget' property!");
+			return;
+		}
+
+		//to values and reset look:
+		quaternions[1]=target.transform.rotation;
+		target.transform.eulerAngles=startRotation;
+		
+		//set lookspeed:
+		float lookSpeed;
+		if(args.Contains("lookspeed")){
+			lookSpeed = (float)args["lookspeed"];
+		}else{
+			lookSpeed = Defaults.updateLookSpeed; 
+		}
+				
+		//application:
+		target.transform.rotation = Quaternion.Slerp(quaternions[0],quaternions[1],Time.deltaTime*lookSpeed);		
+	
+		//axis restriction:
+		if(args.Contains("axis")){
+			axisRestriction=target.transform.eulerAngles;
+			switch((string)args["axis"]){
+				case "x":
+					axisRestriction.y=startRotation.y;
+					axisRestriction.z=startRotation.z;
+				break;
+				case "y":
+					axisRestriction.x=startRotation.x;
+					axisRestriction.z=startRotation.z;
+				break;
+				case "z":
+					axisRestriction.x=startRotation.x;
+					axisRestriction.y=startRotation.y;
+				break;
+			}
+			//apply axis restriction:
+			target.transform.eulerAngles=axisRestriction;
+		}
+	}
+
 	#endregion
 
 	#region Component Segments
@@ -3095,6 +3468,13 @@ public class iTween : MonoBehaviour{
 		}
 	}
 
+	void LateUpdate(){
+		//look applications:
+		if(tweenArguments.Contains("looktarget") && isRunning){
+			UpdateLook(gameObject,tweenArguments);
+		}
+	}
+	
 	void OnEnable(){
 		if(isRunning){
 			EnableKinematic();
@@ -3378,15 +3758,15 @@ public class iTween : MonoBehaviour{
 		if (tweenArguments.Contains(callbackType) && !tweenArguments.Contains("ischild")) {
 			//establish target:
 			GameObject target;
-			if (tweenArguments.Contains(callbackType+"Target")) {
-				target=(GameObject)tweenArguments[callbackType+"Target"];
+			if (tweenArguments.Contains(callbackType+"target")) {
+				target=(GameObject)tweenArguments[callbackType+"target"];
 			}else{
 				target=gameObject;	
 			}
 			
 			//throw an error if a string wasn't passed for callback:
 			if (tweenArguments[callbackType].GetType() == typeof(System.String)) {
-				target.SendMessage((string)tweenArguments[callbackType],(object)tweenArguments[callbackType+"Params"],SendMessageOptions.DontRequireReceiver);
+				target.SendMessage((string)tweenArguments[callbackType],(object)tweenArguments[callbackType+"params"],SendMessageOptions.DontRequireReceiver);
 			}else{
 				Debug.LogError("iTween Error: Callback method references must be passed as a String!");
 				Destroy (this);
