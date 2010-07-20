@@ -127,10 +127,8 @@ public class iTween : MonoBehaviour{
 		public static Space space = Space.Self;
 		public static bool orientToPath = false;
 		public static CurveType curveType = CurveType.bezier; // clean this up!
-		//moveUpdate defaults:
-		public static float updateMoveSpeed = .05f;
-		//lookUpdate defaults:
-		public static float updateLookSpeed = 3f;
+		//update defaults:
+		public static float smoothTime = .06f;
 		//cameraFade defaults:
 		public static int cameraFadeDepth = 999999;
 	}
@@ -934,7 +932,7 @@ public class iTween : MonoBehaviour{
 	/// <param name="looktarget">
 	/// A <see cref="Vector3"/> or A <see cref="Transform"/>
 	/// </param>
-	/// <param name="isLocal">
+	/// <param name="islocal">
 	/// A <see cref="System.Boolean"/>
 	/// </param>
 	/// <param name="time">
@@ -1007,7 +1005,7 @@ public class iTween : MonoBehaviour{
 	/// <param name="looktarget">
 	/// A <see cref="Vector3"/> or A <see cref="Transform"/>
 	/// </param>
-	/// <param name="isLocal">
+	/// <param name="islocal">
 	/// A <see cref="System.Boolean"/>
 	/// </param>
 	/// <param name="time">
@@ -1058,8 +1056,8 @@ public class iTween : MonoBehaviour{
 		args = iTween.CleanArgs(args);
 		
 		//set tempIsLocal:
-		if(args.Contains("isLocal")){
-			tempIsLocal = (bool)args["isLocal"];
+		if(args.Contains("islocal")){
+			tempIsLocal = (bool)args["islocal"];
 		}else{
 			tempIsLocal = Defaults.isLocal;	
 		}
@@ -1546,7 +1544,7 @@ public class iTween : MonoBehaviour{
 	/// <param name="z">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
 	/// </param>
-	/// <param name="isLocal">
+	/// <param name="islocal">
 	/// A <see cref="System.Boolean"/>
 	/// </param>
 	/// <param name="time">
@@ -1613,7 +1611,7 @@ public class iTween : MonoBehaviour{
 	/// <param name="z">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
 	/// </param>
-	/// <param name="isLocal">
+	/// <param name="islocal">
 	/// A <see cref="System.Boolean"/>
 	/// </param>
 	/// <param name="time">
@@ -1664,8 +1662,8 @@ public class iTween : MonoBehaviour{
 		args = iTween.CleanArgs(args);
 		
 		//set tempIsLocal:
-		if(args.Contains("isLocal")){
-			tempIsLocal = (bool)args["isLocal"];
+		if(args.Contains("islocal")){
+			tempIsLocal = (bool)args["islocal"];
 		}else{
 			tempIsLocal = Defaults.isLocal;	
 		}
@@ -3327,7 +3325,100 @@ public class iTween : MonoBehaviour{
 	#region #6 Update Callable
 	
 	/// <summary>
-	/// Identical to LookTo but incredibly less expensive for usage inside the Update or similar looping situations involving a "live" set of changing values. 
+	/// Similar to MoveTo but incredibly less expensive for usage inside the Update or similar looping situations involving a "live" set of changing values. 
+	/// </summary>
+	/// <param name="position">
+	/// A <see cref="Vector3"/>
+	/// </param>
+	/// <param name="x">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="y">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="z">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="orienttopath">
+	/// A <see cref="System.Boolean"/>
+	/// </param>
+	/// <param name="looktarget">
+	/// A <see cref="Vector3"/> or A <see cref="Transform"/>
+	/// </param>
+	/// <param name="islocal">
+	/// A <see cref="System.Boolean"/>
+	/// </param>
+	/// <param name="smoothtime">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	public static void UpdateMove(GameObject target, Hashtable args){
+		CleanArgs(args);
+		
+		float smoothTime=0;
+		Vector3[] vector3s = new Vector3[4];
+		bool isLocal;
+			
+		//set smooth time:
+		if(args.Contains("smoothtime")){
+			smoothTime = (float)args["smoothtime"];
+		}else{
+			smoothTime=	Defaults.smoothTime;
+		}
+			
+		//set isLocal:
+		if(args.Contains("islocal")){
+			isLocal = (bool)args["islocal"];
+		}else{
+			isLocal = Defaults.isLocal;	
+		}
+		
+		//init values:
+		if(isLocal){
+			vector3s[0] = vector3s[1] = target.transform.localPosition;
+		}else{
+			vector3s[0] = vector3s[1] = target.transform.position;	
+		}
+		
+		//to values:
+		if (args.Contains("position")) {
+			vector3s[1]=(Vector3)args["position"];
+		}else{
+			if (args.Contains("x")) {
+				vector3s[1].x=(float)args["x"];
+			}
+			if (args.Contains("y")) {
+				vector3s[1].y=(float)args["y"];
+			}
+			if (args.Contains("z")) {
+				vector3s[1].z=(float)args["z"];
+			}
+		}
+		
+		//calculate:
+		vector3s[3].x=Mathf.SmoothDamp(vector3s[0].x,vector3s[1].x,ref vector3s[2].x,smoothTime);
+		vector3s[3].y=Mathf.SmoothDamp(vector3s[0].y,vector3s[1].y,ref vector3s[2].y,smoothTime);
+		vector3s[3].z=Mathf.SmoothDamp(vector3s[0].z,vector3s[1].z,ref vector3s[2].z,smoothTime);
+			
+		//handle orient to path:
+		if(args.Contains("orienttopath") && (bool)args["orienttopath"]){
+			args["looktarget"] = vector3s[3];
+		}
+		
+		//look applications:
+		if(args.Contains("looktarget")){
+			iTween.UpdateLook(target,args);
+		}
+		
+		//apply:
+		if(isLocal){
+			target.transform.localPosition = vector3s[3];			
+		}else{
+			target.transform.position=vector3s[3];	
+		}		
+	}
+	
+	/// <summary>
+	/// Similar to LookTo but incredibly less expensive for usage inside the Update or similar looping situations involving a "live" set of changing values. 
 	/// </summary>
 	/// <param name="looktarget">
 	/// A <see cref="Transform"/> or <see cref="Vector3"/>
@@ -3335,46 +3426,6 @@ public class iTween : MonoBehaviour{
 	/// <param name="axis">
 	/// A <see cref="System.String"/>
 	/// </param>
-	/// <param name="time">
-	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
-	/// </param>
-	/// <param name="delay">
-	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
-	/// </param>
-	/// <param name="easetype">
-	/// A <see cref="EaseType"/> or <see cref="System.String"/>
-	/// </param>   
-	/// <param name="looptype">
-	/// A <see cref="EaseType"/> or <see cref="System.String"/>
-	/// </param>
-	/// <param name="onstart">
-	/// A <see cref="System.String"/>
-	/// </param>
-	/// <param name="onstarttarget">
-	/// A <see cref="GameObject"/>
-	/// </param>
-	/// <param name="onstartparams">
-	/// A <see cref="System.Object"/>
-	/// </param>
-	/// <param name="onupdate">
-	/// A <see cref="System.String"/>
-	/// </param>
-	/// <param name="onupdatetarget">
-	/// A <see cref="GameObject"/>
-	/// </param>
-	/// <param name="onupdateparams">
-	/// A <see cref="System.Object"/>
-	/// </param> 
-	/// <param name="oncomplete">
-	/// A <see cref="System.String"/>
-	/// </param>
-	/// <param name="oncompletetarget">
-	/// A <see cref="GameObject"/>.
-	/// </param>
-	/// <param name="oncompleteparams">
-	/// A <see cref="System.Object"/>
-	/// </param>
-	
 	public static void UpdateLook(GameObject target, Hashtable args){
 		CleanArgs(args);
 		
@@ -3407,7 +3458,8 @@ public class iTween : MonoBehaviour{
 		if(args.Contains("lookspeed")){
 			lookSpeed = (float)args["lookspeed"];
 		}else{
-			lookSpeed = Defaults.updateLookSpeed; 
+			lookSpeed = Defaults.smoothTime*60;
+			print("BAD!");
 		}
 				
 		//application:
@@ -3434,6 +3486,8 @@ public class iTween : MonoBehaviour{
 			target.transform.eulerAngles=axisRestriction;
 		}
 	}
+	
+	
 
 	#endregion
 
@@ -3647,8 +3701,8 @@ public class iTween : MonoBehaviour{
 			space = Defaults.space;
 		}
 		
-		if(tweenArguments.Contains("isLocal")){
-			isLocal = (bool)tweenArguments["isLocal"];
+		if(tweenArguments.Contains("islocal")){
+			isLocal = (bool)tweenArguments["islocal"];
 		}else{
 			isLocal = Defaults.isLocal;
 		}
