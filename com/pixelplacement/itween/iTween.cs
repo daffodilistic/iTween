@@ -128,7 +128,7 @@ public class iTween : MonoBehaviour{
 		public static bool orientToPath = false;
 		public static CurveType curveType = CurveType.bezier; // clean this up!
 		//update defaults:
-		public static float smoothTime = .06f;
+		public static float smoothTime = .05f;
 		//cameraFade defaults:
 		public static int cameraFadeDepth = 999999;
 	}
@@ -3354,7 +3354,7 @@ public class iTween : MonoBehaviour{
 	public static void UpdateMove(GameObject target, Hashtable args){
 		CleanArgs(args);
 		
-		float smoothTime=0;
+		float smoothTime;
 		Vector3[] vector3s = new Vector3[4];
 		bool isLocal;
 			
@@ -3429,6 +3429,69 @@ public class iTween : MonoBehaviour{
 	public static void UpdateLook(GameObject target, Hashtable args){
 		CleanArgs(args);
 		
+		float smoothTime;
+		Vector3[] vector3s = new Vector3[5];
+		
+		//set smooth time:
+		if(args.Contains("smoothtime")){
+			smoothTime = (float)args["smoothtime"];
+		}else{
+			smoothTime=	Defaults.smoothTime;
+		}
+		
+		//from values:
+		vector3s[0] = target.transform.eulerAngles;
+		
+		//set look:
+		if(args.Contains("looktarget")){
+			if (args["looktarget"].GetType() == typeof(Transform)) {
+				target.transform.LookAt((Transform)args["looktarget"]);
+			}else if(args["looktarget"].GetType() == typeof(Vector3)){
+				target.transform.LookAt((Vector3)args["looktarget"]);
+			}
+		}else{
+			Debug.LogError("iTween Error: UpdateLook needs a 'looktarget' property!");
+			return;
+		}
+		
+		//to values and reset look:
+		vector3s[1]=target.transform.eulerAngles;
+		target.transform.eulerAngles=vector3s[0];
+		
+		//calculate:
+		vector3s[3].x=Mathf.SmoothDampAngle(vector3s[0].x,vector3s[1].x,ref vector3s[2].x,smoothTime);
+		vector3s[3].y=Mathf.SmoothDampAngle(vector3s[0].y,vector3s[1].y,ref vector3s[2].y,smoothTime);
+		vector3s[3].z=Mathf.SmoothDampAngle(vector3s[0].z,vector3s[1].z,ref vector3s[2].z,smoothTime);
+	
+		//apply:
+		target.transform.eulerAngles=vector3s[3];
+		
+		//axis restriction:
+		if(args.Contains("axis")){
+			vector3s[4]=target.transform.eulerAngles;
+			switch((string)args["axis"]){
+				case "x":
+					vector3s[4].y=vector3s[0].y;
+					vector3s[4].z=vector3s[0].z;
+				break;
+				case "y":
+					vector3s[4].x=vector3s[0].x;
+					vector3s[4].z=vector3s[0].z;
+				break;
+				case "z":
+					vector3s[4].x=vector3s[0].x;
+					vector3s[4].y=vector3s[0].y;
+				break;
+			}
+			
+			//apply axis restriction:
+			target.transform.eulerAngles=vector3s[4];
+		}	
+	}
+		
+		/*
+		CleanArgs(args);
+		
 		//markers:
 		Vector3 startRotation = target.transform.eulerAngles;
 		Quaternion[] quaternions = new Quaternion[2];
@@ -3485,9 +3548,8 @@ public class iTween : MonoBehaviour{
 			//apply axis restriction:
 			target.transform.eulerAngles=axisRestriction;
 		}
-	}
-	
-	
+	}	
+	*/
 
 	#endregion
 
