@@ -128,7 +128,8 @@ public class iTween : MonoBehaviour{
 		public static bool orientToPath = false;
 		public static CurveType curveType = CurveType.bezier; // clean this up!
 		//update defaults:
-		public static float smoothTime = .05f;
+		public static float updateTimePercentage = .05f;
+		public static float updateTime = 1f*updateTimePercentage;
 		//cameraFade defaults:
 		public static int cameraFadeDepth = 999999;
 	}
@@ -3339,6 +3340,9 @@ public class iTween : MonoBehaviour{
 	/// <param name="z">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
 	/// </param>
+	/// <param name="time">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param> 
 	/// <param name="orienttopath">
 	/// A <see cref="System.Boolean"/>
 	/// </param>
@@ -3348,21 +3352,19 @@ public class iTween : MonoBehaviour{
 	/// <param name="islocal">
 	/// A <see cref="System.Boolean"/>
 	/// </param>
-	/// <param name="smoothtime">
-	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
-	/// </param>
-	public static void UpdateMove(GameObject target, Hashtable args){
+	public static void MoveUpdate(GameObject target, Hashtable args){
 		CleanArgs(args);
 		
-		float smoothTime;
+		float time;
 		Vector3[] vector3s = new Vector3[4];
 		bool isLocal;
 			
 		//set smooth time:
-		if(args.Contains("smoothtime")){
-			smoothTime = (float)args["smoothtime"];
+		if(args.Contains("time")){
+			time=(float)args["time"];
+			time*=Defaults.updateTimePercentage;
 		}else{
-			smoothTime=	Defaults.smoothTime;
+			time=Defaults.updateTime;
 		}
 			
 		//set isLocal:
@@ -3395,9 +3397,9 @@ public class iTween : MonoBehaviour{
 		}
 		
 		//calculate:
-		vector3s[3].x=Mathf.SmoothDamp(vector3s[0].x,vector3s[1].x,ref vector3s[2].x,smoothTime);
-		vector3s[3].y=Mathf.SmoothDamp(vector3s[0].y,vector3s[1].y,ref vector3s[2].y,smoothTime);
-		vector3s[3].z=Mathf.SmoothDamp(vector3s[0].z,vector3s[1].z,ref vector3s[2].z,smoothTime);
+		vector3s[3].x=Mathf.SmoothDamp(vector3s[0].x,vector3s[1].x,ref vector3s[2].x,time);
+		vector3s[3].y=Mathf.SmoothDamp(vector3s[0].y,vector3s[1].y,ref vector3s[2].y,time);
+		vector3s[3].z=Mathf.SmoothDamp(vector3s[0].z,vector3s[1].z,ref vector3s[2].z,time);
 			
 		//handle orient to path:
 		if(args.Contains("orienttopath") && (bool)args["orienttopath"]){
@@ -3406,7 +3408,7 @@ public class iTween : MonoBehaviour{
 		
 		//look applications:
 		if(args.Contains("looktarget")){
-			iTween.UpdateLook(target,args);
+			iTween.LookUpdate(target,args);
 		}
 		
 		//apply:
@@ -3426,17 +3428,21 @@ public class iTween : MonoBehaviour{
 	/// <param name="axis">
 	/// A <see cref="System.String"/>
 	/// </param>
-	public static void UpdateLook(GameObject target, Hashtable args){
+	/// <param name="time">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param> 
+	public static void LookUpdate(GameObject target, Hashtable args){
 		CleanArgs(args);
 		
-		float smoothTime;
+		float time;
 		Vector3[] vector3s = new Vector3[5];
 		
 		//set smooth time:
-		if(args.Contains("smoothtime")){
-			smoothTime = (float)args["smoothtime"];
+		if(args.Contains("time")){
+			time=(float)args["time"];
+			time*=Defaults.updateTimePercentage;
 		}else{
-			smoothTime=	Defaults.smoothTime;
+			time=Defaults.updateTime;
 		}
 		
 		//from values:
@@ -3450,7 +3456,7 @@ public class iTween : MonoBehaviour{
 				target.transform.LookAt((Vector3)args["looktarget"]);
 			}
 		}else{
-			Debug.LogError("iTween Error: UpdateLook needs a 'looktarget' property!");
+			Debug.LogError("iTween Error: LookUpdate needs a 'looktarget' property!");
 			return;
 		}
 		
@@ -3459,9 +3465,9 @@ public class iTween : MonoBehaviour{
 		target.transform.eulerAngles=vector3s[0];
 		
 		//calculate:
-		vector3s[3].x=Mathf.SmoothDampAngle(vector3s[0].x,vector3s[1].x,ref vector3s[2].x,smoothTime);
-		vector3s[3].y=Mathf.SmoothDampAngle(vector3s[0].y,vector3s[1].y,ref vector3s[2].y,smoothTime);
-		vector3s[3].z=Mathf.SmoothDampAngle(vector3s[0].z,vector3s[1].z,ref vector3s[2].z,smoothTime);
+		vector3s[3].x=Mathf.SmoothDampAngle(vector3s[0].x,vector3s[1].x,ref vector3s[2].x,time);
+		vector3s[3].y=Mathf.SmoothDampAngle(vector3s[0].y,vector3s[1].y,ref vector3s[2].y,time);
+		vector3s[3].z=Mathf.SmoothDampAngle(vector3s[0].z,vector3s[1].z,ref vector3s[2].z,time);
 	
 		//apply:
 		target.transform.eulerAngles=vector3s[3];
@@ -3488,68 +3494,6 @@ public class iTween : MonoBehaviour{
 			target.transform.eulerAngles=vector3s[4];
 		}	
 	}
-		
-		/*
-		CleanArgs(args);
-		
-		//markers:
-		Vector3 startRotation = target.transform.eulerAngles;
-		Quaternion[] quaternions = new Quaternion[2];
-		Vector3 axisRestriction = new Vector3();
-		
-		//from values:
-		quaternions[0]=target.transform.rotation;
-		
-		//set look:
-		if(args.Contains("looktarget")){
-			if (args["looktarget"].GetType() == typeof(Transform)) {
-				target.transform.LookAt((Transform)args["looktarget"]);
-			}else if(args["looktarget"].GetType() == typeof(Vector3)){
-				target.transform.LookAt((Vector3)args["looktarget"]);
-			}
-		}else{
-			Debug.LogError("iTween Error: UpdateLook needs a 'looktarget' property!");
-			return;
-		}
-
-		//to values and reset look:
-		quaternions[1]=target.transform.rotation;
-		target.transform.eulerAngles=startRotation;
-		
-		//set lookspeed:
-		float lookSpeed;
-		if(args.Contains("lookspeed")){
-			lookSpeed = (float)args["lookspeed"];
-		}else{
-			lookSpeed = Defaults.smoothTime*60;
-			print("BAD!");
-		}
-				
-		//application:
-		target.transform.rotation = Quaternion.Slerp(quaternions[0],quaternions[1],Time.deltaTime*lookSpeed);		
-	
-		//axis restriction:
-		if(args.Contains("axis")){
-			axisRestriction=target.transform.eulerAngles;
-			switch((string)args["axis"]){
-				case "x":
-					axisRestriction.y=startRotation.y;
-					axisRestriction.z=startRotation.z;
-				break;
-				case "y":
-					axisRestriction.x=startRotation.x;
-					axisRestriction.z=startRotation.z;
-				break;
-				case "z":
-					axisRestriction.x=startRotation.x;
-					axisRestriction.y=startRotation.y;
-				break;
-			}
-			//apply axis restriction:
-			target.transform.eulerAngles=axisRestriction;
-		}
-	}	
-	*/
 
 	#endregion
 
@@ -3587,7 +3531,7 @@ public class iTween : MonoBehaviour{
 	void LateUpdate(){
 		//look applications:
 		if(tweenArguments.Contains("looktarget") && isRunning){
-			UpdateLook(gameObject,tweenArguments);
+			LookUpdate(gameObject,tweenArguments);
 		}
 	}
 	
@@ -4179,8 +4123,8 @@ public class iTween : MonoBehaviour{
 	public static void lookFrom(GameObject target, Hashtable args){Debug.LogError("iTween Error: lookFrom() has been renamed to LookFrom().");}
 	public static void lookFromWorld(GameObject target, Hashtable args){Debug.LogError("iTween Error: lookFromWorld() has been deprecated. Please investigate LookFrom().");}
 	public static void lookTo(GameObject target, Hashtable args){Debug.LogError("iTween Error: lookTo() has been renamed to LookTo().");}
-	public static void lookToUpdate(GameObject target, Hashtable args){Debug.LogError("iTween Error: lookToUpdate() has been renamed to UpdateLook().");}
-	public static void lookToUpdateWorld(GameObject target, Hashtable args){Debug.LogError("iTween Error: lookToUpdateWorld() has been deprecated. Please investigate UpdateLook().");}
+	public static void lookToUpdate(GameObject target, Hashtable args){Debug.LogError("iTween Error: lookToUpdate() has been renamed to LookUpdate().");}
+	public static void lookToUpdateWorld(GameObject target, Hashtable args){Debug.LogError("iTween Error: lookToUpdateWorld() has been deprecated. Please investigate LookUpdate().");}
 	public static void moveAdd(GameObject target, Hashtable args){Debug.LogError("iTween Error: moveAdd() has been renamed to MoveAdd().");}
 	public static void moveAddWorld(GameObject target, Hashtable args){Debug.LogError("iTween Error: moveAddWorld() has been deprecated. Please investigate MoveAdd().");}
 	public static void moveBy(GameObject target, Hashtable args){Debug.LogError("iTween Error: moveBy() has been renamed to MoveBy().");}
