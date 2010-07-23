@@ -916,7 +916,7 @@ public class iTween : MonoBehaviour{
 	/// Changes a GameObject's position over time.
 	/// </summary>
 	/// <param name="position">
-	/// A <see cref="Vector3"/>
+	/// A <see cref="Transform"/> or <see cref="Vector3"/>
 	/// </param>
 	/// <param name="x">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
@@ -989,7 +989,7 @@ public class iTween : MonoBehaviour{
 	/// Instantly changes a GameObject's position then returns it to it's starting position over time.
 	/// </summary>
 	/// <param name="position">
-	/// A <see cref="Vector3"/>
+	/// A <see cref="Transform"/> or <see cref="Vector3"/>
 	/// </param>
 	/// <param name="x">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
@@ -1072,7 +1072,12 @@ public class iTween : MonoBehaviour{
 		
 		//set augmented fromPosition:
 		if(args.Contains("position")){
-			fromPosition=(Vector3)args["position"];
+			if (args["position"].GetType() == typeof(Transform)){
+				Transform trans = (Transform)args["position"];
+				fromPosition=trans.position;
+			}else if(args["position"].GetType() == typeof(Vector3)){
+				fromPosition=(Vector3)args["position"];
+			}			
 		}else{
 			if (args.Contains("x")) {
 				fromPosition.x=(float)args["x"];
@@ -1251,7 +1256,7 @@ public class iTween : MonoBehaviour{
 	/// Changes a GameObject's scale over time.
 	/// </summary>
 	/// <param name="scale">
-	/// A <see cref="Vector3"/>
+	/// A <see cref="Transform"/> or <see cref="Vector3"/>
 	/// </param>
 	/// <param name="x">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
@@ -1315,7 +1320,7 @@ public class iTween : MonoBehaviour{
 	/// Instantly changes a GameObject's scale then returns it to it's starting scale over time.
 	/// </summary>
 	/// <param name="scale">
-	/// A <see cref="Vector3"/>
+	/// A <see cref="Transform"/> or <see cref="Vector3"/>
 	/// </param>
 	/// <param name="x">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
@@ -1377,7 +1382,12 @@ public class iTween : MonoBehaviour{
 		
 		//set augmented fromScale:
 		if(args.Contains("scale")){
-			fromScale=(Vector3)args["scale"];
+			if (args["scale"].GetType() == typeof(Transform)){
+				Transform trans = (Transform)args["scale"];
+				fromScale=trans.localScale;
+			}else if(args["scale"].GetType() == typeof(Vector3)){
+				fromScale=(Vector3)args["scale"];
+			}	
 		}else{
 			if (args.Contains("x")) {
 				fromScale.x=(float)args["x"];
@@ -1534,7 +1544,7 @@ public class iTween : MonoBehaviour{
 	/// Rotates a GameObject to the supplied angles in euler angles over time (if allowed). 
 	/// </summary>
 	/// <param name="rotation">
-	/// A <see cref="Vector3"/>
+	/// A <see cref="Transform"/> or <see cref="Vector3"/>
 	/// </param>
 	/// <param name="x">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
@@ -1601,7 +1611,7 @@ public class iTween : MonoBehaviour{
 	/// Instantly changes a GameObject's rotation in euler angles then returns it to it's starting rotation over time (if allowed).
 	/// </summary>
 	/// <param name="rotation">
-	/// A <see cref="Vector3"/>
+	/// A <see cref="Transform"/> or <see cref="Vector3"/>
 	/// </param>
 	/// <param name="x">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
@@ -1678,7 +1688,12 @@ public class iTween : MonoBehaviour{
 		
 		//set augmented fromRotation:
 		if(args.Contains("rotation")){
-			fromRotation=(Vector3)args["rotation"];
+			if (args["rotation"].GetType() == typeof(Transform)){
+				Transform trans = (Transform)args["rotation"];
+				fromRotation=trans.eulerAngles;
+			}else if(args["rotation"].GetType() == typeof(Vector3)){
+				fromRotation=(Vector3)args["rotation"];
+			}	
 		}else{
 			if (args.Contains("x")) {
 				fromRotation.x=(float)args["x"];
@@ -2552,7 +2567,12 @@ public class iTween : MonoBehaviour{
 		
 		//to values:
 		if (tweenArguments.Contains("position")) {
-			vector3s[1]=(Vector3)tweenArguments["position"];
+			if (tweenArguments["position"].GetType() == typeof(Transform)){
+				Transform trans = (Transform)tweenArguments["position"];
+				vector3s[1]=trans.position;
+			}else if(tweenArguments["position"].GetType() == typeof(Vector3)){
+				vector3s[1]=(Vector3)tweenArguments["position"];
+			}
 		}else{
 			if (tweenArguments.Contains("x")) {
 				vector3s[1].x=(float)tweenArguments["x"];
@@ -2612,7 +2632,12 @@ public class iTween : MonoBehaviour{
 
 		//to values:
 		if (tweenArguments.Contains("scale")) {
-			vector3s[1]=(Vector3)tweenArguments["scale"];
+			if (tweenArguments["scale"].GetType() == typeof(Transform)){
+				Transform trans = (Transform)tweenArguments["scale"];
+				vector3s[1]=trans.localScale;
+			}else if(tweenArguments["scale"].GetType() == typeof(Vector3)){
+				vector3s[1]=(Vector3)tweenArguments["scale"];
+			}
 		}else{
 			if (tweenArguments.Contains("x")) {
 				vector3s[1].x=(float)tweenArguments["x"];
@@ -2685,7 +2710,12 @@ public class iTween : MonoBehaviour{
 		
 		//to values:
 		if (tweenArguments.Contains("rotation")) {
-			vector3s[1]=(Vector3)tweenArguments["rotation"];
+			if (tweenArguments["rotation"].GetType() == typeof(Transform)){
+				Transform trans = (Transform)tweenArguments["rotation"];
+				vector3s[1]=trans.eulerAngles;
+			}else if(tweenArguments["rotation"].GetType() == typeof(Vector3)){
+				vector3s[1]=(Vector3)tweenArguments["rotation"];
+			}
 		}else{
 			if (tweenArguments.Contains("x")) {
 				vector3s[1].x=(float)tweenArguments["x"];
