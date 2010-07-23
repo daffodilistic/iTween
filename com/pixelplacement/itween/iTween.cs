@@ -3356,10 +3356,74 @@ public class iTween : MonoBehaviour{
 	#region #6 Update Callable
 	
 	/// <summary>
-	/// Similar to MoveTo but incredibly less expensive for usage inside the Update or similar looping situations involving a "live" set of changing values. 
+	/// Similar to ScaleTo but incredibly less expensive for usage inside the Update or similar looping situations involving a "live" set of changing values.  Does not utilize an EaseType. 
+	/// </summary>
+	/// <param name="scale">
+	/// A <see cref="Transform"/> or <see cref="Vector3"/>
+	/// </param>
+	/// <param name="x">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="y">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="z">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="time">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param> 
+	public static void ScaleUpdate(GameObject target, Hashtable args){
+		CleanArgs(args);
+		
+		float time;
+		Vector3[] vector3s = new Vector3[4];
+			
+		//set smooth time:
+		if(args.Contains("time")){
+			time=(float)args["time"];
+			time*=Defaults.updateTimePercentage;
+		}else{
+			time=Defaults.updateTime;
+		}
+		
+		//init values:
+		vector3s[0] = vector3s[1] = target.transform.localScale;
+		
+		//to values:
+		if (args.Contains("scale")) {
+			if (args["scale"].GetType() == typeof(Transform)){
+				Transform trans = (Transform)args["scale"];
+				vector3s[1]=trans.localScale;
+			}else if(args["scale"].GetType() == typeof(Vector3)){
+				vector3s[1]=(Vector3)args["scale"];
+			}				
+		}else{
+			if (args.Contains("x")) {
+				vector3s[1].x=(float)args["x"];
+			}
+			if (args.Contains("y")) {
+				vector3s[1].y=(float)args["y"];
+			}
+			if (args.Contains("z")) {
+				vector3s[1].z=(float)args["z"];
+			}
+		}
+		
+		//calculate:
+		vector3s[3].x=Mathf.SmoothDamp(vector3s[0].x,vector3s[1].x,ref vector3s[2].x,time);
+		vector3s[3].y=Mathf.SmoothDamp(vector3s[0].y,vector3s[1].y,ref vector3s[2].y,time);
+		vector3s[3].z=Mathf.SmoothDamp(vector3s[0].z,vector3s[1].z,ref vector3s[2].z,time);
+				
+		//apply:
+		target.transform.localScale=vector3s[3];		
+	}	
+	
+	/// <summary>
+	/// Similar to MoveTo but incredibly less expensive for usage inside the Update or similar looping situations involving a "live" set of changing values. Does not utilize an EaseType. 
 	/// </summary>
 	/// <param name="position">
-	/// A <see cref="Vector3"/>
+	/// A <see cref="Transform"/> or <see cref="Vector3"/>
 	/// </param>
 	/// <param name="x">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
@@ -3413,7 +3477,12 @@ public class iTween : MonoBehaviour{
 		
 		//to values:
 		if (args.Contains("position")) {
-			vector3s[1]=(Vector3)args["position"];
+			if (args["position"].GetType() == typeof(Transform)){
+				Transform trans = (Transform)args["position"];
+				vector3s[1]=trans.position;
+			}else if(args["position"].GetType() == typeof(Vector3)){
+				vector3s[1]=(Vector3)args["position"];
+			}			
 		}else{
 			if (args.Contains("x")) {
 				vector3s[1].x=(float)args["x"];
@@ -3450,7 +3519,7 @@ public class iTween : MonoBehaviour{
 	}
 	
 	/// <summary>
-	/// Similar to LookTo but incredibly less expensive for usage inside the Update or similar looping situations involving a "live" set of changing values. 
+	/// Similar to LookTo but incredibly less expensive for usage inside the Update or similar looping situations involving a "live" set of changing values. Does not utilize an EaseType. 
 	/// </summary>
 	/// <param name="looktarget">
 	/// A <see cref="Transform"/> or <see cref="Vector3"/>
