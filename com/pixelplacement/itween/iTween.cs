@@ -760,7 +760,7 @@ public class iTween : MonoBehaviour{
 	/// A <see cref="Transform"/> or <see cref="Vector3"/>
 	/// </param>
 	/// <param name="axis">
-	/// A <see cref="System.String"/>
+	/// A <see cref="System.String"/>. Restricts rotation to the supplied axis only.
 	/// </param>
 	/// <param name="time">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
@@ -852,7 +852,7 @@ public class iTween : MonoBehaviour{
 	/// A <see cref="Transform"/> or <see cref="Vector3"/>
 	/// </param>
 	/// <param name="axis">
-	/// A <see cref="System.String"/>
+	/// A <see cref="System.String"/>. Restricts rotation to the supplied axis only.
 	/// </param>
 	/// <param name="time">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
@@ -3354,9 +3354,86 @@ public class iTween : MonoBehaviour{
 	#endregion
 	
 	#region #6 Update Callable
-	
+
 	/// <summary>
-	/// Similar to ScaleTo but incredibly less expensive for usage inside the Update or similar looping situations involving a "live" set of changing values.  Does not utilize an EaseType. 
+	/// Similar to RotateTo but incredibly less expensive for usage inside the Update function or similar looping situations involving a "live" set of changing values. Does not utilize an EaseType. 
+	/// </summary>
+	/// <param name="rotation">
+	/// A <see cref="Transform"/> or <see cref="Vector3"/>
+	/// </param>
+	/// <param name="x">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="y">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="z">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="islocal">
+	/// A <see cref="System.Boolean"/>
+	/// </param>
+	/// <param name="time">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param> 
+	public static void RotateUpdate(GameObject target, Hashtable args){
+		CleanArgs(args);
+		
+		bool isLocal;
+		float time;
+		Vector3[] vector3s = new Vector3[5];
+		
+		//set smooth time:
+		if(args.Contains("time")){
+			time=(float)args["time"];
+			time*=Defaults.updateTimePercentage;
+		}else{
+			time=Defaults.updateTime;
+		}
+		
+		//set isLocal:
+		if(args.Contains("islocal")){
+			isLocal = (bool)args["islocal"];
+		}else{
+			isLocal = Defaults.isLocal;	
+		}
+		
+		//from values:
+		if(isLocal){
+			vector3s[0] = target.transform.localEulerAngles;
+		}else{
+			vector3s[0] = target.transform.eulerAngles;	
+		}
+		
+		//set to:
+		if(args.Contains("rotation")){
+			if (args["rotation"].GetType() == typeof(Transform)){
+				Transform trans = (Transform)args["rotation"];
+				if(isLocal){
+					vector3s[1]=trans.localEulerAngles;
+				}else{
+					vector3s[1]=trans.eulerAngles;	
+				}
+			}else if(args["rotation"].GetType() == typeof(Vector3)){
+				vector3s[1]=(Vector3)args["rotation"];
+			}	
+		}
+				
+		//calculate:
+		vector3s[3].x=Mathf.SmoothDampAngle(vector3s[0].x,vector3s[1].x,ref vector3s[2].x,time);
+		vector3s[3].y=Mathf.SmoothDampAngle(vector3s[0].y,vector3s[1].y,ref vector3s[2].y,time);
+		vector3s[3].z=Mathf.SmoothDampAngle(vector3s[0].z,vector3s[1].z,ref vector3s[2].z,time);
+	
+		//apply:
+		if(isLocal){
+			target.transform.localEulerAngles=vector3s[3];
+		}else{
+			
+		}target.transform.eulerAngles=vector3s[3];
+	}
+		
+	/// <summary>
+	/// Similar to ScaleTo but incredibly less expensive for usage inside the Update function or similar looping situations involving a "live" set of changing values.  Does not utilize an EaseType. 
 	/// </summary>
 	/// <param name="scale">
 	/// A <see cref="Transform"/> or <see cref="Vector3"/>
@@ -3420,7 +3497,7 @@ public class iTween : MonoBehaviour{
 	}	
 	
 	/// <summary>
-	/// Similar to MoveTo but incredibly less expensive for usage inside the Update or similar looping situations involving a "live" set of changing values. Does not utilize an EaseType. 
+	/// Similar to MoveTo but incredibly less expensive for usage inside the Update function or similar looping situations involving a "live" set of changing values. Does not utilize an EaseType. 
 	/// </summary>
 	/// <param name="position">
 	/// A <see cref="Transform"/> or <see cref="Vector3"/>
@@ -3479,7 +3556,11 @@ public class iTween : MonoBehaviour{
 		if (args.Contains("position")) {
 			if (args["position"].GetType() == typeof(Transform)){
 				Transform trans = (Transform)args["position"];
-				vector3s[1]=trans.position;
+				if(isLocal){
+					vector3s[1]=trans.localPosition;
+				}else{
+					vector3s[1]=trans.position;	
+				}
 			}else if(args["position"].GetType() == typeof(Vector3)){
 				vector3s[1]=(Vector3)args["position"];
 			}			
@@ -3519,13 +3600,13 @@ public class iTween : MonoBehaviour{
 	}
 	
 	/// <summary>
-	/// Similar to LookTo but incredibly less expensive for usage inside the Update or similar looping situations involving a "live" set of changing values. Does not utilize an EaseType. 
+	/// Similar to LookTo but incredibly less expensive for usage inside the Update function or similar looping situations involving a "live" set of changing values. Does not utilize an EaseType. 
 	/// </summary>
 	/// <param name="looktarget">
 	/// A <see cref="Transform"/> or <see cref="Vector3"/>
 	/// </param>
 	/// <param name="axis">
-	/// A <see cref="System.String"/>
+	/// A <see cref="System.String"/>. Restricts rotation to the supplied axis only.
 	/// </param>
 	/// <param name="time">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
