@@ -18,6 +18,9 @@ public class iTween : MonoBehaviour{
 	//repository of all living iTweens:
 	public static ArrayList tweens = new ArrayList();
 	
+	//previous transform values holder (used when non Update specific methods are used in an Update function and a transform is passed for the target:
+	public static Vector3 updateTransformTracker = new Vector3();
+	
 	//status members (made public for visual troubleshooting in the inspector):
 	public string id, type, method;
 	public iTween.EaseType easeType;
@@ -2570,6 +2573,10 @@ public class iTween : MonoBehaviour{
 			if (tweenArguments["position"].GetType() == typeof(Transform)){
 				Transform trans = (Transform)tweenArguments["position"];
 				vector3s[1]=trans.position;
+				//since we are using transform data we need absolute values for conflict checking for correct Update function usage:
+				updateTransformTracker.x=trans.position.x;
+				updateTransformTracker.y=trans.position.y;
+				updateTransformTracker.z=trans.position.z;
 			}else if(tweenArguments["position"].GetType() == typeof(Vector3)){
 				vector3s[1]=(Vector3)tweenArguments["position"];
 			}
@@ -2584,7 +2591,6 @@ public class iTween : MonoBehaviour{
 				vector3s[1].z=(float)tweenArguments["z"];
 			}
 		}
-		
 		
 		//handle orient to path request:
 		if(tweenArguments.Contains("orienttopath") && (bool)tweenArguments["orienttopath"]){
@@ -2635,6 +2641,10 @@ public class iTween : MonoBehaviour{
 			if (tweenArguments["scale"].GetType() == typeof(Transform)){
 				Transform trans = (Transform)tweenArguments["scale"];
 				vector3s[1]=trans.localScale;
+				//since we are using transform data we need absolute values for conflict checking for correct Update function usage:
+				updateTransformTracker.x=trans.localScale.x;
+				updateTransformTracker.y=trans.localScale.y;
+				updateTransformTracker.z=trans.localScale.z;					
 			}else if(tweenArguments["scale"].GetType() == typeof(Vector3)){
 				vector3s[1]=(Vector3)tweenArguments["scale"];
 			}
@@ -2713,6 +2723,10 @@ public class iTween : MonoBehaviour{
 			if (tweenArguments["rotation"].GetType() == typeof(Transform)){
 				Transform trans = (Transform)tweenArguments["rotation"];
 				vector3s[1]=trans.eulerAngles;
+				//since we are using transform data we need absolute values for conflict checking for correct Update function usage:
+				updateTransformTracker.x=trans.eulerAngles.x;
+				updateTransformTracker.y=trans.eulerAngles.y;
+				updateTransformTracker.z=trans.eulerAngles.z;				
 			}else if(tweenArguments["rotation"].GetType() == typeof(Vector3)){
 				vector3s[1]=(Vector3)tweenArguments["rotation"];
 			}
@@ -3409,11 +3423,7 @@ public class iTween : MonoBehaviour{
 		if(args.Contains("rotation")){
 			if (args["rotation"].GetType() == typeof(Transform)){
 				Transform trans = (Transform)args["rotation"];
-				if(isLocal){
-					vector3s[1]=trans.localEulerAngles;
-				}else{
-					vector3s[1]=trans.eulerAngles;	
-				}
+				vector3s[1]=trans.eulerAngles;
 			}else if(args["rotation"].GetType() == typeof(Vector3)){
 				vector3s[1]=(Vector3)args["rotation"];
 			}	
@@ -3428,8 +3438,8 @@ public class iTween : MonoBehaviour{
 		if(isLocal){
 			target.transform.localEulerAngles=vector3s[3];
 		}else{
-			
-		}target.transform.eulerAngles=vector3s[3];
+			target.transform.eulerAngles=vector3s[3];
+		}
 	}
 		
 	/// <summary>
@@ -3556,11 +3566,7 @@ public class iTween : MonoBehaviour{
 		if (args.Contains("position")) {
 			if (args["position"].GetType() == typeof(Transform)){
 				Transform trans = (Transform)args["position"];
-				if(isLocal){
-					vector3s[1]=trans.localPosition;
-				}else{
-					vector3s[1]=trans.position;	
-				}
+				vector3s[1]=trans.position;
 			}else if(args["position"].GetType() == typeof(Vector3)){
 				vector3s[1]=(Vector3)args["position"];
 			}			
@@ -4025,7 +4031,7 @@ public class iTween : MonoBehaviour{
 		Destroy(this);
 	}	
 	
-	void ConflictCheck(){//if a new iTween is about to run and is of the same type as an in progress iTween this will destroy the previous if the new one is NOT identical in every way or it will destroy the new iTween if they are
+	void ConflictCheck(){//if a new iTween is about to run and is of the same type as an in progress iTween this will destroy the previous if the new one is NOT identical in every way or it will destroy the new iTween if they are:	
 		Component[] tweens = GetComponents(typeof(iTween));
 		foreach (iTween item in tweens) {
 			if(item.isRunning && item.type==type){
@@ -4037,15 +4043,33 @@ public class iTween : MonoBehaviour{
 				
 				//step 2: side-by-side check to figure out if this is an identical tween scenario to handle Update usages of iTween:
 				foreach (DictionaryEntry currentProp in tweenArguments) {
-
 					if(!item.tweenArguments.Contains(currentProp.Key)){
 						item.Dispose();
 						return;
 					}else{
-						if(!item.tweenArguments[currentProp.Key].Equals(tweenArguments[currentProp.Key]) && (string)currentProp.Key != "id"){//if we aren't comparing ids and something isn't exactly the same replace the running iTween
-
+						if(!item.tweenArguments[currentProp.Key].Equals(tweenArguments[currentProp.Key]) && (string)currentProp.Key != "id"){//if we aren't comparing ids and something isn't exactly the same replace the running iTween: 
+							print("prop value difference");
 							item.Dispose();
 							return;
+						}else{
+							//if transforms are being utilized for target property setting we need to check transform values for equality:
+							Transform tempTrans;
+							if(tweenArguments.Contains("position") && tweenArguments["position"].GetType()==typeof(Transform)){
+								tempTrans=(Transform)tweenArguments["position"];
+								if(tempTrans.position!=updateTransformTracker){
+									item.Dispose();
+								}
+							}else if(tweenArguments.Contains("rotation") && tweenArguments["rotation"].GetType()==typeof(Transform)){
+								tempTrans=(Transform)tweenArguments["rotation"];
+								if(tempTrans.eulerAngles!=updateTransformTracker){
+									item.Dispose();
+								}
+							}else if(tweenArguments.Contains("scale") && tweenArguments["scale"].GetType()==typeof(Transform)){
+								tempTrans=(Transform)tweenArguments["scale"];
+								if(tempTrans.localScale!=updateTransformTracker){
+									item.Dispose();
+								}
+							}
 						}
 					}
 				}
