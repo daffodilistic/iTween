@@ -4048,7 +4048,6 @@ public class iTween : MonoBehaviour{
 						return;
 					}else{
 						if(!item.tweenArguments[currentProp.Key].Equals(tweenArguments[currentProp.Key]) && (string)currentProp.Key != "id"){//if we aren't comparing ids and something isn't exactly the same replace the running iTween: 
-							print("prop value difference");
 							item.Dispose();
 							return;
 						}else{
