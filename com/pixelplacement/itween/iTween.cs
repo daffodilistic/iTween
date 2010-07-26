@@ -27,8 +27,8 @@ public class iTween : MonoBehaviour{
 		
 	//private members:
  	private float runningTime, percentage;
-	protected float delayStarted; //probably not neccesary that this be protected but it shuts Unity's compiler up about this being "never used"
-	private bool kinematic, isLocal, loop, reverse;
+	private float delayStarted; //probably not neccesary that this be protected but it shuts Unity's compiler up about this being "never used"
+	private bool kinematic, isLocal, loop, reverse, wasPaused;
 	private Hashtable tweenArguments;
 	private Space space;
 	private delegate float EasingFunction(float start, float end, float value);
@@ -41,7 +41,7 @@ public class iTween : MonoBehaviour{
 	private Color[] colors;
 	private float[] floats;
 	private int[] ints;
-	private Rect[] rects;	
+	private Rect[] rects;
 	
 	/// <summary>
 	/// The type of easing to use based on Robert Penner's open source easing equations (http://www.robertpenner.com/easing_terms_of_use.html).
@@ -3293,6 +3293,10 @@ public class iTween : MonoBehaviour{
 	IEnumerator TweenDelay(){
 		delayStarted = Time.time;
 		yield return new WaitForSeconds (delay);
+		if(wasPaused){
+			wasPaused=false;
+			TweenStart();	
+		}
 	}	
 	
 	void TweenStart(){		
@@ -3866,6 +3870,197 @@ public class iTween : MonoBehaviour{
 	}
 
 	#endregion
+	
+	#region #7 External Utilities
+
+	/// <summary>
+	/// Resume all iTweens on a GameObject.
+	/// </summary>
+	public static void Resume(GameObject target){
+		Component[] tweens = target.GetComponents(typeof(iTween));
+		foreach (iTween item in tweens){
+			item.enabled=true;
+		}
+	}
+	
+	/// <summary>
+	/// Pause all iTweens on a GameObject.
+	/// </summary>
+	public static void Pause(GameObject target){
+		Component[] tweens = target.GetComponents(typeof(iTween));
+		foreach (iTween item in tweens){
+			if(item.delay>0){
+				item.delay-=Time.time-item.delayStarted;
+				item.StopCoroutine("TweenDelay");
+			}
+			item.isPaused=true;
+			item.enabled=false;
+		}
+	}
+	
+	/// <summary>
+	/// Count all iTweens in current scene.
+	/// </summary>
+	public static int Count(){
+		return(tweens.Count);
+	}
+	
+	/// <summary>
+	/// Count all iTweens in current scene of a particular type.
+	/// </summary>
+	/// <param name="type">
+	/// A <see cref="System.String"/> name of the type of animation you would like to stop.  Can be written as part of a name such as "mov" for all "MoveTo" iTweens.
+	/// </param> 
+	public static int Count(string type){
+		int tweenCount = 0;
+
+		for (int i = 0; i < tweens.Count; i++) {
+			Hashtable currentTween = (Hashtable)tweens[i];
+			string targetType = (string)currentTween["type"]+(string)currentTween["method"];
+			targetType=targetType.Substring(0,type.Length);
+			if(targetType.ToLower() == type.ToLower()){
+				tweenCount++;
+			}
+		}	
+		
+		return(tweenCount);
+	}			
+
+	/// <summary>
+	/// Count all iTweens on a GameObject.
+	/// </summary>
+	public static int Count(GameObject target){
+		Component[] tweens = target.GetComponents(typeof(iTween));
+		return(tweens.Length);
+	}
+	
+	/// <summary>
+	/// Count all iTweens on a GameObject of a particular type.
+	/// </summary>
+	/// <param name="type">
+	/// A <see cref="System.String"/> name of the type of animation you would like to count.  Can be written as part of a name such as "mov" for all "MoveTo" iTweens.
+	/// </param>  
+	public static int Count(GameObject target, string type){
+		int tweenCount = 0;
+		Component[] tweens = target.GetComponents(typeof(iTween));foreach (iTween item in tweens){
+			string targetType = item.type+item.method;
+			targetType=targetType.Substring(0,type.Length);
+			if(targetType.ToLower() == type.ToLower()){
+				tweenCount++;
+			}
+		}
+		return(tweenCount);
+	}	
+	
+	/// <summary>
+	/// Stop and destroy all Tweens in current scene.
+	/// </summary>
+	public static void Stop(){
+		for (int i = 0; i < tweens.Count; i++) {
+			Hashtable currentTween = (Hashtable)tweens[i];
+			GameObject target = (GameObject)currentTween["target"];
+			Stop(target);
+		}
+		tweens.Clear();
+	}	
+	
+	/// <summary>
+	/// Stop and destroy all iTweens in current scene of a particular type.
+	/// </summary>
+	/// <param name="type">
+	/// A <see cref="System.String"/> name of the type of animation you would like to stop.  Can be written as part of a name such as "mov" for all "MoveTo" iTweens.
+	/// </param> 
+	public static void Stop(string type){
+		ArrayList stopArray = new ArrayList();
+		
+		for (int i = 0; i < tweens.Count; i++) {
+			Hashtable currentTween = (Hashtable)tweens[i];
+			GameObject target = (GameObject)currentTween["target"];
+			stopArray.Insert(stopArray.Count,target);
+		}
+		
+		for (int i = 0; i < stopArray.Count; i++) {
+			Stop((GameObject)stopArray[i],type);
+		}
+	}		
+	
+	/// <summary>
+	/// Stop and destroy all iTweens on a GameObject.
+	/// </summary>
+	public static void Stop(GameObject target){
+		Component[] tweens = target.GetComponents(typeof(iTween));
+		foreach (iTween item in tweens){
+			item.Dispose();
+		}
+	}
+	
+	/// <summary>
+	/// Stop and destroy all iTweens on a GameObject including its children.
+	/// </summary>
+	public static void Stop(GameObject target, bool includechildren){
+		Stop(target);
+		if(includechildren){
+			foreach(Transform child in target.transform){
+				Stop(child.gameObject,true);
+			}			
+		}
+	}	
+	
+	/// <summary>
+	/// Stop and destroy all iTweens on a GameObject of a particular type.
+	/// </summar
+	/// <param name="type">
+	/// A <see cref="System.String"/> name of the type of animation you would like to stop.  Can be written as part of a name such as "mov" for all "MoveTo" iTweens.
+	/// </param>	
+	public static void Stop(GameObject target, string type){
+		Component[] tweens = target.GetComponents(typeof(iTween));
+		foreach (iTween item in tweens){
+			string targetType = item.type+item.method;
+			targetType=targetType.Substring(0,type.Length);
+			if(targetType.ToLower() == type.ToLower()){
+				item.Dispose();
+			}
+		}
+	}
+	
+	/// <summary>
+	/// Stop and destroy all iTweens on a GameObject of a particular type including its children.
+	/// </summar
+	/// <param name="type">
+	/// A <see cref="System.String"/> name of the type of animation you would like to stop.  Can be written as part of a name such as "mov" for all "MoveTo" iTweens.
+	/// </param>	
+	public static void Stop(GameObject target, string type, bool includechildren){
+		Component[] tweens = target.GetComponents(typeof(iTween));
+		foreach (iTween item in tweens){
+			string targetType = item.type+item.method;
+			targetType=targetType.Substring(0,type.Length);
+			if(targetType.ToLower() == type.ToLower()){
+				item.Dispose();
+			}
+		}
+		if(includechildren){
+			foreach(Transform child in target.transform){
+				Stop(child.gameObject,type,true);
+			}			
+		}		
+	}
+	
+	public static Hashtable Hash(params object[] args){
+		Hashtable hashTable = new Hashtable(args.Length/2);
+		if (args.Length %2 != 0) {
+			Debug.LogError("Tween Error: Hash requires an even number of arguments!"); 
+			return null;
+		}else{
+			int i = 0;
+			while(i < args.Length - 1) {
+				hashTable.Add(args[i], args[i+1]);
+				i += 2;
+			}
+			return hashTable;
+		}
+	}	
+	
+	#endregion		
 
 	#region Component Segments
 	
@@ -3909,10 +4104,14 @@ public class iTween : MonoBehaviour{
 		if(isRunning){
 			EnableKinematic();
 		}
+	
 		//resume delay:
-		if(isPaused && delay>0){
+		if(isPaused){
 			isPaused=false;
-			ResumeDelay();
+			if(delay > 0){
+				wasPaused=true;
+				ResumeDelay();
+			}
 		}
 	}
 
@@ -3921,29 +4120,6 @@ public class iTween : MonoBehaviour{
 	}
 	
 	#endregion
-	
-	#region External Utilities
-	public static Hashtable Hash(params object[] args){
-		Hashtable hashTable = new Hashtable(args.Length/2);
-		if (args.Length %2 != 0) {
-			Debug.LogError("Tween Error: Hash requires an even number of arguments!"); 
-			return null;
-		}else{
-			int i = 0;
-			while(i < args.Length - 1) {
-				hashTable.Add(args[i], args[i+1]);
-				i += 2;
-			}
-			return hashTable;
-		}
-	}
-	
-//	stops
-//	pauses
-//	completes
-//	rewinds
-//	counts	
-	#endregion	
 	
 	#region Internal Helpers
 	
@@ -4259,11 +4435,10 @@ public class iTween : MonoBehaviour{
 			rigidbody.isKinematic=false;
 		}
 	}
-	
-	IEnumerator ResumeDelay(){	
-		yield return StartCoroutine("TweenDelay");
-		TweenStart();
-	}
+		
+	void ResumeDelay(){
+		StartCoroutine("TweenDelay");
+	}	
 	
 	#endregion	
 	
