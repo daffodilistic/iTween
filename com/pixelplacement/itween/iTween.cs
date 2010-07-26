@@ -18,9 +18,6 @@ public class iTween : MonoBehaviour{
 	//repository of all living iTweens:
 	public static ArrayList tweens = new ArrayList();
 	
-	//previous transform values holder (used when non Update specific methods are used in an Update function and a transform is passed for the target:
-	public static Vector3 updateTransformTracker = new Vector3();
-	
 	//status members (made public for visual troubleshooting in the inspector):
 	public string id, type, method;
 	public iTween.EaseType easeType;
@@ -982,6 +979,16 @@ public class iTween : MonoBehaviour{
 		//clean args:
 		args = iTween.CleanArgs(args);
 		
+		//additional property to ensure ConflictCheck can work correctly since Transforms are refrences:		
+		if(args.Contains("position")){
+			if (args["position"].GetType() == typeof(Transform)) {
+				Transform transform = (Transform)args["position"];
+				args["position"]=new Vector3(transform.position.x,transform.position.y,transform.position.z);
+				args["rotation"]=new Vector3(transform.eulerAngles.x,transform.eulerAngles.y,transform.eulerAngles.z);
+				args["scale"]=new Vector3(transform.localScale.x,transform.localScale.y,transform.localScale.z);
+			}
+		}		
+		
 		//establish iTween:
 		args["type"]="move";
 		args["method"]="to";
@@ -1313,6 +1320,16 @@ public class iTween : MonoBehaviour{
 		//clean args:
 		args = iTween.CleanArgs(args);
 		
+		//additional property to ensure ConflictCheck can work correctly since Transforms are refrences:		
+		if(args.Contains("scale")){
+			if (args["scale"].GetType() == typeof(Transform)) {
+				Transform transform = (Transform)args["scale"];
+				args["position"]=new Vector3(transform.position.x,transform.position.y,transform.position.z);
+				args["rotation"]=new Vector3(transform.eulerAngles.x,transform.eulerAngles.y,transform.eulerAngles.z);
+				args["scale"]=new Vector3(transform.localScale.x,transform.localScale.y,transform.localScale.z);
+			}
+		}
+		
 		//establish iTween:
 		args["type"]="scale";
 		args["method"]="to";
@@ -1603,6 +1620,16 @@ public class iTween : MonoBehaviour{
 	public static void RotateTo(GameObject target, Hashtable args){
 		//clean args:
 		args = iTween.CleanArgs(args);
+		
+		//additional property to ensure ConflictCheck can work correctly since Transforms are refrences:		
+		if(args.Contains("rotation")){
+			if (args["rotation"].GetType() == typeof(Transform)) {
+				Transform transform = (Transform)args["rotation"];
+				args["position"]=new Vector3(transform.position.x,transform.position.y,transform.position.z);
+				args["rotation"]=new Vector3(transform.eulerAngles.x,transform.eulerAngles.y,transform.eulerAngles.z);
+				args["scale"]=new Vector3(transform.localScale.x,transform.localScale.y,transform.localScale.z);
+			}
+		}		
 		
 		//establish iTween
 		args["type"]="rotate";
@@ -2573,10 +2600,6 @@ public class iTween : MonoBehaviour{
 			if (tweenArguments["position"].GetType() == typeof(Transform)){
 				Transform trans = (Transform)tweenArguments["position"];
 				vector3s[1]=trans.position;
-				//since we are using transform data we need absolute values for conflict checking for correct Update function usage:
-				updateTransformTracker.x=trans.position.x;
-				updateTransformTracker.y=trans.position.y;
-				updateTransformTracker.z=trans.position.z;
 			}else if(tweenArguments["position"].GetType() == typeof(Vector3)){
 				vector3s[1]=(Vector3)tweenArguments["position"];
 			}
@@ -2640,11 +2663,7 @@ public class iTween : MonoBehaviour{
 		if (tweenArguments.Contains("scale")) {
 			if (tweenArguments["scale"].GetType() == typeof(Transform)){
 				Transform trans = (Transform)tweenArguments["scale"];
-				vector3s[1]=trans.localScale;
-				//since we are using transform data we need absolute values for conflict checking for correct Update function usage:
-				updateTransformTracker.x=trans.localScale.x;
-				updateTransformTracker.y=trans.localScale.y;
-				updateTransformTracker.z=trans.localScale.z;					
+				vector3s[1]=trans.localScale;					
 			}else if(tweenArguments["scale"].GetType() == typeof(Vector3)){
 				vector3s[1]=(Vector3)tweenArguments["scale"];
 			}
@@ -2722,11 +2741,7 @@ public class iTween : MonoBehaviour{
 		if (tweenArguments.Contains("rotation")) {
 			if (tweenArguments["rotation"].GetType() == typeof(Transform)){
 				Transform trans = (Transform)tweenArguments["rotation"];
-				vector3s[1]=trans.eulerAngles;
-				//since we are using transform data we need absolute values for conflict checking for correct Update function usage:
-				updateTransformTracker.x=trans.eulerAngles.x;
-				updateTransformTracker.y=trans.eulerAngles.y;
-				updateTransformTracker.z=trans.eulerAngles.z;				
+				vector3s[1]=trans.eulerAngles;			
 			}else if(tweenArguments["rotation"].GetType() == typeof(Vector3)){
 				vector3s[1]=(Vector3)tweenArguments["rotation"];
 			}
@@ -4050,25 +4065,6 @@ public class iTween : MonoBehaviour{
 						if(!item.tweenArguments[currentProp.Key].Equals(tweenArguments[currentProp.Key]) && (string)currentProp.Key != "id"){//if we aren't comparing ids and something isn't exactly the same replace the running iTween: 
 							item.Dispose();
 							return;
-						}else{
-							//if transforms are being utilized for target property setting we need to check transform values for equality:
-							Transform tempTrans;
-							if(tweenArguments.Contains("position") && tweenArguments["position"].GetType()==typeof(Transform)){
-								tempTrans=(Transform)tweenArguments["position"];
-								if(tempTrans.position!=updateTransformTracker){
-									item.Dispose();
-								}
-							}else if(tweenArguments.Contains("rotation") && tweenArguments["rotation"].GetType()==typeof(Transform)){
-								tempTrans=(Transform)tweenArguments["rotation"];
-								if(tempTrans.eulerAngles!=updateTransformTracker){
-									item.Dispose();
-								}
-							}else if(tweenArguments.Contains("scale") && tweenArguments["scale"].GetType()==typeof(Transform)){
-								tempTrans=(Transform)tweenArguments["scale"];
-								if(tempTrans.localScale!=updateTransformTracker){
-									item.Dispose();
-								}
-							}
 						}
 					}
 				}
