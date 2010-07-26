@@ -229,7 +229,7 @@ public class iTween : MonoBehaviour{
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
 	/// </param>
 	/// <param name="includechildren">
-	/// A <see cref="System.Boolean"/>
+	/// A <see cref="System.Boolean"/> true be default.
 	/// </param>
 	/// <param name="time">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
@@ -282,7 +282,7 @@ public class iTween : MonoBehaviour{
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
 	/// </param>
 	/// <param name="includechildren">
-	/// A <see cref="System.Boolean"/>
+	/// A <see cref="System.Boolean"/> true be default.
 	/// </param>
 	/// <param name="time">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
@@ -347,7 +347,7 @@ public class iTween : MonoBehaviour{
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
 	/// </param> 
 	/// <param name="includechildren">
-	/// A <see cref="System.Boolean"/>
+	/// A <see cref="System.Boolean"/> true be default.
 	/// </param>
 	/// <param name="time">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
@@ -477,7 +477,7 @@ public class iTween : MonoBehaviour{
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
 	/// </param> 
 	/// <param name="includechildren">
-	/// A <see cref="System.Boolean"/>
+	/// A <see cref="System.Boolean"/> true be default.
 	/// </param>
 	/// <param name="time">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
@@ -928,13 +928,13 @@ public class iTween : MonoBehaviour{
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
 	/// </param>
 	/// <param name="orienttopath">
-	/// A <see cref="System.Boolean"/>
+	/// A <see cref="System.Boolean"/> false be default.
 	/// </param>
 	/// <param name="looktarget">
 	/// A <see cref="Vector3"/> or A <see cref="Transform"/>
 	/// </param>
 	/// <param name="islocal">
-	/// A <see cref="System.Boolean"/>
+	/// A <see cref="System.Boolean"/> false be default.
 	/// </param>
 	/// <param name="time">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
@@ -1011,13 +1011,13 @@ public class iTween : MonoBehaviour{
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
 	/// </param>
 	/// <param name="orienttopath">
-	/// A <see cref="System.Boolean"/>
+	/// A <see cref="System.Boolean"/> false be default.
 	/// </param>
 	/// <param name="looktarget">
 	/// A <see cref="Vector3"/> or A <see cref="Transform"/>
 	/// </param>
 	/// <param name="islocal">
-	/// A <see cref="System.Boolean"/>
+	/// A <see cref="System.Boolean"/> false be default.
 	/// </param>
 	/// <param name="time">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
@@ -1132,7 +1132,7 @@ public class iTween : MonoBehaviour{
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
 	/// </param>
 	/// <param name="orienttopath">
-	/// A <see cref="System.Boolean"/>
+	/// A <see cref="System.Boolean"/> false be default.
 	/// </param>
 	/// <param name="looktarget">
 	/// A <see cref="Vector3"/> or A <see cref="Transform"/>
@@ -1205,7 +1205,7 @@ public class iTween : MonoBehaviour{
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
 	/// </param>
 	/// <param name="orienttopath">
-	/// A <see cref="System.Boolean"/>
+	/// A <see cref="System.Boolean"/> false be default.
 	/// </param>
 	/// <param name="looktarget">
 	/// A <see cref="Vector3"/> or A <see cref="Transform"/>
@@ -1576,7 +1576,7 @@ public class iTween : MonoBehaviour{
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
 	/// </param>
 	/// <param name="islocal">
-	/// A <see cref="System.Boolean"/>
+	/// A <see cref="System.Boolean"/> false be default.
 	/// </param>
 	/// <param name="time">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
@@ -1653,7 +1653,7 @@ public class iTween : MonoBehaviour{
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
 	/// </param>
 	/// <param name="islocal">
-	/// A <see cref="System.Boolean"/>
+	/// A <see cref="System.Boolean"/> false be default.
 	/// </param>
 	/// <param name="time">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
@@ -2979,7 +2979,7 @@ public class iTween : MonoBehaviour{
 		//apply:
 		tweenArguments["onupdateparams"]=colors[2];
 	}	
-	
+		
 	void ApplyVector3Targets(){
 		//calculate:
 		vector3s[2].x = ease(vector3s[0].x,vector3s[1].x,percentage);
@@ -3385,6 +3385,175 @@ public class iTween : MonoBehaviour{
 	#region #6 Update Callable
 
 	/// <summary>
+	/// Similar to FadeTo but incredibly less expensive for usage inside the Update function or similar looping situations involving a "live" set of changing values. Does not utilize an EaseType. 
+	/// </summary>
+	/// <param name="alpha">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="includechildren">
+	/// A <see cref="System.Boolean"/> true be default.
+	/// </param>
+	/// <param name="time">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	public static void FadeUpdate(GameObject target, Hashtable args){
+		args["a"]=args["alpha"];
+		ColorUpdate(target,args);
+	}
+	
+	/// <summary>
+	/// Similar to ColorTo but incredibly less expensive for usage inside the Update function or similar looping situations involving a "live" set of changing values. Does not utilize an EaseType. 
+	/// </summary>
+	/// <param name="color">
+	/// A <see cref="Color"/>
+	/// </param>
+	/// <param name="r">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="g">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="b">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="a">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param> 
+	/// <param name="includechildren">
+	/// A <see cref="System.Boolean"/> true be default.
+	/// </param>
+	/// <param name="time">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	public static void ColorUpdate(GameObject target, Hashtable args){
+		CleanArgs(args);
+		
+		float time;
+		Color[] colors = new Color[4];
+		
+		//handle children:
+		if(!args.Contains("includechildren") || (bool)args["includechildren"]){
+			foreach(Transform child in target.transform){
+				ColorUpdate(child.gameObject,args);
+			}
+		}		 
+		
+		//set smooth time:
+		if(args.Contains("time")){
+			time=(float)args["time"];
+			time*=Defaults.updateTimePercentage;
+		}else{
+			time=Defaults.updateTime;
+		}
+		
+		//init values:
+		if(target.GetComponent(typeof(GUITexture))){
+			colors[0] = colors[1] = target.guiTexture.color;
+		}else if(target.GetComponent(typeof(GUIText))){
+			colors[0] = colors[1] = target.guiText.material.color;
+		}else if(target.renderer){
+			colors[0] = colors[1] = target.renderer.material.color;
+		}else if(target.light){
+			colors[0] = colors[1] = target.light.color;	
+		}		
+		
+		//to values:
+		if (args.Contains("color")) {
+			colors[1]=(Color)args["color"];
+		}else{
+			if (args.Contains("r")) {
+				colors[1].r=(float)args["r"];
+			}
+			if (args.Contains("g")) {
+				colors[1].g=(float)args["g"];
+			}
+			if (args.Contains("b")) {
+				colors[1].b=(float)args["b"];
+			}
+			if (args.Contains("a")) {
+				colors[1].a=(float)args["a"];
+			}
+		}
+		
+		//calculate:
+		colors[3].r=Mathf.SmoothDamp(colors[0].r,colors[1].r,ref colors[2].r,time);
+		colors[3].g=Mathf.SmoothDamp(colors[0].g,colors[1].g,ref colors[2].g,time);
+		colors[3].b=Mathf.SmoothDamp(colors[0].b,colors[1].b,ref colors[2].b,time);
+		colors[3].a=Mathf.SmoothDamp(colors[0].a,colors[1].a,ref colors[2].a,time);
+				
+		//apply:
+		if(target.GetComponent(typeof(GUITexture))){
+			target.guiTexture.color=colors[3];
+		}else if(target.GetComponent(typeof(GUIText))){
+			target.guiText.material.color=colors[3];
+		}else if(target.renderer){
+			target.renderer.material.color=colors[3];
+		}else if(target.light){
+			target.light.color=colors[3];	
+		}
+	}	
+	
+	/// <summary>
+	/// Similar to AudioTo but incredibly less expensive for usage inside the Update function or similar looping situations involving a "live" set of changing values. Does not utilize an EaseType. 
+	/// </summary>
+	/// <param name="audiosource">
+	/// A <see cref="AudioSource"/>
+	/// </param> 
+	/// <param name="volume">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="pitch">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param> 
+	public static void AudioUpdate(GameObject target, Hashtable args){
+		CleanArgs(args);
+		
+		AudioSource audioSource;
+		float time;
+		Vector2[] vector2s = new Vector2[4];
+			
+		//set smooth time:
+		if(args.Contains("time")){
+			time=(float)args["time"];
+			time*=Defaults.updateTimePercentage;
+		}else{
+			time=Defaults.updateTime;
+		}
+
+		//set audioSource:
+		if(args.Contains("audiosource")){
+			audioSource=(AudioSource)args["audiosource"];
+		}else{
+			if(target.GetComponent(typeof(AudioSource))){
+				audioSource=target.audio;
+			}else{
+				//throw error if no AudioSource is available:
+				Debug.LogError("iTween Error: AudioUpdate requires an AudioSource.");
+				return;
+			}
+		}		
+		
+		//from values:
+		vector2s[0] = vector2s[1] = new Vector2(audioSource.volume,audioSource.pitch);
+		
+		//set to:
+		if(args.Contains("volume")){
+			vector2s[1].x=(float)args["volume"];
+		}
+		if(args.Contains("pitch")){
+			vector2s[1].y=(float)args["pitch"];
+		}
+		
+		//calculate:
+		vector2s[3].x=Mathf.SmoothDampAngle(vector2s[0].x,vector2s[1].x,ref vector2s[2].x,time);
+		vector2s[3].y=Mathf.SmoothDampAngle(vector2s[0].y,vector2s[1].y,ref vector2s[2].y,time);
+	
+		//apply:
+		audioSource.volume=vector2s[3].x;
+		audioSource.pitch=vector2s[3].y;
+	}
+	
+	/// <summary>
 	/// Similar to RotateTo but incredibly less expensive for usage inside the Update function or similar looping situations involving a "live" set of changing values. Does not utilize an EaseType. 
 	/// </summary>
 	/// <param name="rotation">
@@ -3400,7 +3569,7 @@ public class iTween : MonoBehaviour{
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
 	/// </param>
 	/// <param name="islocal">
-	/// A <see cref="System.Boolean"/>
+	/// A <see cref="System.Boolean"/> false be default.
 	/// </param>
 	/// <param name="time">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
@@ -3410,7 +3579,7 @@ public class iTween : MonoBehaviour{
 		
 		bool isLocal;
 		float time;
-		Vector3[] vector3s = new Vector3[5];
+		Vector3[] vector3s = new Vector3[4];
 		
 		//set smooth time:
 		if(args.Contains("time")){
@@ -3540,13 +3709,13 @@ public class iTween : MonoBehaviour{
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
 	/// </param> 
 	/// <param name="orienttopath">
-	/// A <see cref="System.Boolean"/>
+	/// A <see cref="System.Boolean"/> false be default.
 	/// </param>
 	/// <param name="looktarget">
 	/// A <see cref="Vector3"/> or A <see cref="Transform"/>
 	/// </param>
 	/// <param name="islocal">
-	/// A <see cref="System.Boolean"/>
+	/// A <see cref="System.Boolean"/> false be default.
 	/// </param>
 	public static void MoveUpdate(GameObject target, Hashtable args){
 		CleanArgs(args);
