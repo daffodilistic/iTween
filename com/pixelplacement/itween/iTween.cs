@@ -3873,6 +3873,10 @@ public class iTween : MonoBehaviour{
 	
 	#region #7 External Utilities
 
+	//##################################
+	//# RESUME UTILITIES AND OVERLOADS # 
+	//##################################	
+	
 	/// <summary>
 	/// Resume all iTweens on a GameObject.
 	/// </summary>
@@ -3883,6 +3887,92 @@ public class iTween : MonoBehaviour{
 		}
 	}
 	
+	/// <summary>
+	/// Resume all iTweens on a GameObject including its children.
+	/// </summary>
+	public static void Resume(GameObject target, bool includechildren){
+		Resume(target);
+		if(includechildren){
+			foreach(Transform child in target.transform){
+				Resume(child.gameObject,true);
+			}			
+		}
+	}	
+	
+	/// <summary>
+	/// Resume all iTweens on a GameObject of a particular type.
+	/// </summar
+	/// <param name="type">
+	/// A <see cref="System.String"/> name of the type of iTween you would like to resume.  Can be written as part of a name such as "mov" for all "MoveTo" iTweens.
+	/// </param>	
+	public static void Resume(GameObject target, string type){
+		Component[] tweens = target.GetComponents(typeof(iTween));
+		foreach (iTween item in tweens){
+			string targetType = item.type+item.method;
+			targetType=targetType.Substring(0,type.Length);
+			if(targetType.ToLower() == type.ToLower()){
+				item.enabled=true;
+			}
+		}
+	}
+	
+	/// <summary>
+	/// Resume all iTweens on a GameObject of a particular type including its children.
+	/// </summar
+	/// <param name="type">
+	/// A <see cref="System.String"/> name of the type of iTween you would like to resume.  Can be written as part of a name such as "mov" for all "MoveTo" iTweens.
+	/// </param>	
+	public static void Resume(GameObject target, string type, bool includechildren){
+		Component[] tweens = target.GetComponents(typeof(iTween));
+		foreach (iTween item in tweens){
+			string targetType = item.type+item.method;
+			targetType=targetType.Substring(0,type.Length);
+			if(targetType.ToLower() == type.ToLower()){
+				item.enabled=true;
+			}
+		}
+		if(includechildren){
+			foreach(Transform child in target.transform){
+				Resume(child.gameObject,type,true);
+			}			
+		}		
+	}	
+	
+	/// <summary>
+	/// Resume all iTweens in scene.
+	/// </summary>
+	public static void Resume(){
+		for (int i = 0; i < tweens.Count; i++) {
+			Hashtable currentTween = (Hashtable)tweens[i];
+			GameObject target = (GameObject)currentTween["target"];
+			Resume(target);
+		}
+	}	
+	
+	/// <summary>
+	/// Resume all iTweens in scene of a particular type.
+	/// </summary>
+	/// <param name="type">
+	/// A <see cref="System.String"/> name of the type of iTween you would like to resume.  Can be written as part of a name such as "mov" for all "MoveTo" iTweens.
+	/// </param> 
+	public static void Resume(string type){
+		ArrayList resumeArray = new ArrayList();
+		
+		for (int i = 0; i < tweens.Count; i++) {
+			Hashtable currentTween = (Hashtable)tweens[i];
+			GameObject target = (GameObject)currentTween["target"];
+			resumeArray.Insert(resumeArray.Count,target);
+		}
+		
+		for (int i = 0; i < resumeArray.Count; i++) {
+			Resume((GameObject)resumeArray[i],type);
+		}
+	}			
+	
+	//#################################
+	//# PAUSE UTILITIES AND OVERLOADS # 
+	//#################################
+
 	/// <summary>
 	/// Pause all iTweens on a GameObject.
 	/// </summary>
@@ -3899,6 +3989,102 @@ public class iTween : MonoBehaviour{
 	}
 	
 	/// <summary>
+	/// Pause all iTweens on a GameObject including its children.
+	/// </summary>
+	public static void Pause(GameObject target, bool includechildren){
+		Pause(target);
+		if(includechildren){
+			foreach(Transform child in target.transform){
+				Pause(child.gameObject,true);
+			}			
+		}
+	}	
+	
+	/// <summary>
+	/// Pause all iTweens on a GameObject of a particular type.
+	/// </summar
+	/// <param name="type">
+	/// A <see cref="System.String"/> name of the type of iTween you would like to pause.  Can be written as part of a name such as "mov" for all "MoveTo" iTweens.
+	/// </param>	
+	public static void Pause(GameObject target, string type){
+		Component[] tweens = target.GetComponents(typeof(iTween));
+		foreach (iTween item in tweens){
+			string targetType = item.type+item.method;
+			targetType=targetType.Substring(0,type.Length);
+			if(targetType.ToLower() == type.ToLower()){
+				if(item.delay>0){
+					item.delay-=Time.time-item.delayStarted;
+					item.StopCoroutine("TweenDelay");
+				}
+				item.isPaused=true;
+				item.enabled=false;
+			}
+		}
+	}
+	
+	/// <summary>
+	/// Pause all iTweens on a GameObject of a particular type including its children.
+	/// </summar
+	/// <param name="type">
+	/// A <see cref="System.String"/> name of the type of iTween you would like to pause.  Can be written as part of a name such as "mov" for all "MoveTo" iTweens.
+	/// </param>	
+	public static void Pause(GameObject target, string type, bool includechildren){
+		Component[] tweens = target.GetComponents(typeof(iTween));
+		foreach (iTween item in tweens){
+			string targetType = item.type+item.method;
+			targetType=targetType.Substring(0,type.Length);
+			if(targetType.ToLower() == type.ToLower()){
+				if(item.delay>0){
+					item.delay-=Time.time-item.delayStarted;
+					item.StopCoroutine("TweenDelay");
+				}
+				item.isPaused=true;
+				item.enabled=false;
+			}
+		}
+		if(includechildren){
+			foreach(Transform child in target.transform){
+				Pause(child.gameObject,type,true);
+			}			
+		}		
+	}	
+	
+	/// <summary>
+	/// Pause all iTweens in scene.
+	/// </summary>
+	public static void Pause(){
+		for (int i = 0; i < tweens.Count; i++) {
+			Hashtable currentTween = (Hashtable)tweens[i];
+			GameObject target = (GameObject)currentTween["target"];
+			Pause(target);
+		}
+	}	
+	
+	/// <summary>
+	/// Pause all iTweens in scene of a particular type.
+	/// </summary>
+	/// <param name="type">
+	/// A <see cref="System.String"/> name of the type of iTween you would like to pause.  Can be written as part of a name such as "mov" for all "MoveTo" iTweens.
+	/// </param> 
+	public static void Pause(string type){
+		ArrayList pauseArray = new ArrayList();
+		
+		for (int i = 0; i < tweens.Count; i++) {
+			Hashtable currentTween = (Hashtable)tweens[i];
+			GameObject target = (GameObject)currentTween["target"];
+			pauseArray.Insert(pauseArray.Count,target);
+		}
+		
+		for (int i = 0; i < pauseArray.Count; i++) {
+			Pause((GameObject)pauseArray[i],type);
+		}
+	}		
+	
+	//#################################
+	//# COUNT UTILITIES AND OVERLOADS # 
+	//#################################	
+	
+	/// <summary>
 	/// Count all iTweens in current scene.
 	/// </summary>
 	public static int Count(){
@@ -3909,7 +4095,7 @@ public class iTween : MonoBehaviour{
 	/// Count all iTweens in current scene of a particular type.
 	/// </summary>
 	/// <param name="type">
-	/// A <see cref="System.String"/> name of the type of animation you would like to stop.  Can be written as part of a name such as "mov" for all "MoveTo" iTweens.
+	/// A <see cref="System.String"/> name of the type of iTween you would like to stop.  Can be written as part of a name such as "mov" for all "MoveTo" iTweens.
 	/// </param> 
 	public static int Count(string type){
 		int tweenCount = 0;
@@ -3938,7 +4124,7 @@ public class iTween : MonoBehaviour{
 	/// Count all iTweens on a GameObject of a particular type.
 	/// </summary>
 	/// <param name="type">
-	/// A <see cref="System.String"/> name of the type of animation you would like to count.  Can be written as part of a name such as "mov" for all "MoveTo" iTweens.
+	/// A <see cref="System.String"/> name of the type of iTween you would like to count.  Can be written as part of a name such as "mov" for all "MoveTo" iTweens.
 	/// </param>  
 	public static int Count(GameObject target, string type){
 		int tweenCount = 0;
@@ -3951,6 +4137,10 @@ public class iTween : MonoBehaviour{
 		}
 		return(tweenCount);
 	}	
+	
+	//################################
+	//# STOP UTILITIES AND OVERLOADS # 
+	//################################	
 	
 	/// <summary>
 	/// Stop and destroy all Tweens in current scene.
@@ -3968,7 +4158,7 @@ public class iTween : MonoBehaviour{
 	/// Stop and destroy all iTweens in current scene of a particular type.
 	/// </summary>
 	/// <param name="type">
-	/// A <see cref="System.String"/> name of the type of animation you would like to stop.  Can be written as part of a name such as "mov" for all "MoveTo" iTweens.
+	/// A <see cref="System.String"/> name of the type of iTween you would like to stop.  Can be written as part of a name such as "mov" for all "MoveTo" iTweens.
 	/// </param> 
 	public static void Stop(string type){
 		ArrayList stopArray = new ArrayList();
@@ -4010,7 +4200,7 @@ public class iTween : MonoBehaviour{
 	/// Stop and destroy all iTweens on a GameObject of a particular type.
 	/// </summar
 	/// <param name="type">
-	/// A <see cref="System.String"/> name of the type of animation you would like to stop.  Can be written as part of a name such as "mov" for all "MoveTo" iTweens.
+	/// A <see cref="System.String"/> name of the type of iTween you would like to stop.  Can be written as part of a name such as "mov" for all "MoveTo" iTweens.
 	/// </param>	
 	public static void Stop(GameObject target, string type){
 		Component[] tweens = target.GetComponents(typeof(iTween));
@@ -4027,7 +4217,7 @@ public class iTween : MonoBehaviour{
 	/// Stop and destroy all iTweens on a GameObject of a particular type including its children.
 	/// </summar
 	/// <param name="type">
-	/// A <see cref="System.String"/> name of the type of animation you would like to stop.  Can be written as part of a name such as "mov" for all "MoveTo" iTweens.
+	/// A <see cref="System.String"/> name of the type of iTween you would like to stop.  Can be written as part of a name such as "mov" for all "MoveTo" iTweens.
 	/// </param>	
 	public static void Stop(GameObject target, string type, bool includechildren){
 		Component[] tweens = target.GetComponents(typeof(iTween));
