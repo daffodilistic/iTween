@@ -133,6 +133,8 @@ public class iTween : MonoBehaviour{
 		public static float updateTime = 1f*updateTimePercentage;
 		//cameraFade defaults:
 		public static int cameraFadeDepth = 999999;
+		//path look ahead amount:
+		public static float lookAhead = .05f;
 	}
 	
 	#endregion
@@ -934,6 +936,12 @@ public class iTween : MonoBehaviour{
 	/// <param name="looktarget">
 	/// A <see cref="Vector3"/> or A <see cref="Transform"/>
 	/// </param>
+	/// <param name="looktime">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="lookahead">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
 	/// <param name="islocal">
 	/// A <see cref="System.Boolean"/> false be default.
 	/// </param>
@@ -1017,6 +1025,12 @@ public class iTween : MonoBehaviour{
 	/// <param name="looktarget">
 	/// A <see cref="Vector3"/> or A <see cref="Transform"/>
 	/// </param>
+	/// <param name="looktime">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="lookahead">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
 	/// <param name="islocal">
 	/// A <see cref="System.Boolean"/> false be default.
 	/// </param>
@@ -1060,12 +1074,10 @@ public class iTween : MonoBehaviour{
 	/// A <see cref="System.Object"/>
 	/// </param>
 	public static void MoveFrom(GameObject target, Hashtable args){
-		Vector3 tempPosition;
-		Vector3 fromPosition;
-		bool tempIsLocal;
-	
 		//clean args:
-		args = iTween.CleanArgs(args);
+			args = iTween.CleanArgs(args);
+		
+		bool tempIsLocal;
 		
 		//set tempIsLocal:
 		if(args.Contains("islocal")){
@@ -1073,44 +1085,82 @@ public class iTween : MonoBehaviour{
 		}else{
 			tempIsLocal = Defaults.isLocal;	
 		}
-
-		//set tempPosition and base fromPosition:
-		if(tempIsLocal){
-			tempPosition=fromPosition=target.transform.localPosition;
-		}else{
-			tempPosition=fromPosition=target.transform.position;	
-		}
 		
-		//set augmented fromPosition:
-		if(args.Contains("position")){
-			if (args["position"].GetType() == typeof(Transform)){
-				Transform trans = (Transform)args["position"];
-				fromPosition=trans.position;
-			}else if(args["position"].GetType() == typeof(Vector3)){
-				fromPosition=(Vector3)args["position"];
-			}			
-		}else{
-			if (args.Contains("x")) {
-				fromPosition.x=(float)args["x"];
+		if(args.Contains("path")){
+			Vector3[] fromPath;
+			Vector3[] suppliedPath;
+			if(args["path"].GetType() == typeof(Vector3[])){
+				Vector3[] temp = (Vector3[])args["path"];
+				suppliedPath=new Vector3[temp.Length];
+				Array.Copy(temp,suppliedPath, temp.Length);	
+			}else{
+				Transform[] temp = (Transform[])args["path"];
+				suppliedPath = new Vector3[temp.Length];
+				for (int i = 0; i < temp.Length; i++) {
+					suppliedPath[i]=temp[i].position;
+				}
 			}
-			if (args.Contains("y")) {
-				fromPosition.y=(float)args["y"];
+			if(suppliedPath[suppliedPath.Length-1] != target.transform.position){
+				fromPath= new Vector3[suppliedPath.Length+1];
+				Array.Copy(suppliedPath,fromPath,suppliedPath.Length);
+				if(tempIsLocal){
+					fromPath[fromPath.Length-1] = target.transform.localPosition;
+					target.transform.localPosition=fromPath[0];
+				}else{
+					fromPath[fromPath.Length-1] = target.transform.position;
+					target.transform.position=fromPath[0];
+				}
+				args["path"]=fromPath;
+			}else{
+				if(tempIsLocal){
+					target.transform.localPosition=suppliedPath[0];
+				}else{
+					target.transform.position=suppliedPath[0];
+				}
+				args["path"]=suppliedPath;
 			}
-			if (args.Contains("z")) {
-				fromPosition.z=(float)args["z"];
-			}
-		}
-		
-		//apply fromPosition:
-		if(tempIsLocal){
-			target.transform.localPosition = fromPosition;
 		}else{
-			target.transform.position = fromPosition;	
+			Vector3 tempPosition;
+			Vector3 fromPosition;
+			
+			//set tempPosition and base fromPosition:
+			if(tempIsLocal){
+				tempPosition=fromPosition=target.transform.localPosition;
+			}else{
+				tempPosition=fromPosition=target.transform.position;	
+			}
+			
+			//set augmented fromPosition:
+			if(args.Contains("position")){
+				if (args["position"].GetType() == typeof(Transform)){
+					Transform trans = (Transform)args["position"];
+					fromPosition=trans.position;
+				}else if(args["position"].GetType() == typeof(Vector3)){
+					fromPosition=(Vector3)args["position"];
+				}			
+			}else{
+				if (args.Contains("x")) {
+					fromPosition.x=(float)args["x"];
+				}
+				if (args.Contains("y")) {
+					fromPosition.y=(float)args["y"];
+				}
+				if (args.Contains("z")) {
+					fromPosition.z=(float)args["z"];
+				}
+			}
+			
+			//apply fromPosition:
+			if(tempIsLocal){
+				target.transform.localPosition = fromPosition;
+			}else{
+				target.transform.position = fromPosition;	
+			}
+			
+			//set new position arg:
+			args["position"]=tempPosition;
 		}
-		
-		//set new position arg:
-		args["position"]=tempPosition;
-		
+			
 		//establish iTween:
 		args["type"]="move";
 		args["method"]="to";
@@ -1137,6 +1187,9 @@ public class iTween : MonoBehaviour{
 	/// </param>
 	/// <param name="looktarget">
 	/// A <see cref="Vector3"/> or A <see cref="Transform"/>
+	/// </param>
+	/// <param name="looktime">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
 	/// </param>
 	/// <param name="space">
 	/// A <see cref="Space"/> or <see cref="System.String"/>
@@ -1210,6 +1263,9 @@ public class iTween : MonoBehaviour{
 	/// </param>
 	/// <param name="looktarget">
 	/// A <see cref="Vector3"/> or A <see cref="Transform"/>
+	/// </param>
+	/// <param name="looktime">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
 	/// </param>
 	/// <param name="space">
 	/// A <see cref="Space"/> or <see cref="System.String"/>
@@ -1907,6 +1963,9 @@ public class iTween : MonoBehaviour{
 	/// <param name="looktarget">
 	/// A <see cref="Vector3"/> or A <see cref="Transform"/>
 	/// </param>
+	/// <param name="looktime">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
 	/// <param name="time">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
 	/// </param>
@@ -2089,6 +2148,9 @@ public class iTween : MonoBehaviour{
 	/// </param> 
 	/// <param name="looktarget">
 	/// A <see cref="Vector3"/> or A <see cref="Transform"/>
+	/// </param>
+	/// <param name="looktime">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
 	/// </param>
 	/// <param name="time">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
@@ -2635,7 +2697,7 @@ public class iTween : MonoBehaviour{
 			plotStart=false;
 			offset=2;
 		}	
-		
+				
 		//build calculated path:
 		vector3s = new Vector3[suppliedPath.Length+offset];
 		if(plotStart){
@@ -2651,6 +2713,18 @@ public class iTween : MonoBehaviour{
 		//populate start and end control points:
 		vector3s[0] = vector3s[1] - vector3s[2];
 		vector3s[vector3s.Length-1] = vector3s[vector3s.Length-2] + (vector3s[vector3s.Length-2] - vector3s[vector3s.Length-3]);
+		
+		//is this a closed, continuous loop? yes? well then so let's make a contunous Catmull-Rom spline!
+		if(vector3s[1] == vector3s[vector3s.Length-2]){
+			Vector3[] tmpLoopSpline = new Vector3[vector3s.Length+1];
+			Array.Copy(vector3s,tmpLoopSpline,vector3s.Length);
+			//tmpLoopSpline[tmpLoopSpline.Length-3] =vector3s[1] + ((vector3s[1] - vector3s[vector3s.Length-1])/2);
+			tmpLoopSpline[tmpLoopSpline.Length-3] = tmpLoopSpline[1]; //this may need a bit more finesse to get the spline loop to be more predictable rather than just relying on the initial start point generated above
+			tmpLoopSpline[tmpLoopSpline.Length-2] = tmpLoopSpline[1];
+			tmpLoopSpline[tmpLoopSpline.Length-1] = tmpLoopSpline[2];
+			vector3s=new Vector3[tmpLoopSpline.Length];
+			Array.Copy(tmpLoopSpline,vector3s,tmpLoopSpline.Length);
+		}
 		
 		//create Catmull-Rom path:
 		path = new CRSpline(vector3s);
@@ -3114,8 +3188,30 @@ public class iTween : MonoBehaviour{
 	
 	void ApplyMoveToPathTargets(){
 		float t = ease(0,1,percentage);
-		//clamp easing equation results since "back" will fail since overshoots aren't handled well in the Catmull-Rom interpolation:
-		transform.position=path.Interp(Mathf.Clamp(t,0,1));
+		float lookAheadAmount;
+		
+		//clamp easing equation results as "back" will fail since overshoots aren't handled in the Catmull-Rom interpolation:
+		if(isLocal){
+			transform.localPosition=path.Interp(Mathf.Clamp(t,0,1));	
+		}else{
+			transform.position=path.Interp(Mathf.Clamp(t,0,1));	
+		}
+		
+		//handle orient to path request:
+		if(tweenArguments.Contains("orienttopath") && (bool)tweenArguments["orienttopath"]){
+			
+			//plot a point slightly ahead in the interpolation by pushing the percentage forward using the default lookahead value:
+			float tLook;
+			if(tweenArguments.Contains("lookahead")){
+				lookAheadAmount = (float)tweenArguments["lookahead"];
+			}else{
+				lookAheadAmount = Defaults.lookAhead;
+			}
+			tLook = ease(0,1,percentage+lookAheadAmount);
+			
+			//locate new leading point with a clamp as stated above:
+			tweenArguments["looktarget"] = path.Interp(Mathf.Clamp(tLook,0,1));
+		}		
 	}
 	
 	void ApplyMoveToTargets(){
@@ -3890,7 +3986,10 @@ public class iTween : MonoBehaviour{
 		Vector3[] vector3s = new Vector3[5];
 		
 		//set smooth time:
-		if(args.Contains("time")){
+		if(args.Contains("looktime")){
+			time=(float)args["looktime"];
+			time*=Defaults.updateTimePercentage;
+		}else if(args.Contains("time")){
 			time=(float)args["time"];
 			time*=Defaults.updateTimePercentage;
 		}else{
