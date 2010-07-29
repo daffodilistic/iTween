@@ -42,6 +42,7 @@ public class iTween : MonoBehaviour{
 	private float[] floats;
 	private int[] ints;
 	private Rect[] rects;
+	private CRSpline path;
 	
 	/// <summary>
 	/// The type of easing to use based on Robert Penner's open source easing equations (http://www.robertpenner.com/easing_terms_of_use.html).
@@ -2307,8 +2308,15 @@ public class iTween : MonoBehaviour{
 			case "move":
 				switch (method) {
 					case "to":
-						GenerateMoveToTargets();
-						apply = new ApplyTween(ApplyMoveToTargets);
+						//using a path?
+						if(tweenArguments.Contains("path")){
+							GenerateMoveToPathTargets();
+							apply = new ApplyTween(ApplyMoveToPathTargets);
+						}else{
+							GenerateMoveToTargets();
+							apply = new ApplyTween(ApplyMoveToTargets);
+						}
+						
 					break;
 					case "by":
 					case "add":
@@ -2582,7 +2590,71 @@ public class iTween : MonoBehaviour{
 		
 		//shortest distance:
 		vector3s[1]=new Vector3(clerp(vector3s[0].x,vector3s[1].x,1),clerp(vector3s[0].y,vector3s[1].y,1),clerp(vector3s[0].z,vector3s[1].z,1));
-	}		
+	}	
+	
+	void GenerateMoveToPathTargets(){
+		 Vector3[] suppliedPath;
+		
+		//handle "back" easing equation requests:
+		if(tweenArguments.Contains("easetype")){
+			if((EaseType)tweenArguments["easetype"]==EaseType.easeInBack || (EaseType)tweenArguments["easetype"]==EaseType.easeOutBack || (EaseType)tweenArguments["easetype"]==EaseType.easeInOutBack){
+				Debug.LogWarning("iTween Warning: Sorry, easing equations that generate overshooting values are clamped due to interpolation limitations with current Catmull-Rom solution.");
+			}
+		}
+		
+		//create and store path points:
+		if(tweenArguments["path"].GetType() == typeof(Vector3[])){
+			Vector3[] temp = (Vector3[])tweenArguments["path"];
+			//if only one point is supplied fall back to MoveTo's traditional use since we can't have a curve with one value:
+			if(temp.Length==1){
+				Debug.LogError("iTween Error: Attempting a path movement with MoveTo requires an array of more than 1 entry!");
+				Dispose();
+			}
+			suppliedPath=new Vector3[temp.Length];
+			Array.Copy(temp,suppliedPath, temp.Length);
+		}else{
+			Transform[] temp = (Transform[])tweenArguments["path"];
+			//if only one point is supplied fall back to MoveTo's traditional use since we can't have a curve with one value:
+			if(temp.Length==1){
+				Debug.LogError("iTween Error: Attempting a path movement with MoveTo requires an array of more than 1 entry!");
+				Dispose();
+			}
+			suppliedPath = new Vector3[temp.Length];
+			for (int i = 0; i < temp.Length; i++) {
+				suppliedPath[i]=temp[i].position;
+			}
+		}
+		
+		//de we need to plot a path to get to the beginning of the supplied path?
+		bool plotStart;
+		int offset;
+		if(transform.position != suppliedPath[0]){
+			plotStart=true;
+			offset=3;
+		}else{
+			plotStart=false;
+			offset=2;
+		}	
+		
+		//build calculated path:
+		vector3s = new Vector3[suppliedPath.Length+offset];
+		if(plotStart){
+			vector3s[1]=transform.position;
+			offset=2;
+		}else{
+			offset=1;
+		}		
+		
+		//populate calculate path;
+		Array.Copy(suppliedPath,0,vector3s,offset,suppliedPath.Length);
+		
+		//populate start and end control points:
+		vector3s[0] = vector3s[1] - vector3s[2];
+		vector3s[vector3s.Length-1] = vector3s[vector3s.Length-2] + (vector3s[vector3s.Length-2] - vector3s[vector3s.Length-3]);
+		
+		//create Catmull-Rom path:
+		path = new CRSpline(vector3s);
+	}
 	
 	void GenerateMoveToTargets(){
 		//values holder [0] from, [1] to, [2] calculated value from ease equation:
@@ -3038,6 +3110,12 @@ public class iTween : MonoBehaviour{
 	
 	void ApplyStabTargets(){
 		//unnecessary but here just in case
+	}
+	
+	void ApplyMoveToPathTargets(){
+		float t = ease(0,1,percentage);
+		//clamp easing equation results since "back" will fail since overshoots aren't handled well in the Catmull-Rom interpolation:
+		transform.position=path.Interp(Mathf.Clamp(t,0,1));
 	}
 	
 	void ApplyMoveToTargets(){
@@ -4312,6 +4390,28 @@ public class iTween : MonoBehaviour{
 	#endregion
 	
 	#region Internal Helpers
+	
+	//andeeee from the Unity forum's steller Catmull-Rom class ( http://forum.unity3d.com/viewtopic.php?p=218400#218400 ):
+	private class CRSpline {
+		public Vector3[] pts;
+		
+		public CRSpline(params Vector3[] pts) {
+			this.pts = new Vector3[pts.Length];
+			Array.Copy(pts, this.pts, pts.Length);
+		}
+		
+		
+		public Vector3 Interp(float t) {
+			int numSections = pts.Length - 3;
+			int currPt = Mathf.Min(Mathf.FloorToInt(t * (float) numSections), numSections - 1);
+			float u = t * (float) numSections - (float) currPt;
+			Vector3 a = pts[currPt];
+			Vector3 b = pts[currPt + 1];
+			Vector3 c = pts[currPt + 2];
+			Vector3 d = pts[currPt + 3];
+			return .5f*((-a+3f*b-3f*c+d)*(u*u*u)+(2f*a-5f*b+4f*c-d)*(u*u)+(-a+c)*u+2f*b);
+		}	
+	}	
 	
 	//catalog new tween and add component phase of iTween:
 	static void Launch(GameObject target, Hashtable args){
