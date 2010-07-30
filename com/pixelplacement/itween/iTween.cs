@@ -208,20 +208,10 @@ public class iTween : MonoBehaviour{
 	/// A <see cref="System.Object"/>
 	/// </param>
 	public static void CameraFadeFrom(Hashtable args){
-		AddCameraFade();
+		CameraFadeAdd(Defaults.cameraFadeDepth);
 		
 		//rescale cameraFade just in case screen size has changed to ensure it takes up the full screen:
 		cameraFade.guiTexture.pixelInset=new Rect(0,0,Screen.width,Screen.height);
-		
-		//clean args:
-		args = iTween.CleanArgs(args);
-		
-		//alpha or amount? same thing:
-		if(args.Contains("amount")){
-			args["a"]=(float)args["amount"];
-		}else if(args.Contains("alpha")){
-			args["a"]=(float)args["alpha"];
-		}
 		
 		//establish iTween:
 		ColorFrom(cameraFade,args);
@@ -291,20 +281,10 @@ public class iTween : MonoBehaviour{
 	/// A <see cref="System.Object"/>
 	/// </param>
 	public static void CameraFadeTo(Hashtable args){
-		AddCameraFade();
+		CameraFadeAdd(Defaults.cameraFadeDepth);
 		
 		//rescale cameraFade just in case screen size has changed to ensure it takes up the full screen:
 		cameraFade.guiTexture.pixelInset=new Rect(0,0,Screen.width,Screen.height);
-		
-		//clean args:
-		args = iTween.CleanArgs(args);
-		
-		//alpha or amount? same thing:
-		if(args.Contains("amount")){
-			args["a"]=(float)args["amount"];
-		}else if(args.Contains("alpha")){
-			args["a"]=(float)args["alpha"];
-		}
 		
 		//establish iTween:
 		ColorTo(cameraFade,args);
@@ -445,11 +425,6 @@ public class iTween : MonoBehaviour{
 	/// A <see cref="System.Object"/>
 	/// </param>
 	public static void FadeFrom(GameObject target, Hashtable args){	
-		if(args.Contains("amount")){
-			args["a"]=args["amount"];
-		}else{
-			args["a"]=args["alpha"];	
-		}
 		ColorFrom(target,args);
 	}		
 
@@ -505,11 +480,6 @@ public class iTween : MonoBehaviour{
 	/// A <see cref="System.Object"/>
 	/// </param>
 	public static void FadeTo(GameObject target, Hashtable args){
-		if(args.Contains("amount")){
-			args["a"]=args["amount"];
-		}else{
-			args["a"]=args["alpha"];	
-		}
 		ColorTo(target,args);
 	}		
 	
@@ -621,6 +591,15 @@ public class iTween : MonoBehaviour{
 			if (args.Contains("a")) {
 				fromColor.a=(float)args["a"];
 			}
+		}
+		
+		//alpha or amount?
+		if(args.Contains("amount")){
+			fromColor.a=(float)args["amount"];
+			args.Remove("amount");
+		}else if(args.Contains("alpha")){
+			fromColor.a=(float)args["alpha"];
+			args.Remove("alpha");
 		}
 		
 		//apply fromColor:
@@ -2729,6 +2708,13 @@ public class iTween : MonoBehaviour{
 				colors[1].a=(float)tweenArguments["a"];
 			}
 		}
+		
+		//alpha or amount?
+		if(tweenArguments.Contains("amount")){
+			colors[1].a=(float)tweenArguments["amount"];
+		}else if(tweenArguments.Contains("alpha")){
+			colors[1].a=(float)tweenArguments["alpha"];
+		}
 	}
 	
 	void GenerateAudioToTargets(){
@@ -4232,9 +4218,48 @@ public class iTween : MonoBehaviour{
 	
 	#region #7 External Utilities
 
-	//##################################
-	//# RESUME UTILITIES AND OVERLOADS # 
-	//##################################	
+	/// <summary>
+	/// Removes and destroyes a camera fade.
+	/// </summary>
+	public static void CameraFadeDestroy(int depth){
+		if(cameraFade){
+			Destroy(cameraFade);
+		}
+	}
+	
+	/// <summary>
+	/// Changes a camera fade's depth.
+	/// </summary>
+	/// <param name="depth">
+	/// A <see cref="System.Int32"/>
+	/// </param>
+	public static void CameraFadeDepth(int depth){
+		if(cameraFade){
+			cameraFade.transform.position=new Vector3(cameraFade.transform.position.x,cameraFade.transform.position.y,depth);
+		}
+	}
+	
+	/// <summary>
+	/// Creates a GameObject (if it doesn't exist) at the supplied depth that can be used to simulate a camera fade.
+	/// </summary>
+	/// <param name="depth">
+	/// A <see cref="System.Int32"/>
+	/// </param>
+	public static void CameraFadeAdd(int depth){
+		if(cameraFade){
+			return;
+		}else{
+			//eastablish fill texture:
+			Texture2D colorTexture = new Texture2D(Screen.width,Screen.height);
+		
+			//establish colorFade object:
+			cameraFade = new GameObject("iTween Camera Fade");
+			cameraFade.transform.position= new Vector3(.5f,.5f,depth);
+			cameraFade.AddComponent("GUITexture");
+			cameraFade.guiTexture.texture=colorTexture;
+			cameraFade.guiTexture.color=new Color(0,0,0,0);
+		}
+	}
 	
 	/// <summary>
 	/// Resume all iTweens on a GameObject.
@@ -4671,21 +4696,6 @@ public class iTween : MonoBehaviour{
 	#endregion
 	
 	#region Internal Helpers
-	private static void AddCameraFade(){
-		if(cameraFade){
-			return;
-		}else{
-			//eastablish fill texture:
-			Texture2D colorTexture = new Texture2D(Screen.width,Screen.height);
-		
-			//establish colorFade object:
-			cameraFade = new GameObject("iTween Camera Fade");
-			cameraFade.transform.position= new Vector3(.5f,.5f,Defaults.cameraFadeDepth);
-			cameraFade.AddComponent("GUITexture");
-			cameraFade.guiTexture.texture=colorTexture;
-			cameraFade.guiTexture.color=new Color(0,0,0,0);
-		}
-	}
 	
 	//andeeee from the Unity forum's steller Catmull-Rom class ( http://forum.unity3d.com/viewtopic.php?p=218400#218400 ):
 	private class CRSpline {
