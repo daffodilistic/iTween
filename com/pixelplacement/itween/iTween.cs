@@ -18,6 +18,9 @@ public class iTween : MonoBehaviour{
 	//repository of all living iTweens:
 	public static ArrayList tweens = new ArrayList();
 	
+	//camera fade object:
+	static GameObject cameraFade;
+	
 	//status members (made public for visual troubleshooting in the inspector):
 	public string id, type, method;
 	public iTween.EaseType easeType;
@@ -140,6 +143,172 @@ public class iTween : MonoBehaviour{
 	#endregion
 	
 	#region #1 Static Registers
+
+	/// <summary>
+	/// Creates a GameObject (if it doesn't exist) that can be used to simulate a camera fade, instantly changes its color and alpha values and then returns them back over time.
+	/// </summary>
+	/// <param name="color">
+	/// A <see cref="Color"/>
+	/// </param>
+	/// <param name="r">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="g">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="b">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="a">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param> 
+	/// <param name="alpha">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="amount">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="time">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="delay">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="easetype">
+	/// A <see cref="EaseType"/> or <see cref="System.String"/>
+	/// </param>   
+	/// <param name="looptype">
+	/// A <see cref="EaseType"/> or <see cref="System.String"/>
+	/// </param>
+	/// <param name="onstart">
+	/// A <see cref="System.String"/>
+	/// </param>
+	/// <param name="onstarttarget">
+	/// A <see cref="GameObject"/>
+	/// </param>
+	/// <param name="onstartparams">
+	/// A <see cref="System.Object"/>
+	/// </param>
+	/// <param name="onupdate">
+	/// A <see cref="System.String"/>
+	/// </param>
+	/// <param name="onupdatetarget">
+	/// A <see cref="GameObject"/>
+	/// </param>
+	/// <param name="onupdateparams">
+	/// A <see cref="System.Object"/>
+	/// </param> 
+	/// <param name="oncomplete">
+	/// A <see cref="System.String"/>
+	/// </param>
+	/// <param name="oncompletetarget">
+	/// A <see cref="GameObject"/>.
+	/// </param>
+	/// <param name="oncompleteparams">
+	/// A <see cref="System.Object"/>
+	/// </param>
+	public static void CameraFadeFrom(Hashtable args){
+		AddCameraFade();
+		
+		//rescale cameraFade just in case screen size has changed to ensure it takes up the full screen:
+		cameraFade.guiTexture.pixelInset=new Rect(0,0,Screen.width,Screen.height);
+		
+		//clean args:
+		args = iTween.CleanArgs(args);
+		
+		//alpha or amount? same thing:
+		if(args.Contains("amount")){
+			args["a"]=(float)args["amount"];
+		}else if(args.Contains("alpha")){
+			args["a"]=(float)args["alpha"];
+		}
+		
+		//establish iTween:
+		ColorFrom(cameraFade,args);
+	}	
+	
+	/// <summary>
+	/// Creates a GameObject (if it doesn't exist) that can be used to simulate a camera fade and changes its color and alpha values over time.
+	/// </summary>
+	/// <param name="color">
+	/// A <see cref="Color"/>
+	/// </param>
+	/// <param name="r">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="g">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="b">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="a">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param> 
+	/// <param name="alpha">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="amount">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="time">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="delay">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="easetype">
+	/// A <see cref="EaseType"/> or <see cref="System.String"/>
+	/// </param>   
+	/// <param name="looptype">
+	/// A <see cref="EaseType"/> or <see cref="System.String"/>
+	/// </param>
+	/// <param name="onstart">
+	/// A <see cref="System.String"/>
+	/// </param>
+	/// <param name="onstarttarget">
+	/// A <see cref="GameObject"/>
+	/// </param>
+	/// <param name="onstartparams">
+	/// A <see cref="System.Object"/>
+	/// </param>
+	/// <param name="onupdate">
+	/// A <see cref="System.String"/>
+	/// </param>
+	/// <param name="onupdatetarget">
+	/// A <see cref="GameObject"/>
+	/// </param>
+	/// <param name="onupdateparams">
+	/// A <see cref="System.Object"/>
+	/// </param> 
+	/// <param name="oncomplete">
+	/// A <see cref="System.String"/>
+	/// </param>
+	/// <param name="oncompletetarget">
+	/// A <see cref="GameObject"/>.
+	/// </param>
+	/// <param name="oncompleteparams">
+	/// A <see cref="System.Object"/>
+	/// </param>
+	public static void CameraFadeTo(Hashtable args){
+		AddCameraFade();
+		
+		//rescale cameraFade just in case screen size has changed to ensure it takes up the full screen:
+		cameraFade.guiTexture.pixelInset=new Rect(0,0,Screen.width,Screen.height);
+		
+		//clean args:
+		args = iTween.CleanArgs(args);
+		
+		//alpha or amount? same thing:
+		if(args.Contains("amount")){
+			args["a"]=(float)args["amount"];
+		}else if(args.Contains("alpha")){
+			args["a"]=(float)args["alpha"];
+		}
+		
+		//establish iTween:
+		ColorTo(cameraFade,args);
+	}	
 	
 	/// <summary>
 	/// Returns a value to an 'oncallback' method interpolated between the supplied 'from' and 'to' for application as desired.  Requires an 'oncomplete' callback that accepts the same type as the supplied 'from' and 'to' properties.
@@ -189,7 +358,6 @@ public class iTween : MonoBehaviour{
 	/// <param name="oncompleteparams">
 	/// A <see cref="System.Object"/>
 	/// </param>
-	
 	public static void ValueTo(GameObject target, Hashtable args){
 		//clean args:
 		args = iTween.CleanArgs(args);
@@ -229,6 +397,9 @@ public class iTween : MonoBehaviour{
 	/// Changes a GameObject's alpha value instantly then returns it to the provided alpha over time.  If a GUIText or GUITexture component is attached, it will become the target of the animation. Identical to using ColorFrom and using the "a" parameter.
 	/// </summary>
 	/// <param name="alpha">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="amount">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
 	/// </param>
 	/// <param name="includechildren">
@@ -274,7 +445,11 @@ public class iTween : MonoBehaviour{
 	/// A <see cref="System.Object"/>
 	/// </param>
 	public static void FadeFrom(GameObject target, Hashtable args){	
-		args["a"]=args["alpha"];
+		if(args.Contains("amount")){
+			args["a"]=args["amount"];
+		}else{
+			args["a"]=args["alpha"];	
+		}
 		ColorFrom(target,args);
 	}		
 
@@ -282,6 +457,9 @@ public class iTween : MonoBehaviour{
 	/// Changes a GameObject's alpha value over time.  If a GUIText or GUITexture component is attached, it will become the target of the animation. Identical to using ColorTo and using the "a" parameter.
 	/// </summary>
 	/// <param name="alpha">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// </param>
+	/// <param name="amount">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
 	/// </param>
 	/// <param name="includechildren">
@@ -326,8 +504,12 @@ public class iTween : MonoBehaviour{
 	/// <param name="oncompleteparams">
 	/// A <see cref="System.Object"/>
 	/// </param>
-	public static void FadeTo(GameObject target, Hashtable args){	
-		args["a"]=args["alpha"];
+	public static void FadeTo(GameObject target, Hashtable args){
+		if(args.Contains("amount")){
+			args["a"]=args["amount"];
+		}else{
+			args["a"]=args["alpha"];	
+		}
 		ColorTo(target,args);
 	}		
 	
@@ -4489,6 +4671,21 @@ public class iTween : MonoBehaviour{
 	#endregion
 	
 	#region Internal Helpers
+	private static void AddCameraFade(){
+		if(cameraFade){
+			return;
+		}else{
+			//eastablish fill texture:
+			Texture2D colorTexture = new Texture2D(Screen.width,Screen.height);
+		
+			//establish colorFade object:
+			cameraFade = new GameObject("iTween Camera Fade");
+			cameraFade.transform.position= new Vector3(.5f,.5f,Defaults.cameraFadeDepth);
+			cameraFade.AddComponent("GUITexture");
+			cameraFade.guiTexture.texture=colorTexture;
+			cameraFade.guiTexture.color=new Color(0,0,0,0);
+		}
+	}
 	
 	//andeeee from the Unity forum's steller Catmull-Rom class ( http://forum.unity3d.com/viewtopic.php?p=218400#218400 ):
 	private class CRSpline {
