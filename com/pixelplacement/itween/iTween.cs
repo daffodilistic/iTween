@@ -19,7 +19,7 @@ public class iTween : MonoBehaviour{
 	public static ArrayList tweens = new ArrayList();
 	
 	//camera fade object:
-	static GameObject cameraFade;
+	public static GameObject cameraFade;
 	
 	//status members (made public for visual troubleshooting in the inspector):
 	public string id, type, method;
@@ -143,9 +143,22 @@ public class iTween : MonoBehaviour{
 	#endregion
 	
 	#region #1 Static Registers
-
+		
 	/// <summary>
-	/// Creates a GameObject (if it doesn't exist) that can be used to simulate a camera fade, instantly changes its color and alpha values and then returns them back over time.
+	/// Creates a GameObject (if it doesn't exist) that can be used to simulate a camera fade, instantly changes its color and alpha values and then returns them back over time with minimum customization options.
+	/// </summary>
+	/// <param name="color">
+	/// A <see cref="Color"/>
+	/// </param>
+	/// <param name="time">
+	/// A <see cref="System.Single"/>
+	/// </param>
+	public static void CameraFadeFrom(Color color, float time){
+		CameraFadeFrom(Hash("color",color,"time",time));
+	}
+	
+	/// <summary>
+	/// Creates a GameObject (if it doesn't exist) that can be used to simulate a camera fade, instantly changes its color and alpha values and then returns them back over time with full customization options.
 	/// </summary>
 	/// <param name="color">
 	/// A <see cref="Color"/>
@@ -218,7 +231,20 @@ public class iTween : MonoBehaviour{
 	}	
 	
 	/// <summary>
-	/// Creates a GameObject (if it doesn't exist) that can be used to simulate a camera fade and changes its color and alpha values over time.
+	/// Creates a GameObject (if it doesn't exist) that can be used to simulate a camera fade and changes its color and alpha values over time with minimum customization options.
+	/// </summary>
+	/// <param name="color">
+	/// A <see cref="Color"/>
+	/// </param>
+	/// <param name="time">
+	/// A <see cref="System.Single"/>
+	/// </param>
+	public static void CameraFadeTo(Color color, float time){
+		CameraFadeTo(Hash("color",color,"time",time));
+	}	
+	
+	/// <summary>
+	/// Creates a GameObject (if it doesn't exist) that can be used to simulate a camera fade and changes its color and alpha values over time with full customization options
 	/// </summary>
 	/// <param name="color">
 	/// A <see cref="Color"/>
@@ -374,7 +400,23 @@ public class iTween : MonoBehaviour{
 	}
 	
 	/// <summary>
-	/// Changes a GameObject's alpha value instantly then returns it to the provided alpha over time.  If a GUIText or GUITexture component is attached, it will become the target of the animation. Identical to using ColorFrom and using the "a" parameter.
+	/// Changes a GameObject's alpha value instantly then returns it to the provided alpha over time with minimum customization options.  If a GUIText or GUITexture component is attached, it will become the target of the animation. Identical to using ColorFrom and using the "a" parameter. 
+	/// </summary>
+	/// <param name="target">
+	/// A <see cref="GameObject"/>
+	/// </param>
+	/// <param name="alpha">
+	/// A <see cref="System.Single"/>
+	/// </param>
+	/// <param name="time">
+	/// A <see cref="System.Single"/>
+	/// </param>
+	public static void FadeFrom(GameObject target, float alpha, float time){
+		FadeFrom(target,Hash("alpha",alpha,"time",time));
+	}
+	
+	/// <summary>
+	/// Changes a GameObject's alpha value instantly then returns it to the provided alpha over time with full customization options.  If a GUIText or GUITexture component is attached, it will become the target of the animation. Identical to using ColorFrom and using the "a" parameter.
 	/// </summary>
 	/// <param name="alpha">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
@@ -427,9 +469,25 @@ public class iTween : MonoBehaviour{
 	public static void FadeFrom(GameObject target, Hashtable args){	
 		ColorFrom(target,args);
 	}		
+	
+	/// <summary>
+	/// Changes a GameObject's alpha value over time with minimum customization options.  If a GUIText or GUITexture component is attached, it will become the target of the animation. Identical to using ColorTo and using the "a" parameter.
+	/// </summary>
+	/// <param name="target">
+	/// A <see cref="GameObject"/>
+	/// </param>
+	/// <param name="alpha">
+	/// A <see cref="System.Single"/>
+	/// </param>
+	/// <param name="time">
+	/// A <see cref="System.Single"/>
+	/// </param>
+	public static void FadeTo(GameObject target, float alpha, float time){
+		FadeTo(target,Hash("alpha",alpha,"time",time));
+	}	
 
 	/// <summary>
-	/// Changes a GameObject's alpha value over time.  If a GUIText or GUITexture component is attached, it will become the target of the animation. Identical to using ColorTo and using the "a" parameter.
+	/// Changes a GameObject's alpha value over time with full customization options.  If a GUIText or GUITexture component is attached, it will become the target of the animation. Identical to using ColorTo and using the "a" parameter.
 	/// </summary>
 	/// <param name="alpha">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
@@ -484,7 +542,23 @@ public class iTween : MonoBehaviour{
 	}		
 	
 	/// <summary>
-	/// Changes a GameObject's color values instantly then returns them to the provided properties over time.  If a GUIText or GUITexture component is attached, it will become the target of the animation.
+	/// Changes a GameObject's color values instantly then returns them to the provided properties over time with minimum customization options.  If a GUIText or GUITexture component is attached, it will become the target of the animation.
+	/// </summary>
+	/// <param name="target">
+	/// A <see cref="GameObject"/>
+	/// </param>
+	/// <param name="color">
+	/// A <see cref="Color"/>
+	/// </param>
+	/// <param name="time">
+	/// A <see cref="System.Single"/>
+	/// </param>
+	public static void ColorFrom(GameObject target, Color color, float time){
+		ColorFrom(target,Hash("color",color,"time",time));
+	}
+	
+	/// <summary>
+	/// Changes a GameObject's color values instantly then returns them to the provided properties over time with full customization options.  If a GUIText or GUITexture component is attached, it will become the target of the animation.
 	/// </summary>
 	/// <param name="color">
 	/// A <see cref="Color"/>
@@ -623,7 +697,23 @@ public class iTween : MonoBehaviour{
 	}		
 	
 	/// <summary>
-	/// Changes a GameObject's color values over time.  If a GUIText or GUITexture component is attached, they will become the target of the animation.
+	/// Changes a GameObject's color values over time with minimum customization options.  If a GUIText or GUITexture component is attached, they will become the target of the animation.
+	/// </summary>
+	/// <param name="target">
+	/// A <see cref="GameObject"/>
+	/// </param>
+	/// <param name="color">
+	/// A <see cref="Color"/>
+	/// </param>
+	/// <param name="time">
+	/// A <see cref="System.Single"/>
+	/// </param>
+	public static void ColorTo(GameObject target, Color color, float time){
+		ColorTo(target,Hash("color",color,"time",time));
+	}
+	
+	/// <summary>
+	/// Changes a GameObject's color values over time with full customization options.  If a GUIText or GUITexture component is attached, they will become the target of the animation.
 	/// </summary>
 	/// <param name="color">
 	/// A <see cref="Color"/>
@@ -707,7 +797,26 @@ public class iTween : MonoBehaviour{
 	}	
 	
 	/// <summary>
-	/// Instantly changes an AudioSource's volume and pitch then returns it to it's starting volume and pitch over time. Default AudioSource attached to GameObject will be used (if one exists) if not supplied. 
+	/// Instantly changes an AudioSource's volume and pitch then returns it to it's starting volume and pitch over time with minimum customization options.. Default AudioSource attached to GameObject will be used (if one exists) if not supplied.
+	/// </summary>
+	/// <param name="target">
+	/// A <see cref="GameObject"/>
+	/// </param>
+	/// <param name="volume">
+	/// A <see cref="System.Single"/>
+	/// </param>
+	/// <param name="pitch">
+	/// A <see cref="System.Single"/>
+	/// </param>
+	/// <param name="time">
+	/// A <see cref="System.Single"/>
+	/// </param>
+	public static void AudioFrom(GameObject target, float volume, float pitch, float time){
+		AudioFrom(target,Hash("volume",volume,"pitch",pitch,"time",time));
+	}
+	
+	/// <summary>
+	/// Instantly changes an AudioSource's volume and pitch then returns it to it's starting volume and pitch over time with full customization options.. Default AudioSource attached to GameObject will be used (if one exists) if not supplied. 
 	/// </summary>
 	/// <param name="audiosource">
 	/// A <see cref="AudioSource"/>
@@ -804,7 +913,26 @@ public class iTween : MonoBehaviour{
 	}		
 
 	/// <summary>
-	/// Fades volume and pitch of an AudioSource.  Default AudioSource attached to GameObject will be used (if one exists) if not supplied. 
+	/// Fades volume and pitch of an AudioSource with minimum customization options.  Default AudioSource attached to GameObject will be used (if one exists) if not supplied. 
+	/// </summary>
+	/// <param name="target">
+	/// A <see cref="GameObject"/>
+	/// </param>
+	/// <param name="volume">
+	/// A <see cref="System.Single"/>
+	/// </param>
+	/// <param name="pitch">
+	/// A <see cref="System.Single"/>
+	/// </param>
+	/// <param name="time">
+	/// A <see cref="System.Single"/>
+	/// </param>
+	public static void AudioTo(GameObject target, float volume, float pitch, float time){
+		AudioTo(target,Hash("volume",volume,"pitch",pitch,"time",time));
+	}
+	
+	/// <summary>
+	/// Fades volume and pitch of an AudioSource with full customization options.  Default AudioSource attached to GameObject will be used (if one exists) if not supplied. 
 	/// </summary>
 	/// <param name="audiosource">
 	/// A <see cref="AudioSource"/>
@@ -864,7 +992,23 @@ public class iTween : MonoBehaviour{
 	}	
 	
 	/// <summary>
-	/// Plays an AudioClip once based on supplied volume and pitch and following any delay. AudioSource is optional as iTween will provide one.
+	/// Plays an AudioClip once based on supplied volume and pitch and following any delay with minimum customization options.. AudioSource is optional as iTween will provide one.
+	/// </summary>
+	/// <param name="target">
+	/// A <see cref="GameObject"/>
+	/// </param>
+	/// <param name="audioclip">
+	/// A <see cref="AudioClip"/>
+	/// </param>
+	/// <param name="delay">
+	/// A <see cref="System.Single"/>
+	/// </param>
+	public static void Stab(GameObject target, AudioClip audioclip, float delay){
+		Stab(target,Hash("audioclip",audioclip,"delay",delay));
+	}
+	
+	/// <summary>
+	/// Plays an AudioClip once based on supplied volume and pitch and following any delay with full customization options.. AudioSource is optional as iTween will provide one.
 	/// </summary>
 	/// <param name="audioclip">
 	/// A <see cref="AudioClip"/>
@@ -918,7 +1062,23 @@ public class iTween : MonoBehaviour{
 	}
 	
 	/// <summary>
-	/// Instantly rotates a GameObject to look at a supplied Transform or Vector3 then returns it to it's starting rotation over time (if allowed). 
+	/// Instantly rotates a GameObject to look at a supplied Transform or Vector3 then returns it to it's starting rotation over time (if allowed) with minimum customization options. 
+	/// </summary>
+	/// <param name="target">
+	/// A <see cref="GameObject"/>
+	/// </param>
+	/// <param name="looktarget">
+	/// A <see cref="Vector3"/>
+	/// </param>
+	/// <param name="time">
+	/// A <see cref="System.Single"/>
+	/// </param>
+	public static void LookFrom(GameObject target, Vector3 looktarget, float time){
+		LookFrom(target,Hash("looktarget",looktarget,"time",time));
+	}	
+	
+	/// <summary>
+	/// Instantly rotates a GameObject to look at a supplied Transform or Vector3 then returns it to it's starting rotation over time (if allowed) with full customization options. 
 	/// </summary>
 	/// <param name="looktarget">
 	/// A <see cref="Transform"/> or <see cref="Vector3"/>
@@ -1010,7 +1170,23 @@ public class iTween : MonoBehaviour{
 	}		
 	
 	/// <summary>
-	/// Rotates a GameObject to look at a supplied Transform or Vector3 over time (if allowed). 
+	/// Rotates a GameObject to look at a supplied Transform or Vector3 over time (if allowed) with minimum customization options.
+	/// </summary>
+	/// <param name="target">
+	/// A <see cref="GameObject"/>
+	/// </param>
+	/// <param name="looktarget">
+	/// A <see cref="Vector3"/>
+	/// </param>
+	/// <param name="time">
+	/// A <see cref="System.Single"/>
+	/// </param>
+	public static void LookTo(GameObject target, Vector3 looktarget, float time){
+		LookTo(target,Hash("looktarget",looktarget,"time",time));
+	}
+	
+	/// <summary>
+	/// Rotates a GameObject to look at a supplied Transform or Vector3 over time (if allowed) with full customization options.
 	/// </summary>
 	/// <param name="looktarget">
 	/// A <see cref="Transform"/> or <see cref="Vector3"/>
@@ -1077,7 +1253,23 @@ public class iTween : MonoBehaviour{
 	}		
 	
 	/// <summary>
-	/// Changes a GameObject's position over time.
+	/// Changes a GameObject's position over time with minimum customization options.
+	/// </summary>
+	/// <param name="target">
+	/// A <see cref="GameObject"/>
+	/// </param>
+	/// <param name="position">
+	/// A <see cref="Vector3"/>
+	/// </param>
+	/// <param name="time">
+	/// A <see cref="System.Single"/>
+	/// </param>
+	public static void MoveTo(GameObject target, Vector3 position, float time){
+		MoveTo(target,Hash("position",position,"time",time));
+	}	
+	
+	/// <summary>
+	/// Changes a GameObject's position over time with full customization options.
 	/// </summary>
 	/// <param name="position">
 	/// A <see cref="Transform"/> or <see cref="Vector3"/>
@@ -1164,9 +1356,25 @@ public class iTween : MonoBehaviour{
 		args["method"]="to";
 		Launch(target,args);
 	}
+		
+	/// <summary>
+	/// Instantly changes a GameObject's position then returns it to it's starting position over time with minimum customization options.
+	/// </summary>
+	/// <param name="target">
+	/// A <see cref="GameObject"/>
+	/// </param>
+	/// <param name="position">
+	/// A <see cref="Vector3"/>
+	/// </param>
+	/// <param name="time">
+	/// A <see cref="System.Single"/>
+	/// </param>
+	public static void MoveFrom(GameObject target, Vector3 position, float time){
+		MoveFrom(target,Hash("position",position,"time",time));
+	}		
 	
 	/// <summary>
-	/// Instantly changes a GameObject's position then returns it to it's starting position over time.
+	/// Instantly changes a GameObject's position then returns it to it's starting position over time with full customization options.
 	/// </summary>
 	/// <param name="position">
 	/// A <see cref="Transform"/> or <see cref="Vector3"/>
@@ -1327,9 +1535,25 @@ public class iTween : MonoBehaviour{
 		args["method"]="to";
 		Launch(target,args);
 	}
+		
+	/// <summary>
+	/// Translates a GameObject's position over time with minimum customization options.
+	/// </summary>
+	/// <param name="target">
+	/// A <see cref="GameObject"/>
+	/// </param>
+	/// <param name="amount">
+	/// A <see cref="Vector3"/>
+	/// </param>
+	/// <param name="time">
+	/// A <see cref="System.Single"/>
+	/// </param>
+	public static void MoveAdd(GameObject target, Vector3 amount, float time){
+		MoveAdd(target,Hash("amount",amount,"time",time));
+	}
 	
 	/// <summary>
-	/// Translates a GameObject's position over time.
+	/// Translates a GameObject's position over time with full customization options.
 	/// </summary>
 	/// <param name="amount">
 	/// A <see cref="Vector3"/>
@@ -1405,7 +1629,23 @@ public class iTween : MonoBehaviour{
 	}
 	
 	/// <summary>
-	/// Adds the supplied coordinates to a GameObject's postion.
+	/// Adds the supplied coordinates to a GameObject's postion with minimum customization options.
+	/// </summary>
+	/// <param name="target">
+	/// A <see cref="GameObject"/>
+	/// </param>
+	/// <param name="amount">
+	/// A <see cref="Vector3"/>
+	/// </param>
+	/// <param name="time">
+	/// A <see cref="System.Single"/>
+	/// </param>
+	public static void MoveBy(GameObject target, Vector3 amount, float time){
+		MoveBy(target,Hash("amount",amount,"time",time));
+	}
+	
+	/// <summary>
+	/// Adds the supplied coordinates to a GameObject's postion with full customization options.
 	/// </summary>
 	/// <param name="amount">
 	/// A <see cref="Vector3"/>
@@ -1481,7 +1721,23 @@ public class iTween : MonoBehaviour{
 	}
 	
 	/// <summary>
-	/// Changes a GameObject's scale over time.
+	/// Changes a GameObject's scale over time with minimum customization options.
+	/// </summary>
+	/// <param name="target">
+	/// A <see cref="GameObject"/>
+	/// </param>
+	/// <param name="scale">
+	/// A <see cref="Vector3"/>
+	/// </param>
+	/// <param name="time">
+	/// A <see cref="System.Single"/>
+	/// </param>
+	public static void ScaleTo(GameObject target, Vector3 scale, float time){
+		ScaleTo(target,Hash("scale",scale,"time",time));
+	}
+	
+	/// <summary>
+	/// Changes a GameObject's scale over time with full customization options.
 	/// </summary>
 	/// <param name="scale">
 	/// A <see cref="Transform"/> or <see cref="Vector3"/>
@@ -1555,7 +1811,23 @@ public class iTween : MonoBehaviour{
 	}
 	
 	/// <summary>
-	/// Instantly changes a GameObject's scale then returns it to it's starting scale over time.
+	/// Instantly changes a GameObject's scale then returns it to it's starting scale over time with minimum customization options.
+	/// </summary>
+	/// <param name="target">
+	/// A <see cref="GameObject"/>
+	/// </param>
+	/// <param name="scale">
+	/// A <see cref="Vector3"/>
+	/// </param>
+	/// <param name="time">
+	/// A <see cref="System.Single"/>
+	/// </param>
+	public static void ScaleFrom(GameObject target, Vector3 scale, float time){
+		ScaleFrom(target,Hash("scale",scale,"time",time));
+	}
+	
+	/// <summary>
+	/// Instantly changes a GameObject's scale then returns it to it's starting scale over time with full customization options.
 	/// </summary>
 	/// <param name="scale">
 	/// A <see cref="Transform"/> or <see cref="Vector3"/>
@@ -1651,7 +1923,23 @@ public class iTween : MonoBehaviour{
 	}
 	
 	/// <summary>
-	/// Adds to a GameObject's scale over time.
+	/// Adds to a GameObject's scale over time with full customization options.
+	/// </summary>
+	/// <param name="target">
+	/// A <see cref="GameObject"/>
+	/// </param>
+	/// <param name="amount">
+	/// A <see cref="Vector3"/>
+	/// </param>
+	/// <param name="time">
+	/// A <see cref="System.Single"/>
+	/// </param>
+	public static void ScaleAdd(GameObject target, Vector3 amount, float time){
+		ScaleAdd(target,Hash("amount",amount,"time",time));
+	}
+	
+	/// <summary>
+	/// Adds to a GameObject's scale over time with full customization options.
 	/// </summary>
 	/// <param name="amount">
 	/// A <see cref="Vector3"/>
@@ -1715,7 +2003,23 @@ public class iTween : MonoBehaviour{
 	}
 	
 	/// <summary>
-	/// Multiplies a GameObject's scale over time.
+	/// Multiplies a GameObject's scale over time with minimum customization options.
+	/// </summary>
+	/// <param name="target">
+	/// A <see cref="GameObject"/>
+	/// </param>
+	/// <param name="amount">
+	/// A <see cref="Vector3"/>
+	/// </param>
+	/// <param name="time">
+	/// A <see cref="System.Single"/>
+	/// </param>
+	public static void ScaleBy(GameObject target, Vector3 amount, float time){
+		ScaleBy(target,Hash("amount",amount,"time",time));
+	}
+	
+	/// <summary>
+	/// Multiplies a GameObject's scale over time with full customization options.
 	/// </summary>
 	/// <param name="amount">
 	/// A <see cref="Vector3"/>
@@ -1779,7 +2083,23 @@ public class iTween : MonoBehaviour{
 	}
 	
 	/// <summary>
-	/// Rotates a GameObject to the supplied angles in euler angles over time (if allowed). 
+	/// Rotates a GameObject to the supplied angles in euler angles over time (if allowed) with full minimum options.
+	/// </summary>
+	/// <param name="target">
+	/// A <see cref="GameObject"/>
+	/// </param>
+	/// <param name="rotation">
+	/// A <see cref="Vector3"/>
+	/// </param>
+	/// <param name="time">
+	/// A <see cref="System.Single"/>
+	/// </param>
+	public static void RotateTo(GameObject target, Vector3 rotation, float time){
+		RotateTo(target,Hash("rotation",rotation,"time",time));
+	}
+	
+	/// <summary>
+	/// Rotates a GameObject to the supplied angles in euler angles over time (if allowed) with full customization options.
 	/// </summary>
 	/// <param name="rotation">
 	/// A <see cref="Transform"/> or <see cref="Vector3"/>
@@ -1856,7 +2176,23 @@ public class iTween : MonoBehaviour{
 	}	
 	
 	/// <summary>
-	/// Instantly changes a GameObject's rotation in euler angles then returns it to it's starting rotation over time (if allowed).
+	/// Instantly changes a GameObject's rotation in euler angles then returns it to it's starting rotation over time (if allowed) with minimum customization options.
+	/// </summary>
+	/// <param name="target">
+	/// A <see cref="GameObject"/>
+	/// </param>
+	/// <param name="rotation">
+	/// A <see cref="Vector3"/>
+	/// </param>
+	/// <param name="time">
+	/// A <see cref="System.Single"/>
+	/// </param>
+	public static void RotateFrom(GameObject target, Vector3 rotation, float time){
+		RotateFrom(target,Hash("rotation",rotation,"time",time));
+	}
+	
+	/// <summary>
+	/// Instantly changes a GameObject's rotation in euler angles then returns it to it's starting rotation over time (if allowed) with full customization options.
 	/// </summary>
 	/// <param name="rotation">
 	/// A <see cref="Transform"/> or <see cref="Vector3"/>
@@ -1971,7 +2307,23 @@ public class iTween : MonoBehaviour{
 	}	
 	
 	/// <summary>
-	/// Adds supplied euler angles to a GameObject's rotation over time (if allowed).
+	/// Adds supplied euler angles to a GameObject's rotation over time (if allowed) with minimum customization options.
+	/// </summary>
+	/// <param name="target">
+	/// A <see cref="GameObject"/>
+	/// </param>
+	/// <param name="rotation">
+	/// A <see cref="Vector3"/>
+	/// </param>
+	/// <param name="time">
+	/// A <see cref="System.Single"/>
+	/// </param>
+	public static void RotateAdd(GameObject target, Vector3 amount, float time){
+		RotateAdd(target,Hash("amount",amount,"time",time));
+	}
+	
+	/// <summary>
+	/// Adds supplied euler angles to a GameObject's rotation over time (if allowed) with full customization options.
 	/// </summary>
 	/// <param name="amount">
 	/// A <see cref="Vector3"/>
@@ -2037,7 +2389,23 @@ public class iTween : MonoBehaviour{
 	}
 	
 	/// <summary>
-	/// Multiplies supplied values by 360 and rotates a GameObject by calculated amount over time (if allowed). 
+	/// Multiplies supplied values by 360 and rotates a GameObject by calculated amount over time (if allowed) with minimum customization options.
+	/// </summary>
+	/// <param name="target">
+	/// A <see cref="GameObject"/>
+	/// </param>
+	/// <param name="rotation">
+	/// A <see cref="Vector3"/>
+	/// </param>
+	/// <param name="time">
+	/// A <see cref="System.Single"/>
+	/// </param>
+	public static void RotateBy(GameObject target, Vector3 rotation, float time){
+		RotateBy(target,Hash("rotation",rotation,"time",time));
+	}
+	
+	/// <summary>
+	/// Multiplies supplied values by 360 and rotates a GameObject by calculated amount over time (if allowed) with full customization options.
 	/// </summary>
 	/// <param name="rotation">
 	/// A <see cref="Vector3"/>
@@ -2104,7 +2472,23 @@ public class iTween : MonoBehaviour{
 	}		
 	
 	/// <summary>
-	/// Randomly shakes a GameObject's position by a diminishing amount over time.
+	/// Randomly shakes a GameObject's position by a diminishing amount over time with minimum customization options.
+	/// </summary>
+	/// <param name="target">
+	/// A <see cref="GameObject"/>
+	/// </param>
+	/// <param name="amount">
+	/// A <see cref="Vector3"/>
+	/// </param>
+	/// <param name="time">
+	/// A <see cref="System.Single"/>
+	/// </param>
+	public static void ShakePosition(GameObject target, Vector3 amount, float time){
+		ShakePosition(target,Hash("amount",amount,"time",time));
+	}
+	
+	/// <summary>
+	/// Randomly shakes a GameObject's position by a diminishing amount over time with full customization options.
 	/// </summary>
 	/// <param name="amount">
 	/// A <see cref="Vector3"/>
@@ -2171,7 +2555,23 @@ public class iTween : MonoBehaviour{
 	}		
 	
 	/// <summary>
-	/// Randomly shakes a GameObject's scale by a diminishing amount over time.
+	/// Randomly shakes a GameObject's scale by a diminishing amount over time with minimum customization options.
+	/// </summary>
+	/// <param name="target">
+	/// A <see cref="GameObject"/>
+	/// </param>
+	/// <param name="amount">
+	/// A <see cref="Vector3"/>
+	/// </param>
+	/// <param name="time">
+	/// A <see cref="System.Single"/>
+	/// </param>
+	public static void ShakeScale(GameObject target, Vector3 amount, float time){
+		ShakeScale(target,Hash("amount",amount,"time",time));
+	}
+	
+	/// <summary>
+	/// Randomly shakes a GameObject's scale by a diminishing amount over time with full customization options.
 	/// </summary>
 	/// <param name="amount">
 	/// A <see cref="Vector3"/>
@@ -2229,7 +2629,23 @@ public class iTween : MonoBehaviour{
 	}		
 	
 	/// <summary>
-	/// Randomly shakes a GameObject's rotation by a diminishing amount over time.
+	/// Randomly shakes a GameObject's rotation by a diminishing amount over time with minimum customization options.
+	/// </summary>
+	/// <param name="target">
+	/// A <see cref="GameObject"/>
+	/// </param>
+	/// <param name="amount">
+	/// A <see cref="Vector3"/>
+	/// </param>
+	/// <param name="time">
+	/// A <see cref="System.Single"/>
+	/// </param>
+	public static void ShakeRotation(GameObject target, Vector3 amount, float time){
+		ShakeRotation(target,Hash("amount",amount,"time",time));
+	}
+	
+	/// <summary>
+	/// Randomly shakes a GameObject's rotation by a diminishing amount over time with full customization options.
 	/// </summary>
 	/// <param name="amount">
 	/// A <see cref="Vector3"/>
@@ -2290,7 +2706,23 @@ public class iTween : MonoBehaviour{
 	}			
 	
 	/// <summary>
-	/// Applies a jolt of force to a GameObject's position and wobbles it back to its initial position.
+	/// Applies a jolt of force to a GameObject's position and wobbles it back to its initial position with minimum customization options.
+	/// </summary>
+	/// <param name="target">
+	/// A <see cref="GameObject"/>
+	/// </param>
+	/// <param name="amount">
+	/// A <see cref="Vector3"/>
+	/// </param>
+	/// <param name="time">
+	/// A <see cref="System.Single"/>
+	/// </param>
+	public static void PunchPosition(GameObject target, Vector3 amount, float time){
+		PunchPosition(target,Hash("amount",amount,"time",time));
+	}
+	
+	/// <summary>
+	/// Applies a jolt of force to a GameObject's position and wobbles it back to its initial position with full customization options.
 	/// </summary>
 	/// <param name="amount">
 	/// A <see cref="Vector3"/>
@@ -2358,7 +2790,23 @@ public class iTween : MonoBehaviour{
 	}		
 	
 	/// <summary>
-	/// Applies a jolt of force to a GameObject's rotation and wobbles it back to its initial rotation.
+	/// Applies a jolt of force to a GameObject's rotation and wobbles it back to its initial rotation with minimum customization options.
+	/// </summary>
+	/// <param name="target">
+	/// A <see cref="GameObject"/>
+	/// </param>
+	/// <param name="amount">
+	/// A <see cref="Vector3"/>
+	/// </param>
+	/// <param name="time">
+	/// A <see cref="System.Single"/>
+	/// </param>
+	public static void PunchRotation(GameObject target, Vector3 amount, float time){
+		PunchRotation(target,Hash("amount",amount,"time",time));
+	}
+	
+	/// <summary>
+	/// Applies a jolt of force to a GameObject's rotation and wobbles it back to its initial rotation with full customization options.
 	/// </summary>
 	/// <param name="amount">
 	/// A <see cref="Vector3"/>
@@ -2420,7 +2868,23 @@ public class iTween : MonoBehaviour{
 	}	
 	
 	/// <summary>
-	/// Applies a jolt of force to a GameObject's scale and wobbles it back to its initial scale.
+	/// Applies a jolt of force to a GameObject's scale and wobbles it back to its initial scale with minimum customization options.
+	/// </summary>
+	/// <param name="target">
+	/// A <see cref="GameObject"/>
+	/// </param>
+	/// <param name="amount">
+	/// A <see cref="Vector3"/>
+	/// </param>
+	/// <param name="time">
+	/// A <see cref="System.Single"/>
+	/// </param>
+	public static void PunchScale(GameObject target, Vector3 amount, float time){
+		PunchScale(target,Hash("amount",amount,"time",time));
+	}
+	
+	/// <summary>
+	/// Applies a jolt of force to a GameObject's scale and wobbles it back to its initial scale with full customization options.
 	/// </summary>
 	/// <param name="amount">
 	/// A <see cref="Vector3"/>
@@ -3729,7 +4193,7 @@ public class iTween : MonoBehaviour{
 	#endregion
 	
 	#region #6 Update Callable
-
+		
 	/// <summary>
 	/// Similar to FadeTo but incredibly less expensive for usage inside the Update function or similar looping situations involving a "live" set of changing values. Does not utilize an EaseType. 
 	/// </summary>
@@ -5298,4 +5762,4 @@ public class iTween : MonoBehaviour{
 	public static void tweenCount(GameObject target, Hashtable args){Debug.LogError("iTween Error: tweenCount() has been deprecated. Please investigate Count().");}
 	*/
 	#endregion
-}
+} 
