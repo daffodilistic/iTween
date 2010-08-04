@@ -1059,7 +1059,7 @@ public class iTween : MonoBehaviour{
 	}
 	
 	/// <summary>
-	/// Instantly rotates a GameObject to look at a supplied Vector3 then returns it to it's starting rotation over time with MINIMUM customization options. 
+	/// Instantly rotates a GameObject to look at the supplied Vector3 then returns it to it's starting rotation over time with MINIMUM customization options. 
 	/// </summary>
 	/// <param name="target">
 	/// A <see cref="GameObject"/> to be the target of the animation.
@@ -1078,7 +1078,7 @@ public class iTween : MonoBehaviour{
 	/// Instantly rotates a GameObject to look at a supplied Transform or Vector3 then returns it to it's starting rotation over time with FULL customization options. 
 	/// </summary>
 	/// <param name="looktarget">
-	/// A <see cref="Transform"/> or <see cref="Vector3"/>
+	/// A <see cref="Transform"/> or <see cref="Vector3"/> for a target the GameObject will look at.
 	/// </param>
 	/// <param name="axis">
 	/// A <see cref="System.String"/>. Restricts rotation to the supplied axis only.
@@ -1167,68 +1167,68 @@ public class iTween : MonoBehaviour{
 	}		
 	
 	/// <summary>
-	/// Rotates a GameObject to look at a supplied Transform or Vector3 over time (if allowed) with MINIMUM customization options.
+	/// Rotates a GameObject to look at the supplied Vector3 over time with MINIMUM customization options.
 	/// </summary>
 	/// <param name="target">
-	/// A <see cref="GameObject"/>
+	/// A <see cref="GameObject"/> to be the target of the animation.
 	/// </param>
 	/// <param name="looktarget">
-	/// A <see cref="Vector3"/>
+	/// A <see cref="Vector3"/> to be the Vector3 that the target will look towards.
 	/// </param>
 	/// <param name="time">
-	/// A <see cref="System.Single"/>
+	/// A <see cref="System.Single"/> for the time in seconds the animation will take to complete.
 	/// </param>
 	public static void LookTo(GameObject target, Vector3 looktarget, float time){
 		LookTo(target,Hash("looktarget",looktarget,"time",time));
 	}
 	
 	/// <summary>
-	/// Rotates a GameObject to look at a supplied Transform or Vector3 over time (if allowed) with FULL customization options.
+	/// Rotates a GameObject to look at a supplied Transform or Vector3 over time with FULL customization options.
 	/// </summary>
 	/// <param name="looktarget">
-	/// A <see cref="Transform"/> or <see cref="Vector3"/>
+	/// A <see cref="Transform"/> or <see cref="Vector3"/> for a target the GameObject will look at.
 	/// </param>
 	/// <param name="axis">
 	/// A <see cref="System.String"/>. Restricts rotation to the supplied axis only.
 	/// </param>
 	/// <param name="time">
-	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the time in seconds the animation will take to complete.
 	/// </param>
 	/// <param name="delay">
-	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the time in seconds the animation will wait before beginning.
 	/// </param>
 	/// <param name="easetype">
-	/// A <see cref="EaseType"/> or <see cref="System.String"/>
+	/// A <see cref="EaseType"/> or <see cref="System.String"/> for the shape of the easing curve applied to the animation.
 	/// </param>   
 	/// <param name="looptype">
-	/// A <see cref="EaseType"/> or <see cref="System.String"/>
+	/// A <see cref="LoopType"/> or <see cref="System.String"/> for the type of loop to apply once the animation has completed.
 	/// </param>
 	/// <param name="onstart">
-	/// A <see cref="System.String"/>
+	/// A <see cref="System.String"/> for the name of a function to launch at the beginning of the animation.
 	/// </param>
 	/// <param name="onstarttarget">
-	/// A <see cref="GameObject"/>
+	/// A <see cref="GameObject"/> for a reference to the GameObject that holds the "onstart" method.
 	/// </param>
 	/// <param name="onstartparams">
-	/// A <see cref="System.Object"/>
+	/// A <see cref="System.Object"/> for arguments to be sent to the "onstart" method.
 	/// </param>
-	/// <param name="onupdate">
-	/// A <see cref="System.String"/>
+	/// <param name="onupdate"> 
+	/// A <see cref="System.String"/> for the name of a function to launch on every step of the animation.
 	/// </param>
 	/// <param name="onupdatetarget">
-	/// A <see cref="GameObject"/>
+	/// A <see cref="GameObject"/> for a reference to the GameObject that holds the "onupdate" method.
 	/// </param>
 	/// <param name="onupdateparams">
-	/// A <see cref="System.Object"/>
+	/// A <see cref="System.Object"/> for arguments to be sent to the "onupdate" method.
 	/// </param> 
 	/// <param name="oncomplete">
-	/// A <see cref="System.String"/>
+	/// A <see cref="System.String"/> for the name of a function to launch at the end of the animation.
 	/// </param>
 	/// <param name="oncompletetarget">
-	/// A <see cref="GameObject"/>.
+	/// A <see cref="GameObject"/> for a reference to the GameObject that holds the "oncomplete" method.
 	/// </param>
 	/// <param name="oncompleteparams">
-	/// A <see cref="System.Object"/>
+	/// A <see cref="System.Object"/> for arguments to be sent to the "oncomplete" method.
 	/// </param>
 	public static void LookTo(GameObject target, Hashtable args){		
 		//clean args:
@@ -1250,89 +1250,92 @@ public class iTween : MonoBehaviour{
 	}		
 	
 	/// <summary>
-	/// Changes a GameObject's position over time with MINIMUM customization options.
+	/// Changes a GameObject's position over time to a supplied destination with MINIMUM customization options.
 	/// </summary>
 	/// <param name="target">
-	/// A <see cref="GameObject"/>
+	/// A <see cref="GameObject"/> to be the target of the animation.
 	/// </param>
 	/// <param name="position">
-	/// A <see cref="Vector3"/>
+	/// A <see cref="Vector3"/> for the destination Vector3.
 	/// </param>
 	/// <param name="time">
-	/// A <see cref="System.Single"/>
+	/// A <see cref="System.Single"/> for the time in seconds the animation will take to complete.
 	/// </param>
 	public static void MoveTo(GameObject target, Vector3 position, float time){
 		MoveTo(target,Hash("position",position,"time",time));
 	}	
-	
+		
 	/// <summary>
-	/// Changes a GameObject's position over time with FULL customization options.
+	/// Changes a GameObject's position over time to a supplied destination with FULL customization options.
 	/// </summary>
 	/// <param name="position">
-	/// A <see cref="Transform"/> or <see cref="Vector3"/>
+	/// A <see cref="Transform"/> or <see cref="Vector3"/> for a point in space the GameObject will animate to.
+	/// </param>
+	/// <param name="path">
+	/// A <see cref="Transform[]"/> or <see cref="Vector3[]"/> for a list of points to draw a Catmull-Rom through for a curved animation path.
 	/// </param>
 	/// <param name="x">
-	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the individual setting of the x axis.
 	/// </param>
 	/// <param name="y">
-	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the individual setting of the y axis.
 	/// </param>
 	/// <param name="z">
-	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the individual setting of the z axis.
 	/// </param>
 	/// <param name="orienttopath">
-	/// A <see cref="System.Boolean"/> false be default.
+	/// A <see cref="System.Boolean"/> for whether or not the GameObject will orient to its direction of travel.  False by default.
 	/// </param>
 	/// <param name="looktarget">
-	/// A <see cref="Vector3"/> or A <see cref="Transform"/>
+	/// A <see cref="Vector3"/> or A <see cref="Transform"/> for a target the GameObject will look at.
 	/// </param>
 	/// <param name="looktime">
-	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the time in seconds the object will take to look at either the "looktarget" or "orienttopath".
 	/// </param>
 	/// <param name="lookahead">
-	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for how much of a percentage to look ahead on a path to influence how strict "orientopath" is.
 	/// </param>
 	/// <param name="islocal">
-	/// A <see cref="System.Boolean"/> false be default.
+	/// A <see cref="System.Boolean"/> for whether to animate in world space or relative to the parent. False be default.
 	/// </param>
 	/// <param name="time">
-	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the time in seconds the animation will take to complete.
 	/// </param>
 	/// <param name="delay">
-	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the time in seconds the animation will wait before beginning.
 	/// </param>
 	/// <param name="easetype">
-	/// A <see cref="EaseType"/> or <see cref="System.String"/>
+	/// A <see cref="EaseType"/> or <see cref="System.String"/> for the shape of the easing curve applied to the animation.
 	/// </param>   
 	/// <param name="looptype">
-	/// A <see cref="EaseType"/> or <see cref="System.String"/>
+	/// A <see cref="LoopType"/> or <see cref="System.String"/> for the type of loop to apply once the animation has completed.
 	/// </param>
 	/// <param name="onstart">
-	/// A <see cref="System.String"/>
+	/// A <see cref="System.String"/> for the name of a function to launch at the beginning of the animation.
 	/// </param>
 	/// <param name="onstarttarget">
-	/// A <see cref="GameObject"/>
+	/// A <see cref="GameObject"/> for a reference to the GameObject that holds the "onstart" method.
 	/// </param>
 	/// <param name="onstartparams">
-	/// A <see cref="System.Object"/>
+	/// A <see cref="System.Object"/> for arguments to be sent to the "onstart" method.
 	/// </param>
-	/// <param name="onupdate">
-	/// A <see cref="System.String"/>
+	/// <param name="onupdate"> 
+	/// A <see cref="System.String"/> for the name of a function to launch on every step of the animation.
 	/// </param>
 	/// <param name="onupdatetarget">
-	/// A <see cref="GameObject"/>
+	/// A <see cref="GameObject"/> for a reference to the GameObject that holds the "onupdate" method.
 	/// </param>
 	/// <param name="onupdateparams">
-	/// A <see cref="System.Object"/>
+	/// A <see cref="System.Object"/> for arguments to be sent to the "onupdate" method.
 	/// </param> 
 	/// <param name="oncomplete">
-	/// A <see cref="System.String"/>
+	/// A <see cref="System.String"/> for the name of a function to launch at the end of the animation.
 	/// </param>
 	/// <param name="oncompletetarget">
-	/// A <see cref="GameObject"/>.
+	/// A <see cref="GameObject"/> for a reference to the GameObject that holds the "oncomplete" method.
 	/// </param>
 	/// <param name="oncompleteparams">
-	/// A <see cref="System.Object"/>
+	/// A <see cref="System.Object"/> for arguments to be sent to the "oncomplete" method.
 	/// </param>
 	public static void MoveTo(GameObject target, Hashtable args){
 		//clean args:
@@ -1355,89 +1358,92 @@ public class iTween : MonoBehaviour{
 	}
 		
 	/// <summary>
-	/// Instantly changes a GameObject's position then returns it to it's starting position over time with MINIMUM customization options.
+	/// Instantly changes a GameObject's position to a supplied destination then returns it to it's starting position over time with MINIMUM customization options.
 	/// </summary>
 	/// <param name="target">
-	/// A <see cref="GameObject"/>
+	/// A <see cref="GameObject"/> to be the target of the animation.
 	/// </param>
 	/// <param name="position">
-	/// A <see cref="Vector3"/>
+	/// A <see cref="Vector3"/> for the destination Vector3.
 	/// </param>
 	/// <param name="time">
-	/// A <see cref="System.Single"/>
+	/// A <see cref="System.Single"/> for the time in seconds the animation will take to complete.
 	/// </param>
 	public static void MoveFrom(GameObject target, Vector3 position, float time){
 		MoveFrom(target,Hash("position",position,"time",time));
 	}		
 	
 	/// <summary>
-	/// Instantly changes a GameObject's position then returns it to it's starting position over time with FULL customization options.
+	/// Instantly changes a GameObject's position to a supplied destination then returns it to it's starting position over time with FULL customization options.
 	/// </summary>
 	/// <param name="position">
-	/// A <see cref="Transform"/> or <see cref="Vector3"/>
+	/// A <see cref="Transform"/> or <see cref="Vector3"/> for a point in space the GameObject will animate to.
+	/// </param>
+	/// <param name="path">
+	/// A <see cref="Transform[]"/> or <see cref="Vector3[]"/> for a list of points to draw a Catmull-Rom through for a curved animation path.
 	/// </param>
 	/// <param name="x">
-	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the individual setting of the x axis.
 	/// </param>
 	/// <param name="y">
-	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the individual setting of the y axis.
 	/// </param>
 	/// <param name="z">
-	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the individual setting of the z axis.
 	/// </param>
 	/// <param name="orienttopath">
-	/// A <see cref="System.Boolean"/> false be default.
+	/// A <see cref="System.Boolean"/> for whether or not the GameObject will orient to its direction of travel.  False by default.
 	/// </param>
 	/// <param name="looktarget">
-	/// A <see cref="Vector3"/> or A <see cref="Transform"/>
+	/// A <see cref="Vector3"/> or A <see cref="Transform"/> for a target the GameObject will look at.
 	/// </param>
 	/// <param name="looktime">
-	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the time in seconds the object will take to look at either the "looktarget" or "orienttopath".
 	/// </param>
 	/// <param name="lookahead">
-	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for how much of a percentage to look ahead on a path to influence how strict "orientopath" is.
 	/// </param>
 	/// <param name="islocal">
-	/// A <see cref="System.Boolean"/> false be default.
+	/// A <see cref="System.Boolean"/> for whether to animate in world space or relative to the parent. False be default.
 	/// </param>
 	/// <param name="time">
-	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the time in seconds the animation will take to complete.
 	/// </param>
 	/// <param name="delay">
-	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the time in seconds the animation will wait before beginning.
 	/// </param>
 	/// <param name="easetype">
-	/// A <see cref="EaseType"/> or <see cref="System.String"/>
+	/// A <see cref="EaseType"/> or <see cref="System.String"/> for the shape of the easing curve applied to the animation.
 	/// </param>   
 	/// <param name="looptype">
-	/// A <see cref="EaseType"/> or <see cref="System.String"/>
+	/// A <see cref="LoopType"/> or <see cref="System.String"/> for the type of loop to apply once the animation has completed.
 	/// </param>
 	/// <param name="onstart">
-	/// A <see cref="System.String"/>
+	/// A <see cref="System.String"/> for the name of a function to launch at the beginning of the animation.
 	/// </param>
 	/// <param name="onstarttarget">
-	/// A <see cref="GameObject"/>
+	/// A <see cref="GameObject"/> for a reference to the GameObject that holds the "onstart" method.
 	/// </param>
 	/// <param name="onstartparams">
-	/// A <see cref="System.Object"/>
+	/// A <see cref="System.Object"/> for arguments to be sent to the "onstart" method.
 	/// </param>
-	/// <param name="onupdate">
-	/// A <see cref="System.String"/>
+	/// <param name="onupdate"> 
+	/// A <see cref="System.String"/> for the name of a function to launch on every step of the animation.
 	/// </param>
 	/// <param name="onupdatetarget">
-	/// A <see cref="GameObject"/>
+	/// A <see cref="GameObject"/> for a reference to the GameObject that holds the "onupdate" method.
 	/// </param>
 	/// <param name="onupdateparams">
-	/// A <see cref="System.Object"/>
+	/// A <see cref="System.Object"/> for arguments to be sent to the "onupdate" method.
 	/// </param> 
 	/// <param name="oncomplete">
-	/// A <see cref="System.String"/>
+	/// A <see cref="System.String"/> for the name of a function to launch at the end of the animation.
 	/// </param>
 	/// <param name="oncompletetarget">
-	/// A <see cref="GameObject"/>.
+	/// A <see cref="GameObject"/> for a reference to the GameObject that holds the "oncomplete" method.
 	/// </param>
 	/// <param name="oncompleteparams">
-	/// A <see cref="System.Object"/>
+	/// A <see cref="System.Object"/> for arguments to be sent to the "oncomplete" method.
 	/// </param>
 	public static void MoveFrom(GameObject target, Hashtable args){
 		//clean args:
@@ -1537,13 +1543,13 @@ public class iTween : MonoBehaviour{
 	/// Translates a GameObject's position over time with MINIMUM customization options.
 	/// </summary>
 	/// <param name="target">
-	/// A <see cref="GameObject"/>
+	/// A <see cref="GameObject"/> to be the target of the animation.
 	/// </param>
 	/// <param name="amount">
-	/// A <see cref="Vector3"/>
+	/// A <see cref="Vector3"/> for the amount of change in position to move the GameObject.
 	/// </param>
 	/// <param name="time">
-	/// A <see cref="System.Single"/>
+	/// A <see cref="System.Single"/> for the time in seconds the animation will take to complete.
 	/// </param>
 	public static void MoveAdd(GameObject target, Vector3 amount, float time){
 		MoveAdd(target,Hash("amount",amount,"time",time));
@@ -1553,67 +1559,67 @@ public class iTween : MonoBehaviour{
 	/// Translates a GameObject's position over time with FULL customization options.
 	/// </summary>
 	/// <param name="amount">
-	/// A <see cref="Vector3"/>
+	/// A <see cref="Vector3"/> for the amount of change in position to move the GameObject.
 	/// </param>
 	/// <param name="x">
-	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the individual setting of the x axis.
 	/// </param>
 	/// <param name="y">
-	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the individual setting of the y axis.
 	/// </param>
 	/// <param name="z">
-	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the individual setting of the z axis.
 	/// </param>
 	/// <param name="orienttopath">
-	/// A <see cref="System.Boolean"/> false be default.
+	/// A <see cref="System.Boolean"/> for whether or not the GameObject will orient to its direction of travel.  False by default.
 	/// </param>
 	/// <param name="looktarget">
-	/// A <see cref="Vector3"/> or A <see cref="Transform"/>
+	/// A <see cref="Vector3"/> or A <see cref="Transform"/> for a target the GameObject will look at.
 	/// </param>
 	/// <param name="looktime">
-	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the time in seconds the object will take to look at either the "looktarget" or "orienttopath".
 	/// </param>
 	/// <param name="space">
-	/// A <see cref="Space"/> or <see cref="System.String"/>
+	/// A <see cref="Space"/> or <see cref="System.String"/> for applying the transformation in either the world coordinate or local cordinate system.
 	/// </param>
 	/// <param name="time">
-	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the time in seconds the animation will take to complete.
 	/// </param>
 	/// <param name="delay">
-	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the time in seconds the animation will wait before beginning.
 	/// </param>
 	/// <param name="easetype">
-	/// A <see cref="EaseType"/> or <see cref="System.String"/>
+	/// A <see cref="EaseType"/> or <see cref="System.String"/> for the shape of the easing curve applied to the animation.
 	/// </param>   
 	/// <param name="looptype">
-	/// A <see cref="EaseType"/> or <see cref="System.String"/>
+	/// A <see cref="LoopType"/> or <see cref="System.String"/> for the type of loop to apply once the animation has completed.
 	/// </param>
 	/// <param name="onstart">
-	/// A <see cref="System.String"/>
+	/// A <see cref="System.String"/> for the name of a function to launch at the beginning of the animation.
 	/// </param>
 	/// <param name="onstarttarget">
-	/// A <see cref="GameObject"/>
+	/// A <see cref="GameObject"/> for a reference to the GameObject that holds the "onstart" method.
 	/// </param>
 	/// <param name="onstartparams">
-	/// A <see cref="System.Object"/>
+	/// A <see cref="System.Object"/> for arguments to be sent to the "onstart" method.
 	/// </param>
-	/// <param name="onupdate">
-	/// A <see cref="System.String"/>
+	/// <param name="onupdate"> 
+	/// A <see cref="System.String"/> for the name of a function to launch on every step of the animation.
 	/// </param>
 	/// <param name="onupdatetarget">
-	/// A <see cref="GameObject"/>
+	/// A <see cref="GameObject"/> for a reference to the GameObject that holds the "onupdate" method.
 	/// </param>
 	/// <param name="onupdateparams">
-	/// A <see cref="System.Object"/>
+	/// A <see cref="System.Object"/> for arguments to be sent to the "onupdate" method.
 	/// </param> 
 	/// <param name="oncomplete">
-	/// A <see cref="System.String"/>
+	/// A <see cref="System.String"/> for the name of a function to launch at the end of the animation.
 	/// </param>
 	/// <param name="oncompletetarget">
-	/// A <see cref="GameObject"/>.
+	/// A <see cref="GameObject"/> for a reference to the GameObject that holds the "oncomplete" method.
 	/// </param>
 	/// <param name="oncompleteparams">
-	/// A <see cref="System.Object"/>
+	/// A <see cref="System.Object"/> for arguments to be sent to the "oncomplete" method.
 	/// </param>
 	public static void MoveAdd(GameObject target, Hashtable args){
 		//clean args:
@@ -1629,13 +1635,13 @@ public class iTween : MonoBehaviour{
 	/// Adds the supplied coordinates to a GameObject's postion with MINIMUM customization options.
 	/// </summary>
 	/// <param name="target">
-	/// A <see cref="GameObject"/>
+	/// A <see cref="GameObject"/> to be the target of the animation.
 	/// </param>
 	/// <param name="amount">
-	/// A <see cref="Vector3"/>
+	/// A <see cref="Vector3"/> for the amount of change in position to move the GameObject.
 	/// </param>
 	/// <param name="time">
-	/// A <see cref="System.Single"/>
+	/// A <see cref="System.Single"/> for the time in seconds the animation will take to complete.
 	/// </param>
 	public static void MoveBy(GameObject target, Vector3 amount, float time){
 		MoveBy(target,Hash("amount",amount,"time",time));
@@ -1645,67 +1651,67 @@ public class iTween : MonoBehaviour{
 	/// Adds the supplied coordinates to a GameObject's postion with FULL customization options.
 	/// </summary>
 	/// <param name="amount">
-	/// A <see cref="Vector3"/>
+	/// A <see cref="Vector3"/> for the amount of change in position to move the GameObject.
 	/// </param>
 	/// <param name="x">
-	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the individual setting of the x axis.
 	/// </param>
 	/// <param name="y">
-	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the individual setting of the y axis.
 	/// </param>
 	/// <param name="z">
-	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the individual setting of the z axis.
 	/// </param>
 	/// <param name="orienttopath">
-	/// A <see cref="System.Boolean"/> false be default.
+	/// A <see cref="System.Boolean"/> for whether or not the GameObject will orient to its direction of travel.  False by default.
 	/// </param>
 	/// <param name="looktarget">
-	/// A <see cref="Vector3"/> or A <see cref="Transform"/>
+	/// A <see cref="Vector3"/> or A <see cref="Transform"/> for a target the GameObject will look at.
 	/// </param>
 	/// <param name="looktime">
-	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the time in seconds the object will take to look at either the "looktarget" or "orienttopath".
 	/// </param>
 	/// <param name="space">
-	/// A <see cref="Space"/> or <see cref="System.String"/>
+	/// A <see cref="Space"/> or <see cref="System.String"/> for applying the transformation in either the world coordinate or local cordinate system.
 	/// </param>
 	/// <param name="time">
-	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the time in seconds the animation will take to complete.
 	/// </param>
 	/// <param name="delay">
-	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the time in seconds the animation will wait before beginning.
 	/// </param>
 	/// <param name="easetype">
-	/// A <see cref="EaseType"/> or <see cref="System.String"/>
+	/// A <see cref="EaseType"/> or <see cref="System.String"/> for the shape of the easing curve applied to the animation.
 	/// </param>   
 	/// <param name="looptype">
-	/// A <see cref="EaseType"/> or <see cref="System.String"/>
+	/// A <see cref="LoopType"/> or <see cref="System.String"/> for the type of loop to apply once the animation has completed.
 	/// </param>
 	/// <param name="onstart">
-	/// A <see cref="System.String"/>
+	/// A <see cref="System.String"/> for the name of a function to launch at the beginning of the animation.
 	/// </param>
 	/// <param name="onstarttarget">
-	/// A <see cref="GameObject"/>
+	/// A <see cref="GameObject"/> for a reference to the GameObject that holds the "onstart" method.
 	/// </param>
 	/// <param name="onstartparams">
-	/// A <see cref="System.Object"/>
+	/// A <see cref="System.Object"/> for arguments to be sent to the "onstart" method.
 	/// </param>
-	/// <param name="onupdate">
-	/// A <see cref="System.String"/>
+	/// <param name="onupdate"> 
+	/// A <see cref="System.String"/> for the name of a function to launch on every step of the animation.
 	/// </param>
 	/// <param name="onupdatetarget">
-	/// A <see cref="GameObject"/>
+	/// A <see cref="GameObject"/> for a reference to the GameObject that holds the "onupdate" method.
 	/// </param>
 	/// <param name="onupdateparams">
-	/// A <see cref="System.Object"/>
+	/// A <see cref="System.Object"/> for arguments to be sent to the "onupdate" method.
 	/// </param> 
 	/// <param name="oncomplete">
-	/// A <see cref="System.String"/>
+	/// A <see cref="System.String"/> for the name of a function to launch at the end of the animation.
 	/// </param>
 	/// <param name="oncompletetarget">
-	/// A <see cref="GameObject"/>.
+	/// A <see cref="GameObject"/> for a reference to the GameObject that holds the "oncomplete" method.
 	/// </param>
 	/// <param name="oncompleteparams">
-	/// A <see cref="System.Object"/>
+	/// A <see cref="System.Object"/> for arguments to be sent to the "oncomplete" method.
 	/// </param>
 	public static void MoveBy(GameObject target, Hashtable args){
 		//clean args:
@@ -1721,13 +1727,13 @@ public class iTween : MonoBehaviour{
 	/// Changes a GameObject's scale over time with MINIMUM customization options.
 	/// </summary>
 	/// <param name="target">
-	/// A <see cref="GameObject"/>
+	/// A <see cref="GameObject"/> to be the target of the animation.
 	/// </param>
 	/// <param name="scale">
-	/// A <see cref="Vector3"/>
+	/// A <see cref="Vector3"/> for the final scale.
 	/// </param>
 	/// <param name="time">
-	/// A <see cref="System.Single"/>
+	/// A <see cref="System.Single"/> for the time in seconds the animation will take to complete.
 	/// </param>
 	public static void ScaleTo(GameObject target, Vector3 scale, float time){
 		ScaleTo(target,Hash("scale",scale,"time",time));
@@ -1737,55 +1743,55 @@ public class iTween : MonoBehaviour{
 	/// Changes a GameObject's scale over time with FULL customization options.
 	/// </summary>
 	/// <param name="scale">
-	/// A <see cref="Transform"/> or <see cref="Vector3"/>
+	/// A <see cref="Transform"/> or <see cref="Vector3"/> for the final scale.
 	/// </param>
 	/// <param name="x">
-	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the individual setting of the x axis.
 	/// </param>
 	/// <param name="y">
-	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the individual setting of the y axis.
 	/// </param>
 	/// <param name="z">
-	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the individual setting of the z axis.
 	/// </param>
 	/// <param name="time">
-	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the time in seconds the animation will take to complete.
 	/// </param>
 	/// <param name="delay">
-	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the time in seconds the animation will wait before beginning.
 	/// </param>
 	/// <param name="easetype">
-	/// A <see cref="EaseType"/> or <see cref="System.String"/>
+	/// A <see cref="EaseType"/> or <see cref="System.String"/> for the shape of the easing curve applied to the animation.
 	/// </param>   
 	/// <param name="looptype">
-	/// A <see cref="EaseType"/> or <see cref="System.String"/>
+	/// A <see cref="LoopType"/> or <see cref="System.String"/> for the type of loop to apply once the animation has completed.
 	/// </param>
 	/// <param name="onstart">
-	/// A <see cref="System.String"/>
+	/// A <see cref="System.String"/> for the name of a function to launch at the beginning of the animation.
 	/// </param>
 	/// <param name="onstarttarget">
-	/// A <see cref="GameObject"/>
+	/// A <see cref="GameObject"/> for a reference to the GameObject that holds the "onstart" method.
 	/// </param>
 	/// <param name="onstartparams">
-	/// A <see cref="System.Object"/>
+	/// A <see cref="System.Object"/> for arguments to be sent to the "onstart" method.
 	/// </param>
-	/// <param name="onupdate">
-	/// A <see cref="System.String"/>
+	/// <param name="onupdate"> 
+	/// A <see cref="System.String"/> for the name of a function to launch on every step of the animation.
 	/// </param>
 	/// <param name="onupdatetarget">
-	/// A <see cref="GameObject"/>
+	/// A <see cref="GameObject"/> for a reference to the GameObject that holds the "onupdate" method.
 	/// </param>
 	/// <param name="onupdateparams">
-	/// A <see cref="System.Object"/>
+	/// A <see cref="System.Object"/> for arguments to be sent to the "onupdate" method.
 	/// </param> 
 	/// <param name="oncomplete">
-	/// A <see cref="System.String"/>
+	/// A <see cref="System.String"/> for the name of a function to launch at the end of the animation.
 	/// </param>
 	/// <param name="oncompletetarget">
-	/// A <see cref="GameObject"/>.
+	/// A <see cref="GameObject"/> for a reference to the GameObject that holds the "oncomplete" method.
 	/// </param>
 	/// <param name="oncompleteparams">
-	/// A <see cref="System.Object"/>
+	/// A <see cref="System.Object"/> for arguments to be sent to the "oncomplete" method.
 	/// </param>
 	public static void ScaleTo(GameObject target, Hashtable args){
 		//clean args:
@@ -1811,13 +1817,13 @@ public class iTween : MonoBehaviour{
 	/// Instantly changes a GameObject's scale then returns it to it's starting scale over time with MINIMUM customization options.
 	/// </summary>
 	/// <param name="target">
-	/// A <see cref="GameObject"/>
+	/// A <see cref="GameObject"/> to be the target of the animation.
 	/// </param>
 	/// <param name="scale">
-	/// A <see cref="Vector3"/>
+	/// A <see cref="Vector3"/> for the final scale.
 	/// </param>
 	/// <param name="time">
-	/// A <see cref="System.Single"/>
+	/// A <see cref="System.Single"/> for the time in seconds the animation will take to complete.
 	/// </param>
 	public static void ScaleFrom(GameObject target, Vector3 scale, float time){
 		ScaleFrom(target,Hash("scale",scale,"time",time));
@@ -1827,55 +1833,55 @@ public class iTween : MonoBehaviour{
 	/// Instantly changes a GameObject's scale then returns it to it's starting scale over time with FULL customization options.
 	/// </summary>
 	/// <param name="scale">
-	/// A <see cref="Transform"/> or <see cref="Vector3"/>
+	/// A <see cref="Transform"/> or <see cref="Vector3"/> for the final scale.
 	/// </param>
 	/// <param name="x">
-	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the individual setting of the x axis.
 	/// </param>
 	/// <param name="y">
-	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the individual setting of the y axis.
 	/// </param>
 	/// <param name="z">
-	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the individual setting of the z axis.
 	/// </param>
 	/// <param name="time">
-	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the time in seconds the animation will take to complete.
 	/// </param>
 	/// <param name="delay">
-	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the time in seconds the animation will wait before beginning.
 	/// </param>
 	/// <param name="easetype">
-	/// A <see cref="EaseType"/> or <see cref="System.String"/>
+	/// A <see cref="EaseType"/> or <see cref="System.String"/> for the shape of the easing curve applied to the animation.
 	/// </param>   
 	/// <param name="looptype">
-	/// A <see cref="EaseType"/> or <see cref="System.String"/>
+	/// A <see cref="LoopType"/> or <see cref="System.String"/> for the type of loop to apply once the animation has completed.
 	/// </param>
 	/// <param name="onstart">
-	/// A <see cref="System.String"/>
+	/// A <see cref="System.String"/> for the name of a function to launch at the beginning of the animation.
 	/// </param>
 	/// <param name="onstarttarget">
-	/// A <see cref="GameObject"/>
+	/// A <see cref="GameObject"/> for a reference to the GameObject that holds the "onstart" method.
 	/// </param>
 	/// <param name="onstartparams">
-	/// A <see cref="System.Object"/>
+	/// A <see cref="System.Object"/> for arguments to be sent to the "onstart" method.
 	/// </param>
-	/// <param name="onupdate">
-	/// A <see cref="System.String"/>
+	/// <param name="onupdate"> 
+	/// A <see cref="System.String"/> for the name of a function to launch on every step of the animation.
 	/// </param>
 	/// <param name="onupdatetarget">
-	/// A <see cref="GameObject"/>
+	/// A <see cref="GameObject"/> for a reference to the GameObject that holds the "onupdate" method.
 	/// </param>
 	/// <param name="onupdateparams">
-	/// A <see cref="System.Object"/>
+	/// A <see cref="System.Object"/> for arguments to be sent to the "onupdate" method.
 	/// </param> 
 	/// <param name="oncomplete">
-	/// A <see cref="System.String"/>
+	/// A <see cref="System.String"/> for the name of a function to launch at the end of the animation.
 	/// </param>
 	/// <param name="oncompletetarget">
-	/// A <see cref="GameObject"/>.
+	/// A <see cref="GameObject"/> for a reference to the GameObject that holds the "oncomplete" method.
 	/// </param>
 	/// <param name="oncompleteparams">
-	/// A <see cref="System.Object"/>
+	/// A <see cref="System.Object"/> for arguments to be sent to the "oncomplete" method.
 	/// </param>
 	public static void ScaleFrom(GameObject target, Hashtable args){
 		Vector3 tempScale;
@@ -1923,13 +1929,13 @@ public class iTween : MonoBehaviour{
 	/// Adds to a GameObject's scale over time with FULL customization options.
 	/// </summary>
 	/// <param name="target">
-	/// A <see cref="GameObject"/>
+	/// A <see cref="GameObject"/> to be the target of the animation.
 	/// </param>
 	/// <param name="amount">
-	/// A <see cref="Vector3"/>
+	/// A <see cref="Vector3"/> for the final scale.
 	/// </param>
 	/// <param name="time">
-	/// A <see cref="System.Single"/>
+	/// A <see cref="System.Single"/> for the time in seconds the animation will take to complete.
 	/// </param>
 	public static void ScaleAdd(GameObject target, Vector3 amount, float time){
 		ScaleAdd(target,Hash("amount",amount,"time",time));
@@ -1939,55 +1945,55 @@ public class iTween : MonoBehaviour{
 	/// Adds to a GameObject's scale over time with FULL customization options.
 	/// </summary>
 	/// <param name="amount">
-	/// A <see cref="Vector3"/>
+	/// A <see cref="Vector3"/> for the amount to be added to the GameObject's current scale.
 	/// </param>
 	/// <param name="x">
-	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the individual setting of the x axis.
 	/// </param>
 	/// <param name="y">
-	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the individual setting of the y axis.
 	/// </param>
 	/// <param name="z">
-	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the individual setting of the z axis.
 	/// </param>
 	/// <param name="time">
-	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the time in seconds the animation will take to complete.
 	/// </param>
 	/// <param name="delay">
-	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the time in seconds the animation will wait before beginning.
 	/// </param>
 	/// <param name="easetype">
-	/// A <see cref="EaseType"/> or <see cref="System.String"/>
+	/// A <see cref="EaseType"/> or <see cref="System.String"/> for the shape of the easing curve applied to the animation.
 	/// </param>   
 	/// <param name="looptype">
-	/// A <see cref="EaseType"/> or <see cref="System.String"/>
+	/// A <see cref="LoopType"/> or <see cref="System.String"/> for the type of loop to apply once the animation has completed.
 	/// </param>
 	/// <param name="onstart">
-	/// A <see cref="System.String"/>
+	/// A <see cref="System.String"/> for the name of a function to launch at the beginning of the animation.
 	/// </param>
 	/// <param name="onstarttarget">
-	/// A <see cref="GameObject"/>
+	/// A <see cref="GameObject"/> for a reference to the GameObject that holds the "onstart" method.
 	/// </param>
 	/// <param name="onstartparams">
-	/// A <see cref="System.Object"/>
+	/// A <see cref="System.Object"/> for arguments to be sent to the "onstart" method.
 	/// </param>
-	/// <param name="onupdate">
-	/// A <see cref="System.String"/>
+	/// <param name="onupdate"> 
+	/// A <see cref="System.String"/> for the name of a function to launch on every step of the animation.
 	/// </param>
 	/// <param name="onupdatetarget">
-	/// A <see cref="GameObject"/>
+	/// A <see cref="GameObject"/> for a reference to the GameObject that holds the "onupdate" method.
 	/// </param>
 	/// <param name="onupdateparams">
-	/// A <see cref="System.Object"/>
+	/// A <see cref="System.Object"/> for arguments to be sent to the "onupdate" method.
 	/// </param> 
 	/// <param name="oncomplete">
-	/// A <see cref="System.String"/>
+	/// A <see cref="System.String"/> for the name of a function to launch at the end of the animation.
 	/// </param>
 	/// <param name="oncompletetarget">
-	/// A <see cref="GameObject"/>.
+	/// A <see cref="GameObject"/> for a reference to the GameObject that holds the "oncomplete" method.
 	/// </param>
 	/// <param name="oncompleteparams">
-	/// A <see cref="System.Object"/>
+	/// A <see cref="System.Object"/> for arguments to be sent to the "oncomplete" method.
 	/// </param>
 	public static void ScaleAdd(GameObject target, Hashtable args){
 		//clean args:
@@ -3962,15 +3968,6 @@ public class iTween : MonoBehaviour{
 		}else{
 			transform.rotation = Quaternion.Euler(vector3s[2]);
 		};	
-		
-		//dial in:
-		if(percentage==1){
-			if (isLocal) {
-				transform.localRotation = Quaternion.Euler(vector3s[1]);
-			}else{
-				transform.rotation = Quaternion.Euler(vector3s[1]);
-			};				
-		}
 	}	
 	
 	void ApplyRotateToTargets(){
