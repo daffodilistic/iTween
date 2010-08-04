@@ -43,7 +43,7 @@ public class iTween : MonoBehaviour{
 	private Vector2[] vector2s;
 	private Color[] colors;
 	private float[] floats;
-	private int[] ints;
+	//private int[] ints;
 	private Rect[] rects;
 	private CRSpline path;
 	
@@ -4305,18 +4305,18 @@ public class iTween : MonoBehaviour{
 	#endregion
 	
 	#region #6 Update Callable
-		
+			
 	/// <summary>
-	/// Similar to FadeTo but incredibly less expensive for usage inside the Update function or similar looping situations involving a "live" set of changing values. Does not utilize an EaseType. 
+	/// Similar to FadeTo but incredibly less expensive for usage inside the Update function or similar looping situations involving a "live" set of changing values with FULL customization options. Does not utilize an EaseType. 
 	/// </summary>
 	/// <param name="alpha">
-	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the final alpha value of the animation.
 	/// </param>
 	/// <param name="includechildren">
-	/// A <see cref="System.Boolean"/> true be default.
+	/// A <see cref="System.Boolean"/> for whether or not to include children of this GameObject. True by default.
 	/// </param>
 	/// <param name="time">
-	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the time in seconds the animation will take to complete.
 	/// </param>
 	public static void FadeUpdate(GameObject target, Hashtable args){
 		args["a"]=args["alpha"];
@@ -4324,28 +4324,44 @@ public class iTween : MonoBehaviour{
 	}
 	
 	/// <summary>
-	/// Similar to ColorTo but incredibly less expensive for usage inside the Update function or similar looping situations involving a "live" set of changing values. Does not utilize an EaseType. 
+	/// Similar to FadeTo but incredibly less expensive for usage inside the Update function or similar looping situations involving a "live" set of changing values with MINIMUM customization options. Does not utilize an EaseType. 
 	/// </summary>
-	/// <param name="color">
-	/// A <see cref="Color"/>
+	/// <param name="target">
+	/// A <see cref="GameObject"/> to be the target of the animation.
 	/// </param>
-	/// <param name="r">
-	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
-	/// </param>
-	/// <param name="g">
-	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
-	/// </param>
-	/// <param name="b">
-	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
-	/// </param>
-	/// <param name="a">
-	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
-	/// </param> 
-	/// <param name="includechildren">
-	/// A <see cref="System.Boolean"/> true be default.
+	/// <param name="alpha">
+	/// A <see cref="System.Single"/> for the final alpha value of the animation.
 	/// </param>
 	/// <param name="time">
-	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// A <see cref="System.Single"/> for the time in seconds the animation will take to complete.
+	/// </param>
+	public static void FadeUpdate(GameObject target, float alpha, float time){
+		FadeUpdate(target,Hash("alpha",alpha,"time",time));
+	}
+	
+	/// <summary>
+	/// Similar to ColorTo but incredibly less expensive for usage inside the Update function or similar looping situations involving a "live" set of changing values with FULL customization options. Does not utilize an EaseType. 
+	/// </summary>
+	/// <param name="color">
+	/// A <see cref="Color"/> to change the GameObject's color to.
+	/// </param>
+	/// <param name="r">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the individual setting of the color red.
+	/// </param>
+	/// <param name="g">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the individual setting of the color green.
+	/// </param>
+	/// <param name="b">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the individual setting of the color green.
+	/// </param>
+	/// <param name="a">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the individual setting of the alpha.
+	/// </param> 
+	/// <param name="includechildren">
+	/// A <see cref="System.Boolean"/> for whether or not to include children of this GameObject. True by default.
+	/// </param>
+	/// <param name="time">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the time in seconds the animation will take to complete.
 	/// </param>
 	public static void ColorUpdate(GameObject target, Hashtable args){
 		CleanArgs(args);
@@ -4416,17 +4432,36 @@ public class iTween : MonoBehaviour{
 	}	
 	
 	/// <summary>
-	/// Similar to AudioTo but incredibly less expensive for usage inside the Update function or similar looping situations involving a "live" set of changing values. Does not utilize an EaseType. 
+	/// Similar to ColorTo but incredibly less expensive for usage inside the Update function or similar looping situations involving a "live" set of changing values with MINIMUM customization options. Does not utilize an EaseType.
+	/// </summary>
+	/// <param name="target">
+	/// A <see cref="GameObject"/> to be the target of the animation.
+	/// </param>
+	/// <param name="color">
+	/// A <see cref="Color"/> to change the GameObject's color to.
+	/// </param>
+	/// <param name="time">
+	/// A <see cref="System.Single"/> for the time in seconds the animation will take to complete.
+	/// </param>
+	public static void ColorUpdate(GameObject target, Color color, float time){
+		ColorUpdate(target,Hash("color",color,"time",time));
+	}
+	
+	/// <summary>
+	/// Similar to AudioTo but incredibly less expensive for usage inside the Update function or similar looping situations involving a "live" set of changing values with FULL customization options. Does not utilize an EaseType. 
 	/// </summary>
 	/// <param name="audiosource">
-	/// A <see cref="AudioSource"/>
+	/// A <see cref="AudioSource"/> for which AudioSource to use.
 	/// </param> 
 	/// <param name="volume">
-	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the target level of volume.
 	/// </param>
 	/// <param name="pitch">
-	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
-	/// </param> 
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the target pitch.
+	/// </param>
+	/// <param name="time">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the time in seconds the animation will take to complete.
+	/// </param>
 	public static void AudioUpdate(GameObject target, Hashtable args){
 		CleanArgs(args);
 		
@@ -4476,25 +4511,44 @@ public class iTween : MonoBehaviour{
 	}
 	
 	/// <summary>
-	/// Similar to RotateTo but incredibly less expensive for usage inside the Update function or similar looping situations involving a "live" set of changing values. Does not utilize an EaseType. 
+	/// Similar to AudioTo but incredibly less expensive for usage inside the Update function or similar looping situations involving a "live" set of changing values with MINIMUM customization options. Does not utilize an EaseType. 
 	/// </summary>
-	/// <param name="rotation">
-	/// A <see cref="Transform"/> or <see cref="Vector3"/>
+	/// <param name="target">
+	/// A <see cref="GameObject"/> to be the target of the animation.
 	/// </param>
-	/// <param name="x">
-	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// <param name="volume">
+	/// A <see cref="System.Single"/> for the target level of volume.
 	/// </param>
-	/// <param name="y">
-	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
-	/// </param>
-	/// <param name="z">
-	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
-	/// </param>
-	/// <param name="islocal">
-	/// A <see cref="System.Boolean"/> false be default.
+	/// <param name="pitch">
+	/// A <see cref="System.Single"/> for the target pitch.
 	/// </param>
 	/// <param name="time">
-	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// A <see cref="System.Single"/> for the time in seconds the animation will take to complete.
+	/// </param>
+	public static void AudioUpdate(GameObject target, float volume, float pitch, float time){
+		AudioUpdate(target,Hash("volume",volume,"pitch",pitch,"time",time));
+	}
+	
+	/// <summary>
+	/// Similar to RotateTo but incredibly less expensive for usage inside the Update function or similar looping situations involving a "live" set of changing values with FULL customization options. Does not utilize an EaseType. 
+	/// </summary>
+	/// <param name="rotation">
+	/// A <see cref="Transform"/> or <see cref="Vector3"/> for the target Euler angles in degrees to rotate to.
+	/// </param>
+	/// <param name="x">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the individual setting of the x axis.
+	/// </param>
+	/// <param name="y">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the individual setting of the y axis.
+	/// </param>
+	/// <param name="z">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the individual setting of the z axis.
+	/// </param>
+	/// <param name="islocal">
+	/// A <see cref="System.Boolean"/> for whether to animate in world space or relative to the parent. False be default.
+	/// </param>
+	/// <param name="time">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the time in seconds the animation will take to complete.
 	/// </param> 
 	public static void RotateUpdate(GameObject target, Hashtable args){
 		CleanArgs(args);
@@ -4549,22 +4603,38 @@ public class iTween : MonoBehaviour{
 	}
 		
 	/// <summary>
-	/// Similar to ScaleTo but incredibly less expensive for usage inside the Update function or similar looping situations involving a "live" set of changing values.  Does not utilize an EaseType. 
+	/// Similar to RotateTo but incredibly less expensive for usage inside the Update function or similar looping situations involving a "live" set of changing values with MINIMUM customization options. Does not utilize an EaseType. 
 	/// </summary>
-	/// <param name="scale">
-	/// A <see cref="Transform"/> or <see cref="Vector3"/>
+	/// <param name="target">
+	/// A <see cref="GameObject"/> to be the target of the animation.
 	/// </param>
-	/// <param name="x">
-	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
-	/// </param>
-	/// <param name="y">
-	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
-	/// </param>
-	/// <param name="z">
-	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// <param name="rotation">
+	/// A <see cref="Vector3"/> for the target Euler angles in degrees to rotate to.
 	/// </param>
 	/// <param name="time">
-	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// A <see cref="System.Single"/> for the time in seconds the animation will take to complete.
+	/// </param>
+	public static void RotateUpdate(GameObject target, Vector3 rotation, float time){
+		RotateUpdate(target,Hash("rotation",rotation,"time",time));
+	}
+	
+	/// <summary>
+	/// Similar to ScaleTo but incredibly less expensive for usage inside the Update function or similar looping situations involving a "live" set of changing values with FULL customization options.  Does not utilize an EaseType. 
+	/// </summary>
+	/// <param name="scale">
+	/// A <see cref="Transform"/> or <see cref="Vector3"/> for the final scale.
+	/// </param>
+	/// <param name="x">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the individual setting of the x axis.
+	/// </param>
+	/// <param name="y">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the individual setting of the y axis.
+	/// </param>
+	/// <param name="z">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the individual setting of the z axis.
+	/// </param>
+	/// <param name="time">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the time in seconds the animation will take to complete.
 	/// </param> 
 	public static void ScaleUpdate(GameObject target, Hashtable args){
 		CleanArgs(args);
@@ -4613,31 +4683,47 @@ public class iTween : MonoBehaviour{
 	}	
 	
 	/// <summary>
-	/// Similar to MoveTo but incredibly less expensive for usage inside the Update function or similar looping situations involving a "live" set of changing values. Does not utilize an EaseType. 
+	/// Similar to ScaleTo but incredibly less expensive for usage inside the Update function or similar looping situations involving a "live" set of changing values with MINIMUM customization options.  Does not utilize an EaseType.
 	/// </summary>
-	/// <param name="position">
-	/// A <see cref="Transform"/> or <see cref="Vector3"/>
+	/// <param name="target">
+	/// A <see cref="GameObject"/> to be the target of the animation.
 	/// </param>
-	/// <param name="x">
-	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
-	/// </param>
-	/// <param name="y">
-	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
-	/// </param>
-	/// <param name="z">
-	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// <param name="scale">
+	/// A <see cref="Vector3"/> for the final scale.
 	/// </param>
 	/// <param name="time">
-	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// A <see cref="System.Single"/> for the time in seconds the animation will take to complete.
+	/// </param>
+	public static void ScaleUpdate(GameObject target, Vector3 scale, float time){
+		ScaleUpdate(target,Hash("scale",scale,"time",time));
+	}
+	
+	/// <summary>
+	/// Similar to MoveTo but incredibly less expensive for usage inside the Update function or similar looping situations involving a "live" set of changing values with FULL customization options. Does not utilize an EaseType. 
+	/// </summary>
+	/// <param name="position">
+	/// A <see cref="Transform"/> or <see cref="Vector3"/> for a point in space the GameObject will animate to.
+	/// </param>
+	/// <param name="x">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the individual setting of the x axis.
+	/// </param>
+	/// <param name="y">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the individual setting of the y axis.
+	/// </param>
+	/// <param name="z">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the individual setting of the z axis.
+	/// </param>
+	/// <param name="time">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the time in seconds the animation will take to complete.
 	/// </param> 
+	/// <param name="islocal">
+	/// A <see cref="System.Boolean"/> for whether to animate in world space or relative to the parent. False be default.
+	/// </param>
 	/// <param name="orienttopath">
-	/// A <see cref="System.Boolean"/> false be default.
+	/// A <see cref="System.Boolean"/> for whether or not the GameObject will orient to its direction of travel.  False by default.
 	/// </param>
 	/// <param name="looktarget">
-	/// A <see cref="Vector3"/> or A <see cref="Transform"/>
-	/// </param>
-	/// <param name="islocal">
-	/// A <see cref="System.Boolean"/> false be default.
+	/// A <see cref="Vector3"/> or A <see cref="Transform"/> for a target the GameObject will look at.
 	/// </param>
 	public static void MoveUpdate(GameObject target, Hashtable args){
 		CleanArgs(args);
@@ -4710,18 +4796,34 @@ public class iTween : MonoBehaviour{
 			target.transform.position=vector3s[3];	
 		}		
 	}
+
+	/// <summary>
+	/// Similar to MoveTo but incredibly less expensive for usage inside the Update function or similar looping situations involving a "live" set of changing values with MINIMUM customization options. Does not utilize an EaseType. 
+	/// </summary>
+	/// <param name="target">
+	/// A <see cref="GameObject"/> to be the target of the animation.
+	/// </param>
+	/// <param name="position">
+	/// A <see cref="Vector3"/> for a point in space the GameObject will animate to.
+	/// </param>
+	/// <param name="time">
+	/// A <see cref="System.Single"/> for the time in seconds the animation will take to complete.
+	/// </param>
+	public static void MoveUpdate(GameObject target, Vector3 position, float time){
+		MoveUpdate(target,Hash("position",position,"time",time));
+	}
 	
 	/// <summary>
-	/// Similar to LookTo but incredibly less expensive for usage inside the Update function or similar looping situations involving a "live" set of changing values. Does not utilize an EaseType. 
+	/// Similar to LookTo but incredibly less expensive for usage inside the Update function or similar looping situations involving a "live" set of changing values with FULL customization options. Does not utilize an EaseType. 
 	/// </summary>
 	/// <param name="looktarget">
-	/// A <see cref="Transform"/> or <see cref="Vector3"/>
+	/// A <see cref="Transform"/> or <see cref="Vector3"/> for a target the GameObject will look at.
 	/// </param>
 	/// <param name="axis">
 	/// A <see cref="System.String"/>. Restricts rotation to the supplied axis only.
 	/// </param>
 	/// <param name="time">
-	/// A <see cref="System.Single"/> or <see cref="System.Double"/>
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the time in seconds the animation will take to complete.
 	/// </param> 
 	public static void LookUpdate(GameObject target, Hashtable args){
 		CleanArgs(args);
@@ -4788,6 +4890,22 @@ public class iTween : MonoBehaviour{
 			//apply axis restriction:
 			target.transform.eulerAngles=vector3s[4];
 		}	
+	}
+	
+	/// <summary>
+	/// Similar to LookTo but incredibly less expensive for usage inside the Update function or similar looping situations involving a "live" set of changing values with FULL customization options. Does not utilize an EaseType. 
+	/// </summary>
+	/// <param name="target">
+	/// A <see cref="GameObject"/> to be the target of the animation.
+	/// </param>
+	/// <param name="looktarget">
+	/// A <see cref="Vector3"/> for a target the GameObject will look at.
+	/// </param>
+	/// <param name="time">
+	/// A <see cref="System.Single"/> for the time in seconds the animation will take to complete.
+	/// </param>
+	public static void LookUpdate(GameObject target, Vector3 looktarget, float time){
+		LookUpdate(target,Hash("looktarget",looktarget,"time",time));
 	}
 
 	#endregion
@@ -5195,6 +5313,15 @@ public class iTween : MonoBehaviour{
 		}		
 	}
 	
+	/// <summary>
+	/// Universal interface to help in the creation of Hashtables.  Especially useful for C# users.
+	/// </summary>
+	/// <param name="args">
+	/// A <see cref="System.Object[]"/> of alternating name value pairs.  For example "time",1,"delay",2...
+	/// </param>
+	/// <returns>
+	/// A <see cref="Hashtable"/>
+	/// </returns>
 	public static Hashtable Hash(params object[] args){
 		Hashtable hashTable = new Hashtable(args.Length/2);
 		if (args.Length %2 != 0) {
