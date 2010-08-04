@@ -2999,11 +2999,10 @@ public class iTween : MonoBehaviour{
 						if(tweenArguments.Contains("path")){
 							GenerateMoveToPathTargets();
 							apply = new ApplyTween(ApplyMoveToPathTargets);
-						}else{
+						}else{ //not using a path?
 							GenerateMoveToTargets();
 							apply = new ApplyTween(ApplyMoveToTargets);
 						}
-						
 					break;
 					case "by":
 					case "add":
@@ -3745,6 +3744,11 @@ public class iTween : MonoBehaviour{
 		
 		//apply:
 		tweenArguments["onupdateparams"]=rects[2];
+		
+		//dial in:
+		if(percentage==1){
+			tweenArguments["onupdateparams"]=rects[1];
+		}
 	}		
 	
 	void ApplyColorTargets(){
@@ -3756,6 +3760,11 @@ public class iTween : MonoBehaviour{
 		
 		//apply:
 		tweenArguments["onupdateparams"]=colors[2];
+		
+		//dial in:
+		if(percentage==1){
+			tweenArguments["onupdateparams"]=colors[1];
+		}
 	}	
 		
 	void ApplyVector3Targets(){
@@ -3766,6 +3775,11 @@ public class iTween : MonoBehaviour{
 		
 		//apply:
 		tweenArguments["onupdateparams"]=vector3s[2];
+		
+		//dial in:
+		if(percentage==1){
+			tweenArguments["onupdateparams"]=vector3s[1];
+		}
 	}		
 	
 	void ApplyVector2Targets(){
@@ -3775,6 +3789,11 @@ public class iTween : MonoBehaviour{
 		
 		//apply:
 		tweenArguments["onupdateparams"]=vector2s[2];
+		
+		//dial in:
+		if(percentage==1){
+			tweenArguments["onupdateparams"]=vector2s[1];
+		}
 	}	
 	
 	void ApplyFloatTargets(){
@@ -3783,6 +3802,11 @@ public class iTween : MonoBehaviour{
 		
 		//apply:
 		tweenArguments["onupdateparams"]=floats[2];
+		
+		//dial in:
+		if(percentage==1){
+			tweenArguments["onupdateparams"]=floats[1];
+		}
 	}	
 	
 	void ApplyColorToTargets(){
@@ -3802,6 +3826,19 @@ public class iTween : MonoBehaviour{
 		}else if(light){
 			light.color=colors[2];	
 		}
+		
+		//dial in:
+		if(percentage==1){
+			if(GetComponent(typeof(GUITexture))){
+				guiTexture.color=colors[1];
+			}else if(GetComponent(typeof(GUIText))){
+				guiText.material.color=colors[1];
+			}else if(renderer){
+				renderer.material.color=colors[1];	
+			}else if(light){
+				light.color=colors[1];	
+			}			
+		}
 	}	
 	
 	void ApplyAudioToTargets(){
@@ -3812,6 +3849,12 @@ public class iTween : MonoBehaviour{
 		//apply:
 		audioSource.volume=vector2s[2].x;
 		audioSource.pitch=vector2s[2].y;
+		
+		//dial in:
+		if(percentage==1){
+			audioSource.volume=vector2s[1].x;
+			audioSource.pitch=vector2s[1].y;	
+		}
 	}	
 	
 	void ApplyStabTargets(){
@@ -3843,7 +3886,9 @@ public class iTween : MonoBehaviour{
 			
 			//locate new leading point with a clamp as stated above:
 			tweenArguments["looktarget"] = path.Interp(Mathf.Clamp(tLook,0,1));
-		}		
+		}
+		
+
 	}
 	
 	void ApplyMoveToTargets(){
@@ -3857,6 +3902,15 @@ public class iTween : MonoBehaviour{
 			transform.localPosition=vector3s[2];		
 		}else{
 			transform.position=vector3s[2];
+		}
+		
+		//dial in:
+		if(percentage==1){
+			if (isLocal) {
+				transform.localPosition=vector3s[1];		
+			}else{
+				transform.position=vector3s[1];
+			}
 		}
 	}	
 	
@@ -3894,6 +3948,11 @@ public class iTween : MonoBehaviour{
 		
 		//apply:
 		transform.localScale=vector3s[2];	
+		
+		//dial in:
+		if(percentage==1){
+			transform.localScale=vector3s[1];
+		}
 	}
 	
 	void ApplyLookToTargets(){
@@ -3908,6 +3967,15 @@ public class iTween : MonoBehaviour{
 		}else{
 			transform.rotation = Quaternion.Euler(vector3s[2]);
 		};	
+		
+		//dial in:
+		if(percentage==1){
+			if (isLocal) {
+				transform.localRotation = Quaternion.Euler(vector3s[1]);
+			}else{
+				transform.rotation = Quaternion.Euler(vector3s[1]);
+			};				
+		}
 	}	
 	
 	void ApplyRotateToTargets(){
@@ -3922,6 +3990,15 @@ public class iTween : MonoBehaviour{
 		}else{
 			transform.rotation = Quaternion.Euler(vector3s[2]);
 		};	
+		
+		//dial in:
+		if(percentage==1){
+			if (isLocal) {
+				transform.localRotation = Quaternion.Euler(vector3s[1]);
+			}else{
+				transform.rotation = Quaternion.Euler(vector3s[1]);
+			};
+		}
 	}
 	
 	void ApplyRotateAddTargets(){
