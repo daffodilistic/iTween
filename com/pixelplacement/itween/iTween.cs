@@ -155,7 +155,7 @@ public class iTween : MonoBehaviour{
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the individual setting of the color green.
 	/// </param>
 	/// <param name="b">
-	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the individual setting of the color green.
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the individual setting of the color blue.
 	/// </param>
 	/// <param name="a">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the individual setting of the alpha.
@@ -404,10 +404,10 @@ public class iTween : MonoBehaviour{
 	/// Changes a GameObject's alpha value instantly then returns it to the provided alpha over time with FULL customization options.  If a GUIText or GUITexture component is attached, it will become the target of the animation. Identical to using ColorFrom and using the "a" parameter.
 	/// </summary>
 	/// <param name="alpha">
-	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the final alpha value of the animation.
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the initial alpha value of the animation.
 	/// </param>
 	/// <param name="amount">
-	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the final alpha value of the animation.
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the initial alpha value of the animation.
 	/// </param>
 	/// <param name="includechildren">
 	/// A <see cref="System.Boolean"/> for whether or not to include children of this GameObject. True by default.
@@ -1295,6 +1295,9 @@ public class iTween : MonoBehaviour{
 	/// <param name="lookahead">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for how much of a percentage to look ahead on a path to influence how strict "orientopath" is.
 	/// </param>
+	/// <param name="axis">
+	/// A <see cref="System.String"/>. Restricts rotation to the supplied axis only.
+	/// </param>
 	/// <param name="islocal">
 	/// A <see cref="System.Boolean"/> for whether to animate in world space or relative to the parent. False be default.
 	/// </param>
@@ -1579,6 +1582,9 @@ public class iTween : MonoBehaviour{
 	/// <param name="looktime">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the time in seconds the object will take to look at either the "looktarget" or "orienttopath".
 	/// </param>
+	/// <param name="axis">
+	/// A <see cref="System.String"/>. Restricts rotation to the supplied axis only.
+	/// </param>
 	/// <param name="space">
 	/// A <see cref="Space"/> or <see cref="System.String"/> for applying the transformation in either the world coordinate or local cordinate system. Defaults to local space.
 	/// </param>
@@ -1648,7 +1654,7 @@ public class iTween : MonoBehaviour{
 	}
 	
 	/// <summary>
-	/// Adds the supplied coordinates to a GameObject's postion with FULL customization options.
+	/// Adds the supplied coordinates to a GameObject's position with FULL customization options.
 	/// </summary>
 	/// <param name="amount">
 	/// A <see cref="Vector3"/> for the amount of change in position to move the GameObject.
@@ -1670,6 +1676,9 @@ public class iTween : MonoBehaviour{
 	/// </param>
 	/// <param name="looktime">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the time in seconds the object will take to look at either the "looktarget" or "orienttopath".
+	/// </param>
+	/// <param name="axis">
+	/// A <see cref="System.String"/>. Restricts rotation to the supplied axis only.
 	/// </param>
 	/// <param name="space">
 	/// A <see cref="Space"/> or <see cref="System.String"/> for applying the transformation in either the world coordinate or local cordinate system. Defaults to local space.
@@ -2343,9 +2352,7 @@ public class iTween : MonoBehaviour{
 	/// <param name="space">
 	/// A <see cref="Space"/> or <see cref="System.String"/> for applying the transformation in either the world coordinate or local cordinate system. Defaults to local space.
 	/// </param>
-	/// <param name="islocal">
-	/// A <see cref="System.Boolean"/> for whether to animate in world space or relative to the parent. False be default.
-	/// </param>
+
 	/// <param name="time">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the time in seconds the animation will take to complete.
 	/// </param>
@@ -4725,6 +4732,12 @@ public class iTween : MonoBehaviour{
 	/// <param name="looktarget">
 	/// A <see cref="Vector3"/> or A <see cref="Transform"/> for a target the GameObject will look at.
 	/// </param>
+	/// <param name="looktime">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the time in seconds the object will take to look at either the "looktarget" or "orienttopath".
+	/// </param>
+	/// <param name="axis">
+	/// A <see cref="System.String"/>. Restricts rotation to the supplied axis only.
+	/// </param>
 	public static void MoveUpdate(GameObject target, Hashtable args){
 		CleanArgs(args);
 		
@@ -4746,7 +4759,7 @@ public class iTween : MonoBehaviour{
 		}else{
 			isLocal = Defaults.isLocal;	
 		}
-		
+		 
 		//init values:
 		if(isLocal){
 			vector3s[0] = vector3s[1] = target.transform.localPosition;
@@ -4809,7 +4822,7 @@ public class iTween : MonoBehaviour{
 	/// <param name="time">
 	/// A <see cref="System.Single"/> for the time in seconds the animation will take to complete.
 	/// </param>
-	public static void MoveUpdate(GameObject target, Vector3 position, float time){
+	public static void MoveUpdate(GameObject target, Hashtable args){
 		MoveUpdate(target,Hash("position",position,"time",time));
 	}
 	
@@ -4954,6 +4967,10 @@ public class iTween : MonoBehaviour{
 			cameraFade.guiTexture.color=new Color(0,0,0,0);
 		}
 	}
+	
+	//#################################
+	//# RESUME UTILITIES AND OVERLOADS # 
+	//#################################	
 	
 	/// <summary>
 	/// Resume all iTweens on a GameObject.
