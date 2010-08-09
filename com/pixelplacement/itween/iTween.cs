@@ -4822,7 +4822,7 @@ public class iTween : MonoBehaviour{
 	/// <param name="time">
 	/// A <see cref="System.Single"/> for the time in seconds the animation will take to complete.
 	/// </param>
-	public static void MoveUpdate(GameObject target, Hashtable args){
+	public static void MoveUpdate(GameObject target, Vector3 position, float time){
 		MoveUpdate(target,Hash("position",position,"time",time));
 	}
 	
