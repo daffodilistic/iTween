@@ -24,7 +24,7 @@ using UnityEngine;
 #endregion
 
 /// <summary>
-/// <para>Version: 2.0.00</para>	 
+/// <para>Version: 2.0.01</para>	 
 /// <para>Author: Bob Berkebile (http://pixelplacement.com)</para>
 /// <para>Support: http://itween.pixelplacement.com</para>
 /// </summary>
@@ -3959,6 +3959,7 @@ public class iTween : MonoBehaviour{
 			tLook = ease(0,1,percentage+lookAheadAmount);
 			
 			//locate new leading point with a clamp as stated above:
+			//Vector3 lookDistance = path.Interp(Mathf.Clamp(tLook,0,1)) - transform.position;
 			tweenArguments["looktarget"] = path.Interp(Mathf.Clamp(tLook,0,1));
 		}
 	}
@@ -4952,8 +4953,8 @@ public class iTween : MonoBehaviour{
 	/// <param name="path">
 	/// A <see cref="Vector3s[]"/>
 	/// </param>
-	public static void PathDraw(GameObject target, Vector3[] path) {
-		PathDrawHelper(target,path);
+	public static void DrawPath(GameObject target, Vector3[] path) {
+		DrawPathHelper(target,path);
 	}	
 	
 	/// <summary>
@@ -4965,14 +4966,14 @@ public class iTween : MonoBehaviour{
 	/// <param name="path">
 	/// A <see cref="Transform[]"/>
 	/// </param>
-	public static void PathDraw(GameObject target, Transform[] path) {
+	public static void DrawPath(GameObject target, Transform[] path) {
 		//create and store path points:
 		Vector3[] suppliedPath = new Vector3[path.Length];
 		for (int i = 0; i < path.Length; i++) {
 			suppliedPath[i]=path[i].position;
 		}
 		
-		PathDrawHelper(target,suppliedPath);
+		DrawPathHelper(target,suppliedPath);
 	}		
 	
 	/// <summary>
@@ -5467,7 +5468,7 @@ public class iTween : MonoBehaviour{
 	
 	#region Internal Helpers
 	
-	private static void PathDrawHelper(GameObject target, Vector3[] path){
+	private static void DrawPathHelper(GameObject target, Vector3[] path){
 		Vector3[] suppliedPath;
 		Vector3[] vector3s;
 		
