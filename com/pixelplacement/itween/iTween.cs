@@ -3362,11 +3362,12 @@ public class iTween : MonoBehaviour{
 		 Vector3[] suppliedPath;
 		
 		//handle "back" easing equation requests:
-		if(tweenArguments.Contains("easetype")){
-			if((EaseType)tweenArguments["easetype"]==EaseType.easeInBack || (EaseType)tweenArguments["easetype"]==EaseType.easeOutBack || (EaseType)tweenArguments["easetype"]==EaseType.easeInOutBack){
-				Debug.LogWarning("iTween Warning: Sorry, easing equations that generate overshooting values are clamped due to interpolation limitations with current Catmull-Rom solution.");
-			}
+		/*
+		if((EaseType)tweenArguments["easetype"]==EaseType.easeInBack || (EaseType)tweenArguments["easetype"]==EaseType.easeOutBack || (EaseType)tweenArguments["easetype"]==EaseType.easeInOutBack){
+			Debug.LogWarning("iTween Warning: Sorry, easing equations that generate overshooting values are clamped due to interpolation limitations with current Catmull-Rom solution.");
 		}
+		*/
+
 		
 		//create and store path points:
 		if(tweenArguments["path"].GetType() == typeof(Vector3[])){
