@@ -3418,7 +3418,7 @@ public class iTween : MonoBehaviour{
 		vector3s[0] = vector3s[1] - vector3s[2];
 		vector3s[vector3s.Length-1] = vector3s[vector3s.Length-2] + (vector3s[vector3s.Length-2] - vector3s[vector3s.Length-3]);
 		
-		//is this a closed, continuous loop? yes? well then so let's make a contunous Catmull-Rom spline!
+		//is this a closed, continuous loop? yes? well then so let's make a continuous Catmull-Rom spline!
 		if(vector3s[1] == vector3s[vector3s.Length-2]){
 			Vector3[] tmpLoopSpline = new Vector3[vector3s.Length+1];
 			Array.Copy(vector3s,tmpLoopSpline,vector3s.Length);
@@ -4943,6 +4943,38 @@ public class iTween : MonoBehaviour{
 	#region #7 External Utilities
 
 	/// <summary>
+	/// When called from an OnGUI function it will draw a path through the provided array of Vector3s for easy path planning with MoveTo and the "path" property.
+	/// </summary>
+	/// <param name="target">
+	/// A <see cref="GameObject"/>
+	/// </param>
+	/// <param name="path">
+	/// A <see cref="Vector3s[]"/>
+	/// </param>
+	public static void PathDraw(GameObject target, Vector3[] path) {
+		PathDrawHelper(target,path);
+	}	
+	
+	/// <summary>
+	/// When called from an OnGUI function it will draw a path through the provided array of Transforms for easy path planning with MoveTo and the "path" property.
+	/// </summary>
+	/// <param name="target">
+	/// A <see cref="GameObject"/>
+	/// </param>
+	/// <param name="path">
+	/// A <see cref="Transform[]"/>
+	/// </param>
+	public static void PathDraw(GameObject target, Transform[] path) {
+		//create and store path points:
+		Vector3[] suppliedPath = new Vector3[path.Length];
+		for (int i = 0; i < path.Length; i++) {
+			suppliedPath[i]=path[i].position;
+		}
+		
+		PathDrawHelper(target,suppliedPath);
+	}		
+	
+	/// <summary>
 	/// Removes and destroyes a camera fade.
 	/// </summary>
 	public static void CameraFadeDestroy(int depth){
@@ -5434,6 +5466,81 @@ public class iTween : MonoBehaviour{
 	
 	#region Internal Helpers
 	
+	private static void PathDrawHelper(GameObject target, Vector3[] path){
+		Vector3[] suppliedPath;
+		Vector3[] vector3s;
+		
+		//create and store path points:
+		suppliedPath = path;
+		
+		//de we need to plot a path to get to the beginning of the supplied path?
+		bool plotStart;
+		int offset;
+		if(target.transform.position != suppliedPath[0]){
+			plotStart=true;
+			offset=3;
+		}else{
+			plotStart=false;
+			offset=2;
+		}	
+				
+		//build calculated path:
+		vector3s = new Vector3[suppliedPath.Length+offset];
+		if(plotStart){
+			vector3s[1]=target.transform.position;
+			offset=2;
+		}else{
+			offset=1;
+		}		
+		
+		//populate calculate path;
+		Array.Copy(suppliedPath,0,vector3s,offset,suppliedPath.Length);
+		
+		//populate start and end control points:
+		vector3s[0] = vector3s[1] - vector3s[2];
+		vector3s[vector3s.Length-1] = vector3s[vector3s.Length-2] + (vector3s[vector3s.Length-2] - vector3s[vector3s.Length-3]);
+		
+		//is this a closed, continuous loop? yes? well then so let's make a continuous Catmull-Rom spline!
+		if(vector3s[1] == vector3s[vector3s.Length-2]){
+			Vector3[] tmpLoopSpline = new Vector3[vector3s.Length+1];
+			Array.Copy(vector3s,tmpLoopSpline,vector3s.Length);
+			tmpLoopSpline[tmpLoopSpline.Length-3] = tmpLoopSpline[1]; //this may need a bit more finesse to get the spline loop to be more predictable rather than just relying on the initial start point generated above
+			tmpLoopSpline[tmpLoopSpline.Length-2] = tmpLoopSpline[1];
+			tmpLoopSpline[tmpLoopSpline.Length-1] = tmpLoopSpline[2];
+			vector3s=new Vector3[tmpLoopSpline.Length];
+			Array.Copy(tmpLoopSpline,vector3s,tmpLoopSpline.Length);
+		}
+		
+		//Line Draw:
+		Vector3 prevPt = Interp(vector3s,0);
+		
+		for (int i = 1; i <= 20; i++) {
+			float pm = (float) i / 20f;
+			Vector3 currPt = Interp(vector3s,pm);
+			Gizmos.DrawLine(currPt, prevPt);
+			prevPt = currPt;
+		}
+	}	
+	
+	//andeeee from the Unity forum's steller Catmull-Rom class ( http://forum.unity3d.com/viewtopic.php?p=218400#218400 ):
+	private static Vector3 Interp(Vector3[] pts, float t){
+		int numSections = pts.Length - 3;
+		int currPt = Mathf.Min(Mathf.FloorToInt(t * (float) numSections), numSections - 1);
+		float u = t * (float) numSections - (float) currPt;
+				
+		Vector3 a = pts[currPt];
+		Vector3 b = pts[currPt + 1];
+		Vector3 c = pts[currPt + 2];
+		Vector3 d = pts[currPt + 3];
+		
+		return .5f * (
+			(-a + 3f * b - 3f * c + d) * (u * u * u)
+			+ (2f * a - 5f * b + 4f * c - d) * (u * u)
+			+ (-a + c) * u
+			+ 2f * b
+		);
+	}	
+		
 	//andeeee from the Unity forum's steller Catmull-Rom class ( http://forum.unity3d.com/viewtopic.php?p=218400#218400 ):
 	private class CRSpline {
 		public Vector3[] pts;
