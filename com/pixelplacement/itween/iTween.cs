@@ -3956,7 +3956,8 @@ public class iTween : MonoBehaviour{
 			}else{
 				lookAheadAmount = Defaults.lookAhead;
 			}
-			tLook = ease(0,1,percentage+lookAheadAmount);
+			//tLook = ease(0,1,percentage+lookAheadAmount);			
+			tLook = ease(0,1, Mathf.Min(1f, percentage+lookAheadAmount)); 
 			
 			//locate new leading point with a clamp as stated above:
 			//Vector3 lookDistance = path.Interp(Mathf.Clamp(tLook,0,1)) - transform.position;
