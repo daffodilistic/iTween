@@ -4869,7 +4869,7 @@ public class iTween : MonoBehaviour{
 			time=(float)args["looktime"];
 			time*=Defaults.updateTimePercentage;
 		}else if(args.Contains("time")){
-			time=(float)args["time"];
+			time=(float)args["time"]/2;
 			time*=Defaults.updateTimePercentage;
 		}else{
 			time=Defaults.updateTime;
