@@ -24,7 +24,7 @@ using UnityEngine;
 #endregion
 
 /// <summary>
-/// <para>Version: 2.0.02</para>	 
+/// <para>Version: 2.0.03</para>	 
 /// <para>Author: Bob Berkebile (http://pixelplacement.com)</para>
 /// <para>Support: http://itween.pixelplacement.com</para>
 /// </summary>
@@ -4946,7 +4946,7 @@ public class iTween : MonoBehaviour{
 	#region #7 External Utilities
 
 	/// <summary>
-	/// When called from an OnGUI function it will draw a path through the provided array of Vector3s for easy path planning with MoveTo and the "path" property.
+	/// When called from an OnDrawGizmos() function it will draw a path through the provided array of Vector3s for easy path planning with MoveTo and the "path" property.
 	/// </summary>
 	/// <param name="target">
 	/// A <see cref="GameObject"/>
@@ -4955,11 +4955,27 @@ public class iTween : MonoBehaviour{
 	/// A <see cref="Vector3s[]"/>
 	/// </param>
 	public static void DrawPath(GameObject target, Vector3[] path) {
-		DrawPathHelper(target,path);
+		DrawPathHelper(target,path,Color.white);
 	}	
 	
 	/// <summary>
-	/// When called from an OnGUI function it will draw a path through the provided array of Transforms for easy path planning with MoveTo and the "path" property.
+	/// When called from an OnDrawGizmos() function it will draw a path through the provided array of Vector3s for easy path planning with MoveTo and the "path" property.
+	/// </summary>
+	/// <param name="target">
+	/// A <see cref="GameObject"/>
+	/// </param>
+	/// <param name="path">
+	/// A <see cref="Vector3s[]"/>
+	/// </param>
+	/// <param name="color">
+	/// A <see cref="Color"/>
+	/// </param> 
+	public static void DrawPath(GameObject target, Vector3[] path, Color color) {
+		DrawPathHelper(target,path,color);
+	}		
+	
+	/// <summary>
+	/// When called from an OnDrawGizmos() function it will draw a path through the provided array of Transforms for easy path planning with MoveTo and the "path" property.
 	/// </summary>
 	/// <param name="target">
 	/// A <see cref="GameObject"/>
@@ -4974,7 +4990,29 @@ public class iTween : MonoBehaviour{
 			suppliedPath[i]=path[i].position;
 		}
 		
-		DrawPathHelper(target,suppliedPath);
+		DrawPathHelper(target,suppliedPath,Color.white);
+	}		
+	
+	/// <summary>
+	/// When called from an OnDrawGizmos() function it will draw a path through the provided array of Transforms for easy path planning with MoveTo and the "path" property.
+	/// </summary>
+	/// <param name="target">
+	/// A <see cref="GameObject"/>
+	/// </param>
+	/// <param name="path">
+	/// A <see cref="Transform[]"/>
+	/// </param>
+	/// <param name="color">
+	/// A <see cref="Color"/>
+	/// </param> 
+	public static void DrawPath(GameObject target, Transform[] path,Color color) {
+		//create and store path points:
+		Vector3[] suppliedPath = new Vector3[path.Length];
+		for (int i = 0; i < path.Length; i++) {
+			suppliedPath[i]=path[i].position;
+		}
+		
+		DrawPathHelper(target,suppliedPath, color);
 	}		
 	
 	/// <summary>
@@ -5469,7 +5507,7 @@ public class iTween : MonoBehaviour{
 	
 	#region Internal Helpers
 	
-	private static void DrawPathHelper(GameObject target, Vector3[] path){
+	private static void DrawPathHelper(GameObject target, Vector3[] path, Color color){
 		Vector3[] suppliedPath;
 		Vector3[] vector3s;
 		
@@ -5516,7 +5554,7 @@ public class iTween : MonoBehaviour{
 		
 		//Line Draw:
 		Vector3 prevPt = Interp(vector3s,0);
-		
+		Gizmos.color=color;
 		for (int i = 1; i <= 20; i++) {
 			float pm = (float) i / 20f;
 			Vector3 currPt = Interp(vector3s,pm);
