@@ -24,7 +24,7 @@ using UnityEngine;
 #endregion
 
 /// <summary>
-/// <para>Version: 2.0.03</para>	 
+/// <para>Version: 2.0.04</para>	 
 /// <para>Author: Bob Berkebile (http://pixelplacement.com)</para>
 /// <para>Support: http://itween.pixelplacement.com</para>
 /// </summary>
@@ -5018,7 +5018,7 @@ public class iTween : MonoBehaviour{
 	/// <summary>
 	/// Removes and destroyes a camera fade.
 	/// </summary>
-	public static void CameraFadeDestroy(int depth){
+	public static void CameraFadeDestroy(){
 		if(cameraFade){
 			Destroy(cameraFade);
 		}
