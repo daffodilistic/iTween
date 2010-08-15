@@ -3621,7 +3621,7 @@ public class iTween : MonoBehaviour{
 		
 		//to values:
 		if (tweenArguments.Contains("amount")) {
-			vector3s[1]=(Vector3)tweenArguments["amount"];
+			vector3s[1]+=(Vector3)tweenArguments["amount"];
 		}else{
 			if (tweenArguments.Contains("x")) {
 				vector3s[1].x+=(float)tweenArguments["x"];
