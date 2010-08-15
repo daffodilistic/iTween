@@ -4210,6 +4210,11 @@ public class iTween : MonoBehaviour{
 
 		//record:
 		vector3s[3]=vector3s[2];
+		
+		//dial in:
+		if(percentage==1){	
+			transform.eulerAngles=vector3s[0];
+		}
 	}	
 	
 	void ApplyPunchScaleTargets(){
