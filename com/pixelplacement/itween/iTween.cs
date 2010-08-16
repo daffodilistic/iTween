@@ -24,7 +24,7 @@ using UnityEngine;
 #endregion
 
 /// <summary>
-/// <para>Version: 2.0.06</para>	 
+/// <para>Version: 2.0.07</para>	 
 /// <para>Author: Bob Berkebile (http://pixelplacement.com)</para>
 /// <para>Support: http://itween.pixelplacement.com</para>
 /// </summary>
@@ -2965,9 +2965,6 @@ public class iTween : MonoBehaviour{
 	/// <param name="z">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the individual setting of the z magnitude.
 	/// </param>
-	/// <param name="space">
-	/// A <see cref="Space"/> for applying the transformation in either the world coordinate or local cordinate system. Defaults to local space.
-	/// </param> 
 	/// <param name="time">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the time in seconds the animation will take to complete.
 	/// </param>
@@ -3473,8 +3470,8 @@ public class iTween : MonoBehaviour{
 	}
 	
 	void GenerateMoveByTargets(){
-		//values holder [0] from, [1] to, [2] calculated value from ease equation, [3] previous value for Translate usage to allow Space utilization, [4] original rotation to make sure look requests don't interfere with the direction object should move in:
-		vector3s=new Vector3[5];
+		//values holder [0] from, [1] to, [2] calculated value from ease equation, [3] previous value for Translate usage to allow Space utilization, [4] original rotation to make sure look requests don't interfere with the direction object should move in, [5] for dial in location:
+		vector3s=new Vector3[6];
 		
 		//grab starting rotation:
 		vector3s[4] = transform.eulerAngles;
@@ -3496,6 +3493,11 @@ public class iTween : MonoBehaviour{
 				vector3s[1].z=vector3s[0].z + (float)tweenArguments["z"];
 			}
 		}	
+		
+		//calculation for dial in:
+		transform.Translate(vector3s[1],space);
+		vector3s[5] = transform.position;
+		transform.position=vector3s[0];
 		
 		//handle orient to path request:
 		if(tweenArguments.Contains("orienttopath") && (bool)tweenArguments["orienttopath"]){
@@ -3614,7 +3616,7 @@ public class iTween : MonoBehaviour{
 	
 	void GenerateRotateAddTargets(){
 		//values holder [0] from, [1] to, [2] calculated value from ease equation, [3] previous value for Rotate usage to allow Space utilization:
-		vector3s=new Vector3[4];
+		vector3s=new Vector3[5];
 		
 		//from values:
 		vector3s[0]=vector3s[1]=vector3s[3]=transform.eulerAngles;
@@ -3633,6 +3635,8 @@ public class iTween : MonoBehaviour{
 				vector3s[1].z+=(float)tweenArguments["z"];
 			}
 		}
+		
+		//Dial in causes issues once we pass 180?
 	}		
 	
 	void GenerateRotateByTargets(){
@@ -4012,6 +4016,11 @@ public class iTween : MonoBehaviour{
 		if(tweenArguments.Contains("looktarget")){
 			transform.eulerAngles = currentRotation;	
 		}
+		
+		//dial in:
+		if(percentage==1){	
+			transform.position=vector3s[5];
+		}		
 	}	
 	
 	void ApplyScaleToTargets(){
@@ -4076,7 +4085,7 @@ public class iTween : MonoBehaviour{
 		transform.Rotate(vector3s[2]-vector3s[3],space);
 
 		//record:
-		vector3s[3]=vector3s[2];
+		vector3s[3]=vector3s[2];	
 	}	
 	
 	void ApplyShakePositionTargets(){
@@ -4185,6 +4194,11 @@ public class iTween : MonoBehaviour{
 		if(tweenArguments.Contains("looktarget")){
 			transform.eulerAngles = currentRotation;	
 		}
+		
+		//dial in:
+		if(percentage==1){	
+			transform.position=vector3s[0];
+		}
 	}		
 	
 	void ApplyPunchRotationTargets(){
@@ -4237,6 +4251,11 @@ public class iTween : MonoBehaviour{
 		
 		//apply:
 		transform.localScale=vector3s[0]+vector3s[2];
+		
+		//dial in:
+		if(percentage==1){	
+			transform.localScale=vector3s[0];
+		}
 	}		
 	
 	#endregion	
