@@ -24,7 +24,7 @@ using UnityEngine;
 #endregion
 
 /// <summary>
-/// <para>Version: 2.0.07</para>	 
+/// <para>Version: 2.0.08</para>	 
 /// <para>Author: Bob Berkebile (http://pixelplacement.com)</para>
 /// <para>Support: http://itween.pixelplacement.com</para>
 /// </summary>
@@ -1291,6 +1291,9 @@ public class iTween : MonoBehaviour{
 	/// <param name="path">
 	/// A <see cref="Transform[]"/> or <see cref="Vector3[]"/> for a list of points to draw a Catmull-Rom through for a curved animation path.
 	/// </param>
+	/// <param name="movetopath">
+	/// A <see cref="System.Boolean"/> for whether to automatically generate a curve from the GameObject's current position to the beginning of the path. True by default.
+	/// </param>
 	/// <param name="x">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the individual setting of the x axis.
 	/// </param>
@@ -1316,7 +1319,7 @@ public class iTween : MonoBehaviour{
 	/// A <see cref="System.String"/>. Restricts rotation to the supplied axis only.
 	/// </param>
 	/// <param name="islocal">
-	/// A <see cref="System.Boolean"/> for whether to animate in world space or relative to the parent. False be default.
+	/// A <see cref="System.Boolean"/> for whether to animate in world space or relative to the parent. False by default.
 	/// </param>
 	/// <param name="time">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the time in seconds the animation will take to complete.
@@ -1402,6 +1405,9 @@ public class iTween : MonoBehaviour{
 	/// <param name="path">
 	/// A <see cref="Transform[]"/> or <see cref="Vector3[]"/> for a list of points to draw a Catmull-Rom through for a curved animation path.
 	/// </param>
+	/// <param name="movetopath">
+	/// A <see cref="System.Boolean"/> for whether to automatically generate a curve from the GameObject's current position to the beginning of the path. True by default.
+	/// </param>
 	/// <param name="x">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the individual setting of the x axis.
 	/// </param>
@@ -1424,7 +1430,7 @@ public class iTween : MonoBehaviour{
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for how much of a percentage to look ahead on a path to influence how strict "orientopath" is.
 	/// </param>
 	/// <param name="islocal">
-	/// A <see cref="System.Boolean"/> for whether to animate in world space or relative to the parent. False be default.
+	/// A <see cref="System.Boolean"/> for whether to animate in world space or relative to the parent. False by default.
 	/// </param>
 	/// <param name="time">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the time in seconds the animation will take to complete.
@@ -2143,7 +2149,7 @@ public class iTween : MonoBehaviour{
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the individual setting of the z axis.
 	/// </param>
 	/// <param name="islocal">
-	/// A <see cref="System.Boolean"/> for whether to animate in world space or relative to the parent. False be default.
+	/// A <see cref="System.Boolean"/> for whether to animate in world space or relative to the parent. False by default.
 	/// </param>
 	/// <param name="time">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the time in seconds the animation will take to complete.
@@ -2236,7 +2242,7 @@ public class iTween : MonoBehaviour{
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the individual setting of the z axis.
 	/// </param>
 	/// <param name="islocal">
-	/// A <see cref="System.Boolean"/> for whether to animate in world space or relative to the parent. False be default.
+	/// A <see cref="System.Boolean"/> for whether to animate in world space or relative to the parent. False by default.
 	/// </param>
 	/// <param name="time">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the time in seconds the animation will take to complete.
@@ -2454,7 +2460,7 @@ public class iTween : MonoBehaviour{
 	/// A <see cref="Space"/> or <see cref="System.String"/> for applying the transformation in either the world coordinate or local cordinate system. Defaults to local space.
 	/// </param>
 	/// <param name="islocal">
-	/// A <see cref="System.Boolean"/> for whether to animate in world space or relative to the parent. False be default.
+	/// A <see cref="System.Boolean"/> for whether to animate in world space or relative to the parent. False by default.
 	/// </param>
 	/// <param name="time">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the time in seconds the animation will take to complete.
@@ -3365,7 +3371,6 @@ public class iTween : MonoBehaviour{
 		}
 		*/
 
-		
 		//create and store path points:
 		if(tweenArguments["path"].GetType() == typeof(Vector3[])){
 			Vector3[] temp = (Vector3[])tweenArguments["path"];
@@ -3389,17 +3394,22 @@ public class iTween : MonoBehaviour{
 			}
 		}
 		
-		//de we need to plot a path to get to the beginning of the supplied path?
+		//do we need to plot a path to get to the beginning of the supplied path?		
 		bool plotStart;
 		int offset;
 		if(transform.position != suppliedPath[0]){
-			plotStart=true;
-			offset=3;
+			if(!tweenArguments.Contains("movetopath") || (bool)tweenArguments["movetopath"]==true){
+				plotStart=true;
+				offset=3;	
+			}else{
+				plotStart=false;
+				offset=2;
+			}
 		}else{
 			plotStart=false;
 			offset=2;
-		}	
-				
+		}				
+
 		//build calculated path:
 		vector3s = new Vector3[suppliedPath.Length+offset];
 		if(plotStart){
@@ -4596,7 +4606,7 @@ public class iTween : MonoBehaviour{
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the individual setting of the z axis.
 	/// </param>
 	/// <param name="islocal">
-	/// A <see cref="System.Boolean"/> for whether to animate in world space or relative to the parent. False be default.
+	/// A <see cref="System.Boolean"/> for whether to animate in world space or relative to the parent. False by default.
 	/// </param>
 	/// <param name="time">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the time in seconds the animation will take to complete.
@@ -5538,9 +5548,11 @@ public class iTween : MonoBehaviour{
 		//create and store path points:
 		suppliedPath = path;
 		
+		
 		//de we need to plot a path to get to the beginning of the supplied path?
-		bool plotStart;
-		int offset;
+		bool plotStart = false;
+		int offset = 2;
+		/*
 		if(target.transform.position != suppliedPath[0]){
 			plotStart=true;
 			offset=3;
@@ -5548,6 +5560,7 @@ public class iTween : MonoBehaviour{
 			plotStart=false;
 			offset=2;
 		}	
+		*/
 				
 		//build calculated path:
 		vector3s = new Vector3[suppliedPath.Length+offset];
