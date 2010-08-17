@@ -24,7 +24,7 @@ using UnityEngine;
 #endregion
 
 /// <summary>
-/// <para>Version: 2.0.08</para>	 
+/// <para>Version: 2.0.09</para>	 
 /// <para>Author: Bob Berkebile (http://pixelplacement.com)</para>
 /// <para>Support: http://itween.pixelplacement.com</para>
 /// </summary>
@@ -133,6 +133,7 @@ public class iTween : MonoBehaviour{
 		public static bool isLocal = false;
 		public static Space space = Space.Self;
 		public static bool orientToPath = false;
+		public static Color color = Color.white;
 		//update defaults:
 		public static float updateTimePercentage = .05f;
 		public static float updateTime = 1f*updateTimePercentage;
@@ -3364,13 +3365,6 @@ public class iTween : MonoBehaviour{
 	void GenerateMoveToPathTargets(){
 		 Vector3[] suppliedPath;
 		
-		//handle "back" easing equation requests:
-		/*
-		if((EaseType)tweenArguments["easetype"]==EaseType.easeInBack || (EaseType)tweenArguments["easetype"]==EaseType.easeOutBack || (EaseType)tweenArguments["easetype"]==EaseType.easeInOutBack){
-			Debug.LogWarning("iTween Warning: Sorry, easing equations that generate overshooting values are clamped due to interpolation limitations with current Catmull-Rom solution.");
-		}
-		*/
-
 		//create and store path points:
 		if(tweenArguments["path"].GetType() == typeof(Vector3[])){
 			Vector3[] temp = (Vector3[])tweenArguments["path"];
@@ -3487,7 +3481,7 @@ public class iTween : MonoBehaviour{
 		vector3s[4] = transform.eulerAngles;
 		
 		//from values:
-		vector3s[0]=vector3s[1]=vector3s[3]=transform.position;
+		vector3s[0]=vector3s[1]=vector3s[3]=transform.localPosition;
 				
 		//to values:
 		if (tweenArguments.Contains("amount")) {
@@ -4978,75 +4972,137 @@ public class iTween : MonoBehaviour{
 	#endregion
 	
 	#region #7 External Utilities
-
+	
 	/// <summary>
-	/// When called from an OnDrawGizmos() function it will draw a path through the provided array of Vector3s for easy path planning with MoveTo and the "path" property.
+	/// Puts a GameObject on a path at the provided percentage 
 	/// </summary>
 	/// <param name="target">
 	/// A <see cref="GameObject"/>
 	/// </param>
 	/// <param name="path">
+	/// A <see cref="Vector3[]"/>
+	/// </param>
+	/// <param name="percent">
+	/// A <see cref="System.Single"/>
+	/// </param>
+	public static void PutOnPath(GameObject target, Vector3[] path, float percent){
+		target.transform.position=Interp(PathControlPointGenerator(path),percent);
+	}
+	
+	/// <summary>
+	/// Puts a GameObject on a path at the provided percentage 
+	/// </summary>
+	/// <param name="target">
+	/// A <see cref="GameObject"/>
+	/// </param>
+	/// <param name="path">
+	/// A <see cref="Transform[]"/>
+	/// </param>
+	/// <param name="percent">
+	/// A <see cref="System.Single"/>
+	/// </param>
+	public static void PutOnPath(GameObject target, Transform[] path, float percent){
+		//create and store path points:
+		Vector3[] suppliedPath = new Vector3[path.Length];
+		for (int i = 0; i < path.Length; i++) {
+			suppliedPath[i]=path[i].position;
+		}	
+		target.transform.position=Interp(PathControlPointGenerator(suppliedPath),percent);
+	}	
+	
+	/// <summary>
+	/// Returns a Vector3 position on a path at the provided percentage  
+	/// </summary>
+	/// <param name="path">
+	/// A <see cref="Transform[]"/>
+	/// </param>
+	/// <param name="percent">
+	/// A <see cref="System.Single"/>
+	/// </param>
+	/// <returns>
+	/// A <see cref="Vector3"/>
+	/// </returns>
+	public static Vector3 PointOnPath(Transform[] path, float percent){
+		//create and store path points:
+		Vector3[] suppliedPath = new Vector3[path.Length];
+		for (int i = 0; i < path.Length; i++) {
+			suppliedPath[i]=path[i].position;
+		}	
+		return(Interp(PathControlPointGenerator(suppliedPath),percent));
+	}
+	
+	/// <summary>
+	/// Returns a Vector3 position on a path at the provided percentage  
+	/// </summary>
+	/// <param name="path">
+	/// A <see cref="Vector3[]"/>
+	/// </param>
+	/// <param name="percent">
+	/// A <see cref="System.Single"/>
+	/// </param>
+	/// <returns>
+	/// A <see cref="Vector3"/>
+	/// </returns>
+	public static Vector3 PointOnPath(Vector3[] path, float percent){
+		return(Interp(PathControlPointGenerator(path),percent));
+	}		
+	
+	/// <summary>
+	/// When called from an OnDrawGizmos() function it will draw a path through the provided array of Vector3s for easy path planning with MoveTo and the "path" property.
+	/// </summary>
+	/// <param name="path">
 	/// A <see cref="Vector3s[]"/>
 	/// </param>
-	public static void DrawPath(GameObject target, Vector3[] path) {
-		DrawPathHelper(target,path,Color.white);
+	public static void DrawPath(Vector3[] path) {
+		DrawPathHelper(path,Defaults.color);
 	}	
 	
 	/// <summary>
 	/// When called from an OnDrawGizmos() function it will draw a path through the provided array of Vector3s for easy path planning with MoveTo and the "path" property.
 	/// </summary>
-	/// <param name="target">
-	/// A <see cref="GameObject"/>
-	/// </param>
 	/// <param name="path">
 	/// A <see cref="Vector3s[]"/>
 	/// </param>
 	/// <param name="color">
 	/// A <see cref="Color"/>
 	/// </param> 
-	public static void DrawPath(GameObject target, Vector3[] path, Color color) {
-		DrawPathHelper(target,path,color);
+	public static void DrawPath(Vector3[] path, Color color) {
+		DrawPathHelper(path,color);
 	}		
 	
 	/// <summary>
 	/// When called from an OnDrawGizmos() function it will draw a path through the provided array of Transforms for easy path planning with MoveTo and the "path" property.
 	/// </summary>
-	/// <param name="target">
-	/// A <see cref="GameObject"/>
-	/// </param>
 	/// <param name="path">
 	/// A <see cref="Transform[]"/>
 	/// </param>
-	public static void DrawPath(GameObject target, Transform[] path) {
+	public static void DrawPath(Transform[] path) {
 		//create and store path points:
 		Vector3[] suppliedPath = new Vector3[path.Length];
 		for (int i = 0; i < path.Length; i++) {
 			suppliedPath[i]=path[i].position;
 		}
 		
-		DrawPathHelper(target,suppliedPath,Color.white);
+		DrawPathHelper(suppliedPath,Defaults.color);
 	}		
 	
 	/// <summary>
 	/// When called from an OnDrawGizmos() function it will draw a path through the provided array of Transforms for easy path planning with MoveTo and the "path" property.
 	/// </summary>
-	/// <param name="target">
-	/// A <see cref="GameObject"/>
-	/// </param>
 	/// <param name="path">
 	/// A <see cref="Transform[]"/>
 	/// </param>
 	/// <param name="color">
 	/// A <see cref="Color"/>
 	/// </param> 
-	public static void DrawPath(GameObject target, Transform[] path,Color color) {
+	public static void DrawPath(Transform[] path,Color color) {
 		//create and store path points:
 		Vector3[] suppliedPath = new Vector3[path.Length];
 		for (int i = 0; i < path.Length; i++) {
 			suppliedPath[i]=path[i].position;
 		}
 		
-		DrawPathHelper(target,suppliedPath, color);
+		DrawPathHelper(suppliedPath, color);
 	}		
 	
 	/// <summary>
@@ -5541,38 +5597,31 @@ public class iTween : MonoBehaviour{
 	
 	#region Internal Helpers
 	
-	private static void DrawPathHelper(GameObject target, Vector3[] path, Color color){
+	private static void DrawPathHelper(Vector3[] path, Color color){
+		Vector3[] vector3s = PathControlPointGenerator(path);
+		
+		//Line Draw:
+		Vector3 prevPt = Interp(vector3s,0);
+		Gizmos.color=color;
+		for (int i = 1; i <= 20; i++) {
+			float pm = (float) i / 20f;
+			Vector3 currPt = Interp(vector3s,pm);
+			Gizmos.DrawLine(currPt, prevPt);
+			prevPt = currPt;
+		}
+	}	
+	
+	private static Vector3[] PathControlPointGenerator(Vector3[] path){
 		Vector3[] suppliedPath;
 		Vector3[] vector3s;
 		
 		//create and store path points:
 		suppliedPath = path;
-		
-		
-		//de we need to plot a path to get to the beginning of the supplied path?
-		bool plotStart = false;
-		int offset = 2;
-		/*
-		if(target.transform.position != suppliedPath[0]){
-			plotStart=true;
-			offset=3;
-		}else{
-			plotStart=false;
-			offset=2;
-		}	
-		*/
-				
-		//build calculated path:
-		vector3s = new Vector3[suppliedPath.Length+offset];
-		if(plotStart){
-			vector3s[1]=target.transform.position;
-			offset=2;
-		}else{
-			offset=1;
-		}		
-		
+
 		//populate calculate path;
-		Array.Copy(suppliedPath,0,vector3s,offset,suppliedPath.Length);
+		int offset = 2;
+		vector3s = new Vector3[suppliedPath.Length+offset];
+		Array.Copy(suppliedPath,0,vector3s,1,suppliedPath.Length);
 		
 		//populate start and end control points:
 		vector3s[0] = vector3s[1] - vector3s[2];
@@ -5587,18 +5636,10 @@ public class iTween : MonoBehaviour{
 			tmpLoopSpline[tmpLoopSpline.Length-1] = tmpLoopSpline[2];
 			vector3s=new Vector3[tmpLoopSpline.Length];
 			Array.Copy(tmpLoopSpline,vector3s,tmpLoopSpline.Length);
-		}
+		}	
 		
-		//Line Draw:
-		Vector3 prevPt = Interp(vector3s,0);
-		Gizmos.color=color;
-		for (int i = 1; i <= 20; i++) {
-			float pm = (float) i / 20f;
-			Vector3 currPt = Interp(vector3s,pm);
-			Gizmos.DrawLine(currPt, prevPt);
-			prevPt = currPt;
-		}
-	}	
+		return(vector3s);
+	}
 	
 	//andeeee from the Unity forum's steller Catmull-Rom class ( http://forum.unity3d.com/viewtopic.php?p=218400#218400 ):
 	private static Vector3 Interp(Vector3[] pts, float t){
