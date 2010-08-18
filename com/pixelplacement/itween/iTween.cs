@@ -24,7 +24,7 @@ using UnityEngine;
 #endregion
 
 /// <summary>
-/// <para>Version: 2.0.09</para>	 
+/// <para>Version: 2.0.10</para>	 
 /// <para>Author: Bob Berkebile (http://pixelplacement.com)</para>
 /// <para>Support: http://itween.pixelplacement.com</para>
 /// </summary>
@@ -5032,6 +5032,63 @@ public class iTween : MonoBehaviour{
 	}
 	
 	/// <summary>
+	/// When called from an OnDrawGizmos() function it will draw a line through the provided array of Vector3s .
+	/// </summary>
+	/// <param name="line">
+	/// A <see cref="Vector3s[]"/>
+	/// </param>
+	public static void DrawLine(Vector3[] line) {
+		DrawLineHelper(line,Defaults.color);
+	}	
+	
+	/// <summary>
+	/// When called from an OnDrawGizmos() function it will draw a line through the provided array of Vector3s.
+	/// </summary>
+	/// <param name="line">
+	/// A <see cref="Vector3s[]"/>
+	/// </param>
+	/// <param name="color">
+	/// A <see cref="Color"/>
+	/// </param> 
+	public static void DrawLine(Vector3[] line, Color color) {
+		DrawLineHelper(line,color);
+	}		
+	
+	/// <summary>
+	/// When called from an OnDrawGizmos() function it will draw a line through the provided array of Transforms.
+	/// </summary>
+	/// <param name="line">
+	/// A <see cref="Transform[]"/>
+	/// </param>
+	public static void DrawLine(Transform[] line) {
+		//create and store line points:
+		Vector3[] suppliedLine = new Vector3[line.Length];
+		for (int i = 0; i < line.Length; i++) {
+			suppliedLine[i]=line[i].position;
+		}
+		DrawLineHelper(suppliedLine,Defaults.color);
+	}		
+	
+	/// <summary>
+	/// When called from an OnDrawGizmos() function it will draw a line through the provided array of Transforms.
+	/// </summary>
+	/// <param name="line">
+	/// A <see cref="Transform[]"/>
+	/// </param>
+	/// <param name="color">
+	/// A <see cref="Color"/>
+	/// </param> 
+	public static void DrawLine(Transform[] line,Color color) {
+		//create and store line points:
+		Vector3[] suppliedLine = new Vector3[line.Length];
+		for (int i = 0; i < line.Length; i++) {
+			suppliedLine[i]=line[i].position;
+		}
+		
+		DrawLineHelper(suppliedLine, color);
+	}		
+	
+	/// <summary>
 	/// Returns a Vector3 position on a path at the provided percentage  
 	/// </summary>
 	/// <param name="path">
@@ -5048,7 +5105,7 @@ public class iTween : MonoBehaviour{
 	}		
 	
 	/// <summary>
-	/// When called from an OnDrawGizmos() function it will draw a path through the provided array of Vector3s for easy path planning with MoveTo and the "path" property.
+	/// When called from an OnDrawGizmos() function it will draw a curved path through the provided array of Vector3s.
 	/// </summary>
 	/// <param name="path">
 	/// A <see cref="Vector3s[]"/>
@@ -5058,7 +5115,7 @@ public class iTween : MonoBehaviour{
 	}	
 	
 	/// <summary>
-	/// When called from an OnDrawGizmos() function it will draw a path through the provided array of Vector3s for easy path planning with MoveTo and the "path" property.
+	/// When called from an OnDrawGizmos() function it will draw a curved path through the provided array of Vector3s.
 	/// </summary>
 	/// <param name="path">
 	/// A <see cref="Vector3s[]"/>
@@ -5071,7 +5128,7 @@ public class iTween : MonoBehaviour{
 	}		
 	
 	/// <summary>
-	/// When called from an OnDrawGizmos() function it will draw a path through the provided array of Transforms for easy path planning with MoveTo and the "path" property.
+	/// When called from an OnDrawGizmos() function it will draw a curved path through the provided array of Transforms.
 	/// </summary>
 	/// <param name="path">
 	/// A <see cref="Transform[]"/>
@@ -5087,7 +5144,7 @@ public class iTween : MonoBehaviour{
 	}		
 	
 	/// <summary>
-	/// When called from an OnDrawGizmos() function it will draw a path through the provided array of Transforms for easy path planning with MoveTo and the "path" property.
+	/// When called from an OnDrawGizmos() function it will draw a curved path through the provided array of Transforms.
 	/// </summary>
 	/// <param name="path">
 	/// A <see cref="Transform[]"/>
@@ -5596,6 +5653,13 @@ public class iTween : MonoBehaviour{
 	#endregion
 	
 	#region Internal Helpers
+
+	private static void DrawLineHelper(Vector3[] line, Color color){
+		Gizmos.color=color;
+		for (int i = 0; i < line.Length-1; i++) {
+			Gizmos.DrawLine(line[i], line[i+1]);
+		}
+	}		
 	
 	private static void DrawPathHelper(Vector3[] path, Color color){
 		Vector3[] vector3s = PathControlPointGenerator(path);
