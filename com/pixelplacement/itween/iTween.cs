@@ -24,7 +24,7 @@ using UnityEngine;
 #endregion
 
 /// <summary>
-/// <para>Version: 2.0.10</para>	 
+/// <para>Version: 2.0.11</para>	 
 /// <para>Author: Bob Berkebile (http://pixelplacement.com)</para>
 /// <para>Support: http://itween.pixelplacement.com</para>
 /// </summary>
@@ -6017,7 +6017,10 @@ public class iTween : MonoBehaviour{
 	void ConflictCheck(){//if a new iTween is about to run and is of the same type as an in progress iTween this will destroy the previous if the new one is NOT identical in every way or it will destroy the new iTween if they are:	
 		Component[] tweens = GetComponents(typeof(iTween));
 		foreach (iTween item in tweens) {
-			if(item.isRunning && item.type==type){
+			print(item.type);
+			if(item.type == "value"){
+				return;
+			}else if(item.isRunning && item.type==type){
 				//step 1: check for length first since it's the fastest:
 				if(item.tweenArguments.Count != tweenArguments.Count){
 					item.Dispose();
