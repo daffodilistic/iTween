@@ -6017,7 +6017,6 @@ public class iTween : MonoBehaviour{
 	void ConflictCheck(){//if a new iTween is about to run and is of the same type as an in progress iTween this will destroy the previous if the new one is NOT identical in every way or it will destroy the new iTween if they are:	
 		Component[] tweens = GetComponents(typeof(iTween));
 		foreach (iTween item in tweens) {
-			print(item.type);
 			if(item.type == "value"){
 				return;
 			}else if(item.isRunning && item.type==type){
