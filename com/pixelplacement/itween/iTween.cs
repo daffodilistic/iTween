@@ -24,7 +24,7 @@ using UnityEngine;
 #endregion
 
 /// <summary>
-/// <para>Version: 2.0.11</para>	 
+/// <para>Version: 2.0.12</para>	 
 /// <para>Author: Bob Berkebile (http://pixelplacement.com)</para>
 /// <para>Support: http://itween.pixelplacement.com</para>
 /// </summary>
@@ -148,41 +148,27 @@ public class iTween : MonoBehaviour{
 	#region #1 Static Registers
 		
 	/// <summary>
-	/// Instantly changes the color of a camera fade and then returns it back over time with MINIMUM customization options.
+	/// Instantly changes the amount(transparency) of a camera fade and then returns it back over time with MINIMUM customization options.
 	/// </summary>
-	/// <param name="color">
-	/// A <see cref="Color"/> to fade the screen to.
+	/// <param name="amount">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for how transparent the Texture2D that the camera fade uses is.
 	/// </param>
 	/// <param name="time">
 	/// A <see cref="System.Single"/> for the time in seconds the animation will take to complete.
 	/// </param>
-	public static void CameraFadeFrom(Color color, float time){
-		CameraFadeFrom(Hash("color",color,"time",time));
+	public static void CameraFadeFrom(float amount, float time){
+		if(cameraFade){
+			CameraFadeFrom(Hash("amount",amount,"time",time));
+		}else{
+			Debug.LogError("iTween Error: You must first add a camera fade object with CameraFadeAdd() before atttempting to use camera fading.");
+		}
 	}
 	
 	/// <summary>
-	/// Instantly changes the color of a camera fade and then returns it back over time with FULL customization options.
+	/// Instantly changes the amount(transparency) of a camera fade and then returns it back over time with FULL customization options.
 	/// </summary>
-	/// <param name="color">
-	/// A <see cref="Color"/> to fade the screen to.
-	/// </param>
-	/// <param name="r">
-	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the individual setting of the color red.
-	/// </param>
-	/// <param name="g">
-	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the individual setting of the color green.
-	/// </param>
-	/// <param name="b">
-	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the individual setting of the color blue.
-	/// </param>
-	/// <param name="a">
-	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the individual setting of the alpha.
-	/// </param> 
-	/// <param name="alpha">
-	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the individual setting of the alpha.
-	/// </param>
 	/// <param name="amount">
-	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the individual setting of the alpha.
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for how transparent the Texture2D that the camera fade uses is.
 	/// </param>
 	/// <param name="time">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the time in seconds the animation will take to complete.
@@ -224,51 +210,43 @@ public class iTween : MonoBehaviour{
 	/// A <see cref="System.Object"/> for arguments to be sent to the "oncomplete" method.
 	/// </param>
 	public static void CameraFadeFrom(Hashtable args){
+		/*
 		CameraFadeAdd(Defaults.cameraFadeDepth);
 		
 		//rescale cameraFade just in case screen size has changed to ensure it takes up the full screen:
 		cameraFade.guiTexture.pixelInset=new Rect(0,0,Screen.width,Screen.height);
+		*/
 		
 		//establish iTween:
-		ColorFrom(cameraFade,args);
+		if(cameraFade){
+			ColorFrom(cameraFade,args);
+		}else{
+			Debug.LogError("iTween Error: You must first add a camera fade object with CameraFadeAdd() before atttempting to use camera fading.");
+		}
 	}	
 	
 	/// <summary>
-	/// Changes the color of a camera over time with MINIMUM customization options.
+	/// Changes the amount(transparency) of a camera fade over time with MINIMUM customization options.
 	/// </summary>
-	/// <param name="color">
-	/// A <see cref="Color"/> to fade the screen to.
+	/// <param name="amount">
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for how transparent the Texture2D that the camera fade uses is.
 	/// </param>
 	/// <param name="time">
 	/// A <see cref="System.Single"/> for the time in seconds the animation will take to complete.
 	/// </param>
-	public static void CameraFadeTo(Color color, float time){
-		CameraFadeTo(Hash("color",color,"time",time));
+	public static void CameraFadeTo(float amount, float time){
+		if(cameraFade){
+			CameraFadeTo(Hash("amount",amount,"time",time));
+		}else{
+			Debug.LogError("iTween Error: You must first add a camera fade object with CameraFadeAdd() before atttempting to use camera fading.");
+		}
 	}	
 	
 	/// <summary>
-	/// Changes the color of a camera over time with FULL customization options.
+	/// Changes the amount(transparency) of a camera fade over time with FULL customization options.
 	/// </summary>
-	/// <param name="color">
-	/// A <see cref="Color"/> to fade the screen to.
-	/// </param>
-	/// <param name="r">
-	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the individual setting of the color red.
-	/// </param>
-	/// <param name="g">
-	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the individual setting of the color green.
-	/// </param>
-	/// <param name="b">
-	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the individual setting of the color green.
-	/// </param>
-	/// <param name="a">
-	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the individual setting of the alpha.
-	/// </param> 
-	/// <param name="alpha">
-	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the individual setting of the alpha.
-	/// </param>
 	/// <param name="amount">
-	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the individual setting of the alpha.
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for how transparent the Texture2D that the camera fade uses is.
 	/// </param>
 	/// <param name="time">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the time in seconds the animation will take to complete.
@@ -310,13 +288,19 @@ public class iTween : MonoBehaviour{
 	/// A <see cref="System.Object"/> for arguments to be sent to the "oncomplete" method.
 	/// </param>
 	public static void CameraFadeTo(Hashtable args){
+		/*
 		CameraFadeAdd(Defaults.cameraFadeDepth);
 		
 		//rescale cameraFade just in case screen size has changed to ensure it takes up the full screen:
 		cameraFade.guiTexture.pixelInset=new Rect(0,0,Screen.width,Screen.height);
-		
-		//establish iTween:
-		ColorTo(cameraFade,args);
+		*/
+	
+		if(cameraFade){
+			//establish iTween:
+			ColorTo(cameraFade,args);
+		}else{
+			Debug.LogError("iTween Error: You must first add a camera fade object with CameraFadeAdd() before atttempting to use camera fading.");
+		}
 	}	
 	
 	/// <summary>
@@ -3481,7 +3465,7 @@ public class iTween : MonoBehaviour{
 		vector3s[4] = transform.eulerAngles;
 		
 		//from values:
-		vector3s[0]=vector3s[1]=vector3s[3]=transform.localPosition;
+		vector3s[0]=vector3s[1]=vector3s[3]=transform.position;
 				
 		//to values:
 		if (tweenArguments.Contains("amount")) {
@@ -4022,9 +4006,11 @@ public class iTween : MonoBehaviour{
 		}
 		
 		//dial in:
+		/*
 		if(percentage==1){	
 			transform.position=vector3s[5];
-		}		
+		}
+		*/		
 	}	
 	
 	void ApplyScaleToTargets(){
@@ -4121,7 +4107,7 @@ public class iTween : MonoBehaviour{
 		//reset rotation:
 		if(tweenArguments.Contains("looktarget")){
 			transform.eulerAngles = currentRotation;	
-		}		
+		}	
 	}	
 	
 	void ApplyShakeScaleTargets(){
@@ -5160,7 +5146,19 @@ public class iTween : MonoBehaviour{
 		}
 		
 		DrawPathHelper(suppliedPath, color);
-	}		
+	}	
+	
+	/// <summary>
+	/// Changes a camera fade's texture.
+	/// </summary>
+	/// <param name="depth">
+	/// A <see cref="System.Int32"/>
+	/// </param>
+	public static void CameraFadeDepth(int depth){
+		if(cameraFade){
+			cameraFade.transform.position=new Vector3(cameraFade.transform.position.x,cameraFade.transform.position.y,depth);
+		}
+	}
 	
 	/// <summary>
 	/// Removes and destroyes a camera fade.
@@ -5174,34 +5172,39 @@ public class iTween : MonoBehaviour{
 	/// <summary>
 	/// Changes a camera fade's depth.
 	/// </summary>
-	/// <param name="depth">
-	/// A <see cref="System.Int32"/>
+	/// <param name='texture'>
+	/// A <see cref="Texture2D"/>
 	/// </param>
-	public static void CameraFadeDepth(int depth){
+	public static void CameraFadeSwap(Texture2D texture){
 		if(cameraFade){
-			cameraFade.transform.position=new Vector3(cameraFade.transform.position.x,cameraFade.transform.position.y,depth);
+			cameraFade.guiTexture.texture=texture;
 		}
 	}
 	
 	/// <summary>
 	/// Creates a GameObject (if it doesn't exist) at the supplied depth that can be used to simulate a camera fade.
 	/// </summary>
-	/// <param name="depth">
+	/// <param name='texture'>
+	/// A <see cref="Texture2D"/>
+	/// </param>
+	/// <param name='depth'>
 	/// A <see cref="System.Int32"/>
 	/// </param>
-	public static void CameraFadeAdd(int depth){
+	public static void CameraFadeAdd(Texture2D texture, int depth){
 		if(cameraFade){
 			return;
 		}else{
+			/*
 			//eastablish fill texture:
 			Texture2D colorTexture = new Texture2D(Screen.width,Screen.height);
-		
+			*/
+			
 			//establish colorFade object:
 			cameraFade = new GameObject("iTween Camera Fade");
 			cameraFade.transform.position= new Vector3(.5f,.5f,depth);
 			cameraFade.AddComponent("GUITexture");
-			cameraFade.guiTexture.texture=colorTexture;
-			cameraFade.guiTexture.color=new Color(0,0,0,0);
+			cameraFade.guiTexture.texture=texture;
+			//cameraFade.guiTexture.color=new Color(0,0,0,0);
 		}
 	}
 	
