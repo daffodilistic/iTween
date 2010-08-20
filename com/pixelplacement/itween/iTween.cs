@@ -5204,7 +5204,7 @@ public class iTween : MonoBehaviour{
 			cameraFade.transform.position= new Vector3(.5f,.5f,depth);
 			cameraFade.AddComponent("GUITexture");
 			cameraFade.guiTexture.texture=texture;
-			//cameraFade.guiTexture.color=new Color(0,0,0,0);
+			cameraFade.guiTexture.color = new Color(.5f,.5f,.5f,0);
 		}
 	}
 	
