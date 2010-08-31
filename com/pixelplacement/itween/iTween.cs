@@ -24,7 +24,7 @@ using UnityEngine;
 #endregion
 
 /// <summary>
-/// <para>Version: 2.0.12</para>	 
+/// <para>Version: 2.0.13</para>	 
 /// <para>Author: Bob Berkebile (http://pixelplacement.com)</para>
 /// <para>Support: http://itween.pixelplacement.com</para>
 /// </summary>
@@ -58,7 +58,7 @@ public class iTween : MonoBehaviour{
 	private AudioSource audioSource;
 	private Vector3[] vector3s;
 	private Vector2[] vector2s;
-	private Color[] colors;
+	private Color[,] colors;
 	private float[] floats;
 	//private int[] ints;
 	private Rect[] rects;
@@ -3166,11 +3166,11 @@ public class iTween : MonoBehaviour{
 	
 	void GenerateColorTargets(){
 		//values holder [0] from, [1] to, [2] calculated value from ease equation:
-		colors=new Color[3];
+		colors=new Color[1,3];
 		
 		//from and to values:
-		colors[0]=(Color)tweenArguments["from"];
-		colors[1]=(Color)tweenArguments["to"];
+		colors[0,0]=(Color)tweenArguments["from"];
+		colors[0,1]=(Color)tweenArguments["to"];
 	}	
 	
 	void GenerateVector3Targets(){
@@ -3202,42 +3202,72 @@ public class iTween : MonoBehaviour{
 		
 	void GenerateColorToTargets(){
 		//values holder [0] from, [1] to, [2] calculated value from ease equation:
-		colors = new Color[3];
+		//colors = new Color[3];
 		
 		//from and init to values:
 		if(GetComponent(typeof(GUITexture))){
-			colors[0] = colors[1] = guiTexture.color;
+			colors = new Color[1,3];
+			colors[0,0] = colors[0,1] = guiTexture.color;
 		}else if(GetComponent(typeof(GUIText))){
-			colors[0] = colors[1] = guiText.material.color;
+			colors = new Color[1,3];
+			colors[0,0] = colors[0,1] = guiText.material.color;
 		}else if(renderer){
-			colors[0] = colors[1] = renderer.material.color;	
+			//print(renderer.materials.Length);
+			colors = new Color[renderer.materials.Length,3];
+			for (int i = 0; i < renderer.materials.Length; i++) {
+				colors[i,0]=renderer.materials[i].color;
+				colors[i,1]=renderer.materials[i].color;
+			}
+			//colors[0] = colors[1] = renderer.material.color;	
 		}else if(light){
-			colors[0] = colors[1] = light.color;	
+			colors = new Color[1,3];
+			colors[0,0] = colors[0,1] = light.color;	
 		}
 		
 		//to values:
 		if (tweenArguments.Contains("color")) {
-			colors[1]=(Color)tweenArguments["color"];
+			//colors[1]=(Color)tweenArguments["color"];
+			for (int i = 0; i < colors.GetLength(0); i++) {
+				colors[i,1]=(Color)tweenArguments["color"];
+			}
 		}else{
 			if (tweenArguments.Contains("r")) {
-				colors[1].r=(float)tweenArguments["r"];
+				//colors[1].r=(float)tweenArguments["r"];
+				for (int i = 0; i < colors.GetLength(0); i++) {
+					colors[i,1].r=(float)tweenArguments["r"];
+				}
 			}
 			if (tweenArguments.Contains("g")) {
-				colors[1].g=(float)tweenArguments["g"];
+				//colors[1].g=(float)tweenArguments["g"];
+				for (int i = 0; i < colors.GetLength(0); i++) {
+					colors[i,1].g=(float)tweenArguments["g"];
+				}
 			}
 			if (tweenArguments.Contains("b")) {
-				colors[1].b=(float)tweenArguments["b"];
+				//colors[1].b=(float)tweenArguments["b"];
+				for (int i = 0; i < colors.GetLength(0); i++) {
+					colors[i,1].b=(float)tweenArguments["b"];
+				}
 			}
 			if (tweenArguments.Contains("a")) {
-				colors[1].a=(float)tweenArguments["a"];
+				//colors[1].a=(float)tweenArguments["a"];
+				for (int i = 0; i < colors.GetLength(0); i++) {
+					colors[i,1].a=(float)tweenArguments["a"];
+				}
 			}
 		}
 		
 		//alpha or amount?
 		if(tweenArguments.Contains("amount")){
-			colors[1].a=(float)tweenArguments["amount"];
+			//colors[1].a=(float)tweenArguments["amount"];
+			for (int i = 0; i < colors.GetLength(0); i++) {
+				colors[i,1].a=(float)tweenArguments["amount"];
+			}
 		}else if(tweenArguments.Contains("alpha")){
-			colors[1].a=(float)tweenArguments["alpha"];
+			//colors[1].a=(float)tweenArguments["alpha"];
+			for (int i = 0; i < colors.GetLength(0); i++) {
+				colors[i,1].a=(float)tweenArguments["alpha"];
+			}
 		}
 	}
 	
@@ -3819,17 +3849,17 @@ public class iTween : MonoBehaviour{
 	
 	void ApplyColorTargets(){
 		//calculate:
-		colors[2].r = ease(colors[0].r,colors[1].r,percentage);
-		colors[2].g = ease(colors[0].g,colors[1].g,percentage);
-		colors[2].b = ease(colors[0].b,colors[1].b,percentage);
-		colors[2].a = ease(colors[0].a,colors[1].a,percentage);
+		colors[0,2].r = ease(colors[0,0].r,colors[0,1].r,percentage);
+		colors[0,2].g = ease(colors[0,0].g,colors[0,1].g,percentage);
+		colors[0,2].b = ease(colors[0,0].b,colors[0,1].b,percentage);
+		colors[0,2].a = ease(colors[0,0].a,colors[0,1].a,percentage);
 		
 		//apply:
-		tweenArguments["onupdateparams"]=colors[2];
+		tweenArguments["onupdateparams"]=colors[0,2];
 		
 		//dial in:
 		if(percentage==1){
-			tweenArguments["onupdateparams"]=colors[1];
+			tweenArguments["onupdateparams"]=colors[0,1];
 		}
 	}	
 		
@@ -3877,32 +3907,52 @@ public class iTween : MonoBehaviour{
 	
 	void ApplyColorToTargets(){
 		//calculate:
+		for (int i = 0; i < colors.GetLength(0); i++) {
+			colors[i,2].r = ease(colors[i,0].r,colors[i,1].r,percentage);
+			colors[i,2].g = ease(colors[i,0].g,colors[i,1].g,percentage);
+			colors[i,2].b = ease(colors[i,0].b,colors[i,1].b,percentage);
+			colors[i,2].a = ease(colors[i,0].a,colors[i,1].a,percentage);
+		}
+		/*
 		colors[2].r = ease(colors[0].r,colors[1].r,percentage);
 		colors[2].g = ease(colors[0].g,colors[1].g,percentage);
 		colors[2].b = ease(colors[0].b,colors[1].b,percentage);
 		colors[2].a = ease(colors[0].a,colors[1].a,percentage);
+		*/
 		
 		//apply:
 		if(GetComponent(typeof(GUITexture))){
-			guiTexture.color=colors[2];
+			//guiTexture.color=colors[2];
+			guiTexture.color=colors[0,2];
 		}else if(GetComponent(typeof(GUIText))){
-			guiText.material.color=colors[2];
+			//guiText.material.color=colors[2];
+			guiText.material.color=colors[0,2];
 		}else if(renderer){
-			renderer.material.color=colors[2];	
+			//renderer.material.color=colors[2];
+			for (int i = 0; i < colors.GetLength(0); i++) {
+				renderer.materials[i].color=colors[i,2];
+			}
 		}else if(light){
-			light.color=colors[2];	
+			//light.color=colors[2];	
+			light.color=colors[0,2];
 		}
 		
 		//dial in:
 		if(percentage==1){
 			if(GetComponent(typeof(GUITexture))){
-				guiTexture.color=colors[1];
+				//guiTexture.color=colors[1];
+				guiTexture.color=colors[0,1];
 			}else if(GetComponent(typeof(GUIText))){
-				guiText.material.color=colors[1];
+				//guiText.material.color=colors[1];
+				guiText.material.color=colors[0,1];
 			}else if(renderer){
-				renderer.material.color=colors[1];	
+				//renderer.material.color=colors[1];	
+				for (int i = 0; i < colors.GetLength(0); i++) {
+					renderer.materials[i].color=colors[i,1];
+				}
 			}else if(light){
-				light.color=colors[1];	
+				//light.color=colors[1];	
+				light.color=colors[0,1];
 			}			
 		}
 	}	
@@ -5170,7 +5220,7 @@ public class iTween : MonoBehaviour{
 	}
 	
 	/// <summary>
-	/// Changes a camera fade's depth.
+	/// Changes a camera fade's texture.
 	/// </summary>
 	/// <param name='texture'>
 	/// A <see cref="Texture2D"/>
