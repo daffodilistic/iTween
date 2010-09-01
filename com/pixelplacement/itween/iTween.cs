@@ -24,7 +24,7 @@ using UnityEngine;
 #endregion
 
 /// <summary>
-/// <para>Version: 2.0.14</para>	 
+/// <para>Version: 2.0.15</para>	 
 /// <para>Author: Bob Berkebile (http://pixelplacement.com)</para>
 /// <para>Support: http://itween.pixelplacement.com</para>
 /// </summary>
@@ -5075,7 +5075,9 @@ public class iTween : MonoBehaviour{
 	/// A <see cref="Vector3s[]"/>
 	/// </param>
 	public static void DrawLine(Vector3[] line) {
-		DrawLineHelper(line,Defaults.color);
+		if(line.Length>0){
+			DrawLineHelper(line,Defaults.color);
+		}
 	}	
 	
 	/// <summary>
@@ -5088,7 +5090,9 @@ public class iTween : MonoBehaviour{
 	/// A <see cref="Color"/>
 	/// </param> 
 	public static void DrawLine(Vector3[] line, Color color) {
-		DrawLineHelper(line,color);
+		if(line.Length>0){
+			DrawLineHelper(line,color);
+		}
 	}		
 	
 	/// <summary>
@@ -5098,12 +5102,14 @@ public class iTween : MonoBehaviour{
 	/// A <see cref="Transform[]"/>
 	/// </param>
 	public static void DrawLine(Transform[] line) {
-		//create and store line points:
-		Vector3[] suppliedLine = new Vector3[line.Length];
-		for (int i = 0; i < line.Length; i++) {
-			suppliedLine[i]=line[i].position;
+		if(line.Length>0){
+			//create and store line points:
+			Vector3[] suppliedLine = new Vector3[line.Length];
+			for (int i = 0; i < line.Length; i++) {
+				suppliedLine[i]=line[i].position;
+			}
+			DrawLineHelper(suppliedLine,Defaults.color);
 		}
-		DrawLineHelper(suppliedLine,Defaults.color);
 	}		
 	
 	/// <summary>
@@ -5116,13 +5122,15 @@ public class iTween : MonoBehaviour{
 	/// A <see cref="Color"/>
 	/// </param> 
 	public static void DrawLine(Transform[] line,Color color) {
-		//create and store line points:
-		Vector3[] suppliedLine = new Vector3[line.Length];
-		for (int i = 0; i < line.Length; i++) {
-			suppliedLine[i]=line[i].position;
+		if(line.Length>0){
+			//create and store line points:
+			Vector3[] suppliedLine = new Vector3[line.Length];
+			for (int i = 0; i < line.Length; i++) {
+				suppliedLine[i]=line[i].position;
+			}
+			
+			DrawLineHelper(suppliedLine, color);
 		}
-		
-		DrawLineHelper(suppliedLine, color);
 	}		
 	
 	/// <summary>
@@ -5148,7 +5156,9 @@ public class iTween : MonoBehaviour{
 	/// A <see cref="Vector3s[]"/>
 	/// </param>
 	public static void DrawPath(Vector3[] path) {
-		DrawPathHelper(path,Defaults.color);
+		if(path.Length>0){
+			DrawPathHelper(path,Defaults.color);
+		}
 	}	
 	
 	/// <summary>
@@ -5161,7 +5171,9 @@ public class iTween : MonoBehaviour{
 	/// A <see cref="Color"/>
 	/// </param> 
 	public static void DrawPath(Vector3[] path, Color color) {
-		DrawPathHelper(path,color);
+		if(path.Length>0){
+			DrawPathHelper(path,color);
+		}
 	}		
 	
 	/// <summary>
@@ -5171,13 +5183,15 @@ public class iTween : MonoBehaviour{
 	/// A <see cref="Transform[]"/>
 	/// </param>
 	public static void DrawPath(Transform[] path) {
-		//create and store path points:
-		Vector3[] suppliedPath = new Vector3[path.Length];
-		for (int i = 0; i < path.Length; i++) {
-			suppliedPath[i]=path[i].position;
+		if(path.Length>0){
+			//create and store path points:
+			Vector3[] suppliedPath = new Vector3[path.Length];
+			for (int i = 0; i < path.Length; i++) {
+				suppliedPath[i]=path[i].position;
+			}
+			
+			DrawPathHelper(suppliedPath,Defaults.color);	
 		}
-		
-		DrawPathHelper(suppliedPath,Defaults.color);
 	}		
 	
 	/// <summary>
@@ -5190,13 +5204,15 @@ public class iTween : MonoBehaviour{
 	/// A <see cref="Color"/>
 	/// </param> 
 	public static void DrawPath(Transform[] path,Color color) {
-		//create and store path points:
-		Vector3[] suppliedPath = new Vector3[path.Length];
-		for (int i = 0; i < path.Length; i++) {
-			suppliedPath[i]=path[i].position;
+		if(path.Length>0){
+			//create and store path points:
+			Vector3[] suppliedPath = new Vector3[path.Length];
+			for (int i = 0; i < path.Length; i++) {
+				suppliedPath[i]=path[i].position;
+			}
+			
+			DrawPathHelper(suppliedPath, color);
 		}
-		
-		DrawPathHelper(suppliedPath, color);
 	}	
 	
 	/// <summary>
