@@ -24,7 +24,7 @@ using UnityEngine;
 #endregion
 
 /// <summary>
-/// <para>Version: 2.0.15</para>	 
+/// <para>Version: 2.0.16</para>	 
 /// <para>Author: Bob Berkebile (http://pixelplacement.com)</para>
 /// <para>Support: http://itween.pixelplacement.com</para>
 /// </summary>
@@ -3437,12 +3437,10 @@ public class iTween : MonoBehaviour{
 		
 		//is this a closed, continuous loop? yes? well then so let's make a continuous Catmull-Rom spline!
 		if(vector3s[1] == vector3s[vector3s.Length-2]){
-			Vector3[] tmpLoopSpline = new Vector3[vector3s.Length+1];
+			Vector3[] tmpLoopSpline = new Vector3[vector3s.Length];
 			Array.Copy(vector3s,tmpLoopSpline,vector3s.Length);
-			//tmpLoopSpline[tmpLoopSpline.Length-3] =vector3s[1] + ((vector3s[1] - vector3s[vector3s.Length-1])/2);
-			tmpLoopSpline[tmpLoopSpline.Length-3] = tmpLoopSpline[1]; //this may need a bit more finesse to get the spline loop to be more predictable rather than just relying on the initial start point generated above
-			tmpLoopSpline[tmpLoopSpline.Length-2] = tmpLoopSpline[1];
-			tmpLoopSpline[tmpLoopSpline.Length-1] = tmpLoopSpline[2];
+			tmpLoopSpline[0]=tmpLoopSpline[tmpLoopSpline.Length-3];
+			tmpLoopSpline[tmpLoopSpline.Length-1]=tmpLoopSpline[2];
 			vector3s=new Vector3[tmpLoopSpline.Length];
 			Array.Copy(tmpLoopSpline,vector3s,tmpLoopSpline.Length);
 		}
@@ -5764,11 +5762,10 @@ public class iTween : MonoBehaviour{
 		
 		//is this a closed, continuous loop? yes? well then so let's make a continuous Catmull-Rom spline!
 		if(vector3s[1] == vector3s[vector3s.Length-2]){
-			Vector3[] tmpLoopSpline = new Vector3[vector3s.Length+1];
+			Vector3[] tmpLoopSpline = new Vector3[vector3s.Length];
 			Array.Copy(vector3s,tmpLoopSpline,vector3s.Length);
-			tmpLoopSpline[tmpLoopSpline.Length-3] = tmpLoopSpline[1]; //this may need a bit more finesse to get the spline loop to be more predictable rather than just relying on the initial start point generated above
-			tmpLoopSpline[tmpLoopSpline.Length-2] = tmpLoopSpline[1];
-			tmpLoopSpline[tmpLoopSpline.Length-1] = tmpLoopSpline[2];
+			tmpLoopSpline[0]=tmpLoopSpline[tmpLoopSpline.Length-3];
+			tmpLoopSpline[tmpLoopSpline.Length-1]=tmpLoopSpline[2];
 			vector3s=new Vector3[tmpLoopSpline.Length];
 			Array.Copy(tmpLoopSpline,vector3s,tmpLoopSpline.Length);
 		}	
