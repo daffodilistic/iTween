@@ -24,7 +24,7 @@ using UnityEngine;
 #endregion
 
 /// <summary>
-/// <para>Version: 2.0.13</para>	 
+/// <para>Version: 2.0.14</para>	 
 /// <para>Author: Bob Berkebile (http://pixelplacement.com)</para>
 /// <para>Support: http://itween.pixelplacement.com</para>
 /// </summary>
@@ -3431,7 +3431,8 @@ public class iTween : MonoBehaviour{
 		Array.Copy(suppliedPath,0,vector3s,offset,suppliedPath.Length);
 		
 		//populate start and end control points:
-		vector3s[0] = vector3s[1] - vector3s[2];
+		//vector3s[0] = vector3s[1] - vector3s[2];
+		vector3s[0] = vector3s[1] + (vector3s[1] - vector3s[2]);
 		vector3s[vector3s.Length-1] = vector3s[vector3s.Length-2] + (vector3s[vector3s.Length-2] - vector3s[vector3s.Length-3]);
 		
 		//is this a closed, continuous loop? yes? well then so let's make a continuous Catmull-Rom spline!
@@ -5741,7 +5742,8 @@ public class iTween : MonoBehaviour{
 		Array.Copy(suppliedPath,0,vector3s,1,suppliedPath.Length);
 		
 		//populate start and end control points:
-		vector3s[0] = vector3s[1] - vector3s[2];
+		//vector3s[0] = vector3s[1] - vector3s[2];
+		vector3s[0] = vector3s[1] + (vector3s[1] - vector3s[2]);
 		vector3s[vector3s.Length-1] = vector3s[vector3s.Length-2] + (vector3s[vector3s.Length-2] - vector3s[vector3s.Length-3]);
 		
 		//is this a closed, continuous loop? yes? well then so let's make a continuous Catmull-Rom spline!
