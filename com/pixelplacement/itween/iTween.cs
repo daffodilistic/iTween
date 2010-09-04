@@ -24,7 +24,7 @@ using UnityEngine;
 #endregion
 
 /// <summary>
-/// <para>Version: 2.0.16</para>	 
+/// <para>Version: 2.0.17</para>	 
 /// <para>Author: Bob Berkebile (http://pixelplacement.com)</para>
 /// <para>Support: http://itween.pixelplacement.com</para>
 /// </summary>
@@ -4346,7 +4346,6 @@ public class iTween : MonoBehaviour{
 	}
 			
 	void TweenComplete(){
-		CallBack("oncomplete");
 		isRunning=false;
 		
 		//dial in percentage to 1 or 0 for final run:
@@ -4368,6 +4367,8 @@ public class iTween : MonoBehaviour{
 		}else{
 			TweenLoop();
 		}
+		
+		CallBack("oncomplete");
 	}
 	
 	void TweenLoop(){
