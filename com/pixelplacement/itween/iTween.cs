@@ -4311,6 +4311,8 @@ public class iTween : MonoBehaviour{
 	}	
 	
 	void TweenStart(){		
+		CallBack("onstart");
+		
 		if(!loop){//only if this is not a loop
 			ConflictCheck();
 			GenerateTargets();
@@ -4326,7 +4328,6 @@ public class iTween : MonoBehaviour{
 			EnableKinematic();
 		}
 		
-		CallBack("onstart");
 		isRunning = true;
 	}
 	
