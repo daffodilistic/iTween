@@ -24,7 +24,7 @@ using UnityEngine;
 #endregion
 
 /// <summary>
-/// <para>Version: 2.0.17</para>	 
+/// <para>Version: 2.0.18</para>	 
 /// <para>Author: Bob Berkebile (http://pixelplacement.com)</para>
 /// <para>Support: http://itween.pixelplacement.com</para>
 /// </summary>
@@ -6110,7 +6110,8 @@ public class iTween : MonoBehaviour{
 				}
 				
 				//step 3: prevent a new iTween addition if it is identical to the currently running iTween
-				Destroy(this);	
+				Dispose();
+				//Destroy(this);	
 			}
 		}
 	}
