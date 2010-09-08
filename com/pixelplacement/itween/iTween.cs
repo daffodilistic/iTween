@@ -24,7 +24,7 @@ using UnityEngine;
 #endregion
 
 /// <summary>
-/// <para>Version: 2.0.18</para>	 
+/// <para>Version: 2.0.19</para>	 
 /// <para>Author: Bob Berkebile (http://pixelplacement.com)</para>
 /// <para>Support: http://itween.pixelplacement.com</para>
 /// </summary>
@@ -3222,6 +3222,8 @@ public class iTween : MonoBehaviour{
 		}else if(light){
 			colors = new Color[1,3];
 			colors[0,0] = colors[0,1] = light.color;	
+		}else{
+			colors = new Color[1,3]; //empty placeholder incase the GO is perhaps an empty holder or something similar
 		}
 		
 		//to values:
