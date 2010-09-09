@@ -24,7 +24,7 @@ using UnityEngine;
 #endregion
 
 /// <summary>
-/// <para>Version: 2.0.19</para>	 
+/// <para>Version: 2.0.20</para>	 
 /// <para>Author: Bob Berkebile (http://pixelplacement.com)</para>
 /// <para>Support: http://itween.pixelplacement.com</para>
 /// </summary>
@@ -5032,6 +5032,22 @@ public class iTween : MonoBehaviour{
 	/// Puts a GameObject on a path at the provided percentage 
 	/// </summary>
 	/// <param name="target">
+	/// A <see cref="Transform"/>
+	/// </param>
+	/// <param name="path">
+	/// A <see cref="Vector3[]"/>
+	/// </param>
+	/// <param name="percent">
+	/// A <see cref="System.Single"/>
+	/// </param>
+	public static void PutOnPath(Transform target, Vector3[] path, float percent){
+		target.position=Interp(PathControlPointGenerator(path),percent);
+	}	
+	
+	/// <summary>
+	/// Puts a GameObject on a path at the provided percentage 
+	/// </summary>
+	/// <param name="target">
 	/// A <see cref="GameObject"/>
 	/// </param>
 	/// <param name="path">
@@ -5048,6 +5064,27 @@ public class iTween : MonoBehaviour{
 		}	
 		target.transform.position=Interp(PathControlPointGenerator(suppliedPath),percent);
 	}	
+	
+	/// <summary>
+	/// Puts a GameObject on a path at the provided percentage 
+	/// </summary>
+	/// <param name="target">
+	/// A <see cref="Transform"/>
+	/// </param>
+	/// <param name="path">
+	/// A <see cref="Transform[]"/>
+	/// </param>
+	/// <param name="percent">
+	/// A <see cref="System.Single"/>
+	/// </param>
+	public static void PutOnPath(Transform target, Transform[] path, float percent){
+		//create and store path points:
+		Vector3[] suppliedPath = new Vector3[path.Length];
+		for (int i = 0; i < path.Length; i++) {
+			suppliedPath[i]=path[i].position;
+		}	
+		target.position=Interp(PathControlPointGenerator(suppliedPath),percent);
+	}		
 	
 	/// <summary>
 	/// Returns a Vector3 position on a path at the provided percentage  
@@ -5069,7 +5106,7 @@ public class iTween : MonoBehaviour{
 		}	
 		return(Interp(PathControlPointGenerator(suppliedPath),percent));
 	}
-	
+		
 	/// <summary>
 	/// When called from an OnDrawGizmos() function it will draw a line through the provided array of Vector3s .
 	/// </summary>
@@ -5160,21 +5197,6 @@ public class iTween : MonoBehaviour{
 	public static void DrawPath(Vector3[] path) {
 		if(path.Length>0){
 			DrawPathHelper(path,Defaults.color);
-		}
-	}	
-	
-	/// <summary>
-	/// When called from an OnDrawGizmos() function it will draw a curved path through the provided array of Vector3s.
-	/// </summary>
-	/// <param name="path">
-	/// A <see cref="Vector3s[]"/>
-	/// </param>
-	/// <param name="color">
-	/// A <see cref="Color"/>
-	/// </param> 
-	public static void DrawPath(Vector3[] path, Color color) {
-		if(path.Length>0){
-			DrawPathHelper(path,color);
 		}
 	}		
 	
