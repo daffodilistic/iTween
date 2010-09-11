@@ -24,7 +24,7 @@ using UnityEngine;
 #endregion
 
 /// <summary>
-/// <para>Version: 2.0.20</para>	 
+/// <para>Version: 2.0.21</para>	 
 /// <para>Author: Bob Berkebile (http://pixelplacement.com)</para>
 /// <para>Support: http://itween.pixelplacement.com</para>
 /// </summary>
@@ -4237,9 +4237,11 @@ public class iTween : MonoBehaviour{
 		}
 		
 		//dial in:
+		/*
 		if(percentage==1){	
 			transform.position=vector3s[0];
 		}
+		*/
 	}		
 	
 	void ApplyPunchRotationTargets(){
@@ -4267,9 +4269,11 @@ public class iTween : MonoBehaviour{
 		vector3s[3]=vector3s[2];
 		
 		//dial in:
+		/*
 		if(percentage==1){	
 			transform.eulerAngles=vector3s[0];
 		}
+		*/
 	}	
 	
 	void ApplyPunchScaleTargets(){
@@ -4294,9 +4298,11 @@ public class iTween : MonoBehaviour{
 		transform.localScale=vector3s[0]+vector3s[2];
 		
 		//dial in:
+		/*
 		if(percentage==1){	
 			transform.localScale=vector3s[0];
 		}
+		*/
 	}		
 	
 	#endregion	
