@@ -5814,7 +5814,6 @@ public class iTween : MonoBehaviour{
 	//non-physics
 	void Update(){
 		if(isRunning && !physics){
-			print("no physics");
 			if(!reverse){
 				if(percentage<1f){
 					TweenUpdate();
@@ -5834,7 +5833,6 @@ public class iTween : MonoBehaviour{
 	//physics
 	void FixedUpdate(){
 		if(isRunning && physics){
-			print("physics");
 			if(!reverse){
 				if(percentage<1f){
 					TweenUpdate();
