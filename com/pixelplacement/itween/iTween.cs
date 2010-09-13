@@ -24,7 +24,7 @@ using UnityEngine;
 #endregion
 
 /// <summary>
-/// <para>Version: 2.0.21</para>	 
+/// <para>Version: 2.0.22</para>	 
 /// <para>Author: Bob Berkebile (http://pixelplacement.com)</para>
 /// <para>Support: http://itween.pixelplacement.com</para>
 /// </summary>
@@ -48,7 +48,7 @@ public class iTween : MonoBehaviour{
 	//private members:
  	private float runningTime, percentage;
 	private float delayStarted; //probably not neccesary that this be protected but it shuts Unity's compiler up about this being "never used"
-	private bool kinematic, isLocal, loop, reverse, wasPaused;
+	private bool kinematic, isLocal, loop, reverse, wasPaused, physics;
 	private Hashtable tweenArguments;
 	private Space space;
 	private delegate float EasingFunction(float start, float end, float value);
@@ -60,9 +60,11 @@ public class iTween : MonoBehaviour{
 	private Vector2[] vector2s;
 	private Color[,] colors;
 	private float[] floats;
-	//private int[] ints;
 	private Rect[] rects;
 	private CRSpline path;
+	private Vector3 preUpdate;
+	private Vector3 postUpdate;
+	private NamedValueColor namedcolorvalue;
 	
 	/// <summary>
 	/// The type of easing to use based on Robert Penner's open source easing equations (http://www.robertpenner.com/easing_terms_of_use.html).
@@ -99,7 +101,7 @@ public class iTween : MonoBehaviour{
 	}
 	
 	/// <summary>
-	/// The type of loop (if any) to use.  
+	/// Many shaders use more than one color. Use can have iTween's Color methods operate on them by name.  
 	/// </summary>
 	public enum LoopType{
 		/// <summary>
@@ -115,7 +117,29 @@ public class iTween : MonoBehaviour{
 		/// </summary>
 		pingPong
 	}
-			
+	
+	/// <summary>
+	/// The namedValue.  
+	/// </summary>
+	public enum NamedValueColor{
+		/// <summary>
+		/// The main color of a material. Used by default and not required for Color methods to work in iTween.
+		/// </summary>
+		_Color,
+		/// <summary>
+		/// The specular color of a material (used in specular/glossy/vertexlit shaders).
+		/// </summary>
+		_SpecColor,
+		/// <summary>
+		/// The emissive color of a material (used in vertexlit shaders).
+		/// </summary>
+		_Emission,
+		/// <summary>
+		/// The reflection color of the material (used in reflective shaders).
+		/// </summary>
+		_ReflectColor
+	}
+				
 	#endregion
 	
 	#region Defaults
@@ -127,6 +151,7 @@ public class iTween : MonoBehaviour{
 		//general defaults:
 		public static float time = 1f;
 		public static float delay = 0f;	
+		public static NamedValueColor namedColorValue = NamedValueColor._Color;
 		public static LoopType loopType = LoopType.none;
 		public static EaseType easeType = iTween.EaseType.easeOutExpo;
 		public static float lookSpeed = 3f;
@@ -3212,11 +3237,10 @@ public class iTween : MonoBehaviour{
 			colors = new Color[1,3];
 			colors[0,0] = colors[0,1] = guiText.material.color;
 		}else if(renderer){
-			//print(renderer.materials.Length);
 			colors = new Color[renderer.materials.Length,3];
 			for (int i = 0; i < renderer.materials.Length; i++) {
-				colors[i,0]=renderer.materials[i].color;
-				colors[i,1]=renderer.materials[i].color;
+				colors[i,0]=renderer.materials[i].GetColor(namedcolorvalue.ToString());
+				colors[i,1]=renderer.materials[i].GetColor(namedcolorvalue.ToString());
 			}
 			//colors[0] = colors[1] = renderer.material.color;	
 		}else if(light){
@@ -3931,7 +3955,7 @@ public class iTween : MonoBehaviour{
 		}else if(renderer){
 			//renderer.material.color=colors[2];
 			for (int i = 0; i < colors.GetLength(0); i++) {
-				renderer.materials[i].color=colors[i,2];
+				renderer.materials[i].SetColor(namedcolorvalue.ToString(),colors[i,2]);
 			}
 		}else if(light){
 			//light.color=colors[2];	
@@ -3949,7 +3973,7 @@ public class iTween : MonoBehaviour{
 			}else if(renderer){
 				//renderer.material.color=colors[1];	
 				for (int i = 0; i < colors.GetLength(0); i++) {
-					renderer.materials[i].color=colors[i,1];
+					renderer.materials[i].SetColor(namedcolorvalue.ToString(),colors[i,1]);
 				}
 			}else if(light){
 				//light.color=colors[1];	
@@ -3979,6 +4003,7 @@ public class iTween : MonoBehaviour{
 	}
 	
 	void ApplyMoveToPathTargets(){
+		preUpdate = transform.position;
 		float t = ease(0,1,percentage);
 		float lookAheadAmount;
 		
@@ -4006,21 +4031,31 @@ public class iTween : MonoBehaviour{
 			//Vector3 lookDistance = path.Interp(Mathf.Clamp(tLook,0,1)) - transform.position;
 			tweenArguments["looktarget"] = path.Interp(Mathf.Clamp(tLook,0,1));
 		}
+		
+		//need physics?
+		postUpdate=transform.position;
+		if(physics){
+			transform.position=preUpdate;
+			rigidbody.MovePosition(postUpdate);
+		}
 	}
 	
 	void ApplyMoveToTargets(){
+		//record current:
+		preUpdate=transform.position;
+			
 		//calculate:
 		vector3s[2].x = ease(vector3s[0].x,vector3s[1].x,percentage);
 		vector3s[2].y = ease(vector3s[0].y,vector3s[1].y,percentage);
 		vector3s[2].z = ease(vector3s[0].z,vector3s[1].z,percentage);
 		
-		//apply:
+		//apply:	
 		if (isLocal) {
-			transform.localPosition=vector3s[2];		
+			transform.localPosition=vector3s[2];
 		}else{
 			transform.position=vector3s[2];
 		}
-		
+			
 		//dial in:
 		if(percentage==1){
 			if (isLocal) {
@@ -4029,9 +4064,18 @@ public class iTween : MonoBehaviour{
 				transform.position=vector3s[1];
 			}
 		}
+			
+		//need physics?
+		postUpdate=transform.position;
+		if(physics){
+			transform.position=preUpdate;
+			rigidbody.MovePosition(postUpdate);
+		}
 	}	
 	
 	void ApplyMoveByTargets(){	
+		preUpdate = transform.position;
+		
 		//reset rotation to prevent look interferences as object rotates and attempts to move with translate and record current rotation
 		Vector3 currentRotation = new Vector3();
 		
@@ -4055,13 +4099,20 @@ public class iTween : MonoBehaviour{
 		if(tweenArguments.Contains("looktarget")){
 			transform.eulerAngles = currentRotation;	
 		}
-		
-		//dial in:
+				
 		/*
+		//dial in:
 		if(percentage==1){	
 			transform.position=vector3s[5];
 		}
-		*/		
+		*/
+		
+		//need physics?
+		postUpdate=transform.position;
+		if(physics){
+			transform.position=preUpdate;
+			rigidbody.MovePosition(postUpdate);
+		}
 	}	
 	
 	void ApplyScaleToTargets(){
@@ -4094,6 +4145,8 @@ public class iTween : MonoBehaviour{
 	}	
 	
 	void ApplyRotateToTargets(){
+		preUpdate=transform.eulerAngles;
+		
 		//calculate:
 		vector3s[2].x = ease(vector3s[0].x,vector3s[1].x,percentage);
 		vector3s[2].y = ease(vector3s[0].y,vector3s[1].y,percentage);
@@ -4114,9 +4167,18 @@ public class iTween : MonoBehaviour{
 				transform.rotation = Quaternion.Euler(vector3s[1]);
 			};
 		}
+		
+		//need physics?
+		postUpdate=transform.eulerAngles;
+		if(physics){
+			transform.eulerAngles=preUpdate;
+			rigidbody.MoveRotation(Quaternion.Euler(postUpdate));
+		}
 	}
 	
 	void ApplyRotateAddTargets(){
+		preUpdate = transform.eulerAngles;
+		
 		//calculate:
 		vector3s[2].x = ease(vector3s[0].x,vector3s[1].x,percentage);
 		vector3s[2].y = ease(vector3s[0].y,vector3s[1].y,percentage);
@@ -4127,9 +4189,18 @@ public class iTween : MonoBehaviour{
 
 		//record:
 		vector3s[3]=vector3s[2];	
+		
+		//need physics?
+		postUpdate=transform.eulerAngles;
+		if(physics){
+			transform.eulerAngles=preUpdate;
+			rigidbody.MoveRotation(Quaternion.Euler(postUpdate));
+		}		
 	}	
 	
 	void ApplyShakePositionTargets(){
+		preUpdate = transform.position;
+		
 		//reset rotation to prevent look interferences as object rotates and attempts to move with translate and record current rotation
 		Vector3 currentRotation = new Vector3();
 		
@@ -4159,6 +4230,13 @@ public class iTween : MonoBehaviour{
 		if(tweenArguments.Contains("looktarget")){
 			transform.eulerAngles = currentRotation;	
 		}	
+		
+		//need physics?
+		postUpdate=transform.position;
+		if(physics){
+			transform.position=preUpdate;
+			rigidbody.MovePosition(postUpdate);
+		}
 	}	
 	
 	void ApplyShakeScaleTargets(){
@@ -4181,6 +4259,8 @@ public class iTween : MonoBehaviour{
 	}		
 	
 	void ApplyShakeRotationTargets(){
+		preUpdate = transform.eulerAngles;
+		
 		//impact:
 		if (percentage==0) {
 			transform.Rotate(vector3s[1],space);
@@ -4196,10 +4276,19 @@ public class iTween : MonoBehaviour{
 		vector3s[2].z= UnityEngine.Random.Range(-vector3s[1].z*diminishingControl, vector3s[1].z*diminishingControl);
 
 		//apply:
-		transform.Rotate(vector3s[2],space);	
+		transform.Rotate(vector3s[2],space);
+		
+		//need physics?
+		postUpdate=transform.eulerAngles;
+		if(physics){
+			transform.eulerAngles=preUpdate;
+			rigidbody.MoveRotation(Quaternion.Euler(postUpdate));
+		}
 	}		
 	
 	void ApplyPunchPositionTargets(){
+		preUpdate = transform.position;
+		
 		//reset rotation to prevent look interferences as object rotates and attempts to move with translate and record current rotation
 		Vector3 currentRotation = new Vector3();
 		
@@ -4242,9 +4331,18 @@ public class iTween : MonoBehaviour{
 			transform.position=vector3s[0];
 		}
 		*/
+		
+		//need physics?
+		postUpdate=transform.position;
+		if(physics){
+			transform.position=preUpdate;
+			rigidbody.MovePosition(postUpdate);
+		}
 	}		
 	
 	void ApplyPunchRotationTargets(){
+		preUpdate = transform.eulerAngles;
+		
 		//calculate:
 		if(vector3s[1].x>0){
 			vector3s[2].x = punch(vector3s[1].x,percentage);
@@ -4274,6 +4372,13 @@ public class iTween : MonoBehaviour{
 			transform.eulerAngles=vector3s[0];
 		}
 		*/
+		
+		//need physics?
+		postUpdate=transform.eulerAngles;
+		if(physics){
+			transform.eulerAngles=preUpdate;
+			rigidbody.MoveRotation(Quaternion.Euler(postUpdate));
+		}
 	}	
 	
 	void ApplyPunchScaleTargets(){
@@ -5706,8 +5811,10 @@ public class iTween : MonoBehaviour{
 		TweenStart();
 	}	
 	
+	//non-physics
 	void Update(){
-		if(isRunning){
+		if(isRunning && !physics){
+			print("no physics");
 			if(!reverse){
 				if(percentage<1f){
 					TweenUpdate();
@@ -5722,6 +5829,26 @@ public class iTween : MonoBehaviour{
 				}
 			}
 		}
+	}
+	
+	//physics
+	void FixedUpdate(){
+		if(isRunning && physics){
+			print("physics");
+			if(!reverse){
+				if(percentage<1f){
+					TweenUpdate();
+				}else{
+					TweenComplete();	
+				}
+			}else{
+				if(percentage>0){
+					TweenUpdate();
+				}else{
+					TweenComplete();	
+				}
+			}
+		}			
 	}
 
 	void LateUpdate(){
@@ -5921,6 +6048,11 @@ public class iTween : MonoBehaviour{
 		}else{
 			time=Defaults.time;
 		}
+			
+		//do we need to use physics, is there a rigidbody?
+		if(rigidbody != null){
+			physics=true;
+		}
                
 		if(tweenArguments.Contains("delay")){
 			delay=(float)tweenArguments["delay"];
@@ -5928,6 +6060,22 @@ public class iTween : MonoBehaviour{
 			delay=Defaults.delay;
 		}
 				
+		if(tweenArguments.Contains("namedcolorvalue")){
+			//allows namedcolorvalue to be set as either an enum(C# friendly) or a string(JS friendly), string case usage doesn't matter to further increase usability:
+			if(tweenArguments["namedcolorvalue"].GetType() == typeof(NamedValueColor)){
+				namedcolorvalue=(NamedValueColor)tweenArguments["namedcolorvalue"];
+			}else{
+				try {
+					namedcolorvalue=(NamedValueColor)Enum.Parse(typeof(NamedValueColor),(string)tweenArguments["namedcolorvalue"],true); 
+				} catch {
+					Debug.LogWarning("iTween: Unsupported namedcolorvalue supplied! Default will be used.");
+					namedcolorvalue = iTween.NamedValueColor._Color;
+				}
+			}			
+		}else{
+			namedcolorvalue=Defaults.namedColorValue;	
+		}	
+		
 		if(tweenArguments.Contains("looptype")){
 			//allows loopType to be set as either an enum(C# friendly) or a string(JS friendly), string case usage doesn't matter to further increase usability:
 			if(tweenArguments["looptype"].GetType() == typeof(LoopType)){
@@ -5942,7 +6090,7 @@ public class iTween : MonoBehaviour{
 			}			
 		}else{
 			loopType = iTween.LoopType.none;	
-		}		
+		}			
          
 		if(tweenArguments.Contains("easetype")){
 			//allows easeType to be set as either an enum(C# friendly) or a string(JS friendly), string case usage doesn't matter to further increase usability:
