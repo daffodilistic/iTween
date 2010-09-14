@@ -24,7 +24,7 @@ using UnityEngine;
 #endregion
 
 /// <summary>
-/// <para>Version: 2.0.22</para>	 
+/// <para>Version: 2.0.23</para>	 
 /// <para>Author: Bob Berkebile (http://pixelplacement.com)</para>
 /// <para>Support: http://itween.pixelplacement.com</para>
 /// </summary>
@@ -5124,6 +5124,26 @@ public class iTween : MonoBehaviour{
 	#region #7 External Utilities
 	
 	/// <summary>
+	/// Creates and returns a full-screen Texture2D for use with CameraFade.
+	/// </summary>
+	/// <returns>
+	/// Texture2D
+	/// </returns>
+	/// <param name='color'>
+	/// Color
+	/// </param>
+	public static Texture2D CameraTexture(Color color){
+		Texture2D texture = new Texture2D(Screen.width,Screen.height,TextureFormat.ARGB32, false);
+		Color[] colors = new Color[Screen.width*Screen.height];
+		for (int i = 0; i < colors.Length; i++) {
+			colors[i]=color;
+		}
+		texture.SetPixels(colors);
+		texture.Apply();
+		return(texture);		
+	}
+	
+	/// <summary>
 	/// Puts a GameObject on a path at the provided percentage 
 	/// </summary>
 	/// <param name="target">
@@ -5395,12 +5415,7 @@ public class iTween : MonoBehaviour{
 	public static void CameraFadeAdd(Texture2D texture, int depth){
 		if(cameraFade){
 			return;
-		}else{
-			/*
-			//eastablish fill texture:
-			Texture2D colorTexture = new Texture2D(Screen.width,Screen.height);
-			*/
-			
+		}else{			
 			//establish colorFade object:
 			cameraFade = new GameObject("iTween Camera Fade");
 			cameraFade.transform.position= new Vector3(.5f,.5f,depth);
@@ -5409,6 +5424,42 @@ public class iTween : MonoBehaviour{
 			cameraFade.guiTexture.color = new Color(.5f,.5f,.5f,0);
 		}
 	}
+	
+	/// <summary>
+	/// Creates a GameObject (if it doesn't exist) at the default depth that can be used to simulate a camera fade.
+	/// </summary>
+	/// <param name='texture'>
+	/// A <see cref="Texture2D"/>
+	/// </param>
+	public static void CameraFadeAdd(Texture2D texture){
+		if(cameraFade){
+			return;
+		}else{			
+			//establish colorFade object:
+			cameraFade = new GameObject("iTween Camera Fade");
+			cameraFade.transform.position= new Vector3(.5f,.5f,Defaults.cameraFadeDepth);
+			cameraFade.AddComponent("GUITexture");
+			cameraFade.guiTexture.texture=texture;
+			cameraFade.guiTexture.color = new Color(.5f,.5f,.5f,0);
+		}
+	}
+	
+	/// <summary>
+	/// Creates a GameObject (if it doesn't exist) at the default depth filled with black that can be used to simulate a camera fade.
+	/// </summary>
+	public static void CameraFadeAdd(){
+		if(cameraFade){
+			return;
+		}else{			
+			//establish colorFade object:
+			cameraFade = new GameObject("iTween Camera Fade");
+			cameraFade.transform.position= new Vector3(.5f,.5f,Defaults.cameraFadeDepth);
+			cameraFade.AddComponent("GUITexture");
+			cameraFade.guiTexture.texture=CameraTexture(Color.black);
+			cameraFade.guiTexture.color = new Color(.5f,.5f,.5f,0);
+		}
+	}	
+	
 	
 	//#################################
 	//# RESUME UTILITIES AND OVERLOADS # 
