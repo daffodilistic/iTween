@@ -24,7 +24,7 @@ using UnityEngine;
 #endregion
 
 /// <summary>
-/// <para>Version: 2.0.23</para>	 
+/// <para>Version: 2.0.24</para>	 
 /// <para>Author: Bob Berkebile (http://pixelplacement.com)</para>
 /// <para>Support: http://itween.pixelplacement.com</para>
 /// </summary>
@@ -587,6 +587,9 @@ public class iTween : MonoBehaviour{
 	/// <param name="a">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the individual setting of the alpha.
 	/// </param> 
+	/// <param name="namedcolorvalue">
+	/// A <see cref="NamedColorValue"/> or <see cref="System.String"/> for the individual setting of the alpha.
+	/// </param> 
 	/// <param name="includechildren">
 	/// A <see cref="System.Boolean"/> for whether or not to include children of this GameObject. True by default.
 	/// </param>
@@ -741,6 +744,9 @@ public class iTween : MonoBehaviour{
 	/// </param>
 	/// <param name="a">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the individual setting of the alpha.
+	/// </param> 
+	/// <param name="namedcolorvalue">
+	/// A <see cref="NamedColorValue"/> or <see cref="System.String"/> for the individual setting of the alpha.
 	/// </param> 
 	/// <param name="includechildren">
 	/// A <see cref="System.Boolean"/> for whether or not to include children of this GameObject. True by default.
@@ -4561,6 +4567,9 @@ public class iTween : MonoBehaviour{
 	/// </param>
 	/// <param name="a">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the individual setting of the alpha.
+	/// </param> 
+	/// <param name="namedcolorvalue">
+	/// A <see cref="NamedColorValue"/> or <see cref="System.String"/> for the individual setting of the alpha.
 	/// </param> 
 	/// <param name="includechildren">
 	/// A <see cref="System.Boolean"/> for whether or not to include children of this GameObject. True by default.
