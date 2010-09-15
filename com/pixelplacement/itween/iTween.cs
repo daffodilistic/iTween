@@ -24,7 +24,7 @@ using UnityEngine;
 #endregion
 
 /// <summary>
-/// <para>Version: 2.0.24</para>	 
+/// <para>Version: 2.0.25</para>	 
 /// <para>Author: Bob Berkebile (http://pixelplacement.com)</para>
 /// <para>Support: http://itween.pixelplacement.com</para>
 /// </summary>
@@ -101,7 +101,7 @@ public class iTween : MonoBehaviour{
 	}
 	
 	/// <summary>
-	/// Many shaders use more than one color. Use can have iTween's Color methods operate on them by name.  
+	/// The type of loop (if any) to use.  
 	/// </summary>
 	public enum LoopType{
 		/// <summary>
@@ -119,7 +119,7 @@ public class iTween : MonoBehaviour{
 	}
 	
 	/// <summary>
-	/// The namedValue.  
+	/// Many shaders use more than one color. Use can have iTween's Color methods operate on them by name.   
 	/// </summary>
 	public enum NamedValueColor{
 		/// <summary>
