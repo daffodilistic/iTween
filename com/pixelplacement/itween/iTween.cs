@@ -24,7 +24,7 @@ using UnityEngine;
 #endregion
 
 /// <summary>
-/// <para>Version: 2.0.25</para>	 
+/// <para>Version: 2.0.26</para>	 
 /// <para>Author: Bob Berkebile (http://pixelplacement.com)</para>
 /// <para>Support: http://itween.pixelplacement.com</para>
 /// </summary>
@@ -97,6 +97,7 @@ public class iTween : MonoBehaviour{
 		easeInBack,
 		easeOutBack,
 		easeInOutBack,
+		elastic,
 		punch
 	}
 	
@@ -6276,6 +6277,9 @@ public class iTween : MonoBehaviour{
 		case EaseType.easeInOutBack:
 			ease = new EasingFunction(easeInOutBack);
 			break;
+		case EaseType.elastic:
+			ease = new EasingFunction(elastic);
+			break;
 		}
 	}
 	
@@ -6585,6 +6589,24 @@ public class iTween : MonoBehaviour{
 		s = period / (2 * Mathf.PI) * Mathf.Asin(0);
 		return (amplitude * Mathf.Pow(2, -10 * value) * Mathf.Sin((value * 1 - s) * (2 * Mathf.PI) / period));
     }
+	
+	private float elastic(float start, float end, float value){
+		float d = 1;
+		float a = 0;
+		float p = 0;
+		float s = 0;
+		
+		if (value==0) return start;  
+		if ((value/=d)==1) return start+end;  
+		if (p==0) p=d*.3f;
+		if (a==0 || a < Mathf.Abs(end)) { 
+			a=end; 
+			s=p/4; 
+		}
+		else s = p/(2*Mathf.PI) * Mathf.Asin (end/a);
+		return (a*Mathf.Pow(2,-10*value) * Mathf.Sin( (value*d-s)*(2*Mathf.PI)/p ) + end + start);
+	}
+	
 	#endregion	
 	
 	#region Deprecated and Renamed
