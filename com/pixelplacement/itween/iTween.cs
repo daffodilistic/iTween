@@ -24,7 +24,7 @@ using UnityEngine;
 #endregion
 
 /// <summary>
-/// <para>Version: 2.0.26</para>	 
+/// <para>Version: 2.0.27</para>	 
 /// <para>Author: Bob Berkebile (http://pixelplacement.com)</para>
 /// <para>Support: http://itween.pixelplacement.com</para>
 /// </summary>
@@ -4771,6 +4771,7 @@ public class iTween : MonoBehaviour{
 		bool isLocal;
 		float time;
 		Vector3[] vector3s = new Vector3[4];
+		Vector3 preUpdate = target.transform.eulerAngles;
 		
 		//set smooth time:
 		if(args.Contains("time")){
@@ -4814,6 +4815,13 @@ public class iTween : MonoBehaviour{
 			target.transform.localEulerAngles=vector3s[3];
 		}else{
 			target.transform.eulerAngles=vector3s[3];
+		}
+		
+		//need physics?
+		if(target.rigidbody != null){
+			Vector3 postUpdate=target.transform.eulerAngles;
+			target.transform.eulerAngles=preUpdate;
+			target.rigidbody.MoveRotation(Quaternion.Euler(postUpdate));
 		}
 	}
 		
@@ -4952,6 +4960,7 @@ public class iTween : MonoBehaviour{
 		float time;
 		Vector3[] vector3s = new Vector3[4];
 		bool isLocal;
+		Vector3 preUpdate = target.transform.position;
 			
 		//set smooth time:
 		if(args.Contains("time")){
@@ -5015,7 +5024,14 @@ public class iTween : MonoBehaviour{
 			target.transform.localPosition = vector3s[3];			
 		}else{
 			target.transform.position=vector3s[3];	
-		}		
+		}	
+		
+		//need physics?
+		if(target.rigidbody != null){
+			Vector3 postUpdate=target.transform.position;
+			target.transform.position=preUpdate;
+			target.rigidbody.MovePosition(postUpdate);
+		}
 	}
 
 	/// <summary>
