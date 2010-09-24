@@ -2576,12 +2576,9 @@ public class iTween : MonoBehaviour{
 	/// </param>
 	/// <param name="delay">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the time in seconds the animation will wait before beginning.
-	/// </param>
-	/// <param name="easetype">
-	/// A <see cref="EaseType"/> or <see cref="System.String"/> for the shape of the easing curve applied to the animation.
-	/// </param>   
+	/// </param>  
 	/// <param name="looptype">
-	/// A <see cref="LoopType"/> or <see cref="System.String"/> for the type of loop to apply once the animation has completed.
+	/// A <see cref="LoopType"/> or <see cref="System.String"/> for the type of loop to apply once the animation has completed. (only "loop" is allowed with shakes)
 	/// </param>
 	/// <param name="onstart">
 	/// A <see cref="System.String"/> for the name of a function to launch at the beginning of the animation.
@@ -2657,11 +2654,8 @@ public class iTween : MonoBehaviour{
 	/// <param name="delay">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the time in seconds the animation will wait before beginning.
 	/// </param>
-	/// <param name="easetype">
-	/// A <see cref="EaseType"/> or <see cref="System.String"/> for the shape of the easing curve applied to the animation.
-	/// </param>   
 	/// <param name="looptype">
-	/// A <see cref="LoopType"/> or <see cref="System.String"/> for the type of loop to apply once the animation has completed.
+	/// A <see cref="LoopType"/> or <see cref="System.String"/> for the type of loop to apply once the animation has completed. (only "loop" is allowed with shakes)
 	/// </param>
 	/// <param name="onstart">
 	/// A <see cref="System.String"/> for the name of a function to launch at the beginning of the animation.
@@ -2740,11 +2734,8 @@ public class iTween : MonoBehaviour{
 	/// <param name="delay">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the time in seconds the animation will wait before beginning.
 	/// </param>
-	/// <param name="easetype">
-	/// A <see cref="EaseType"/> or <see cref="System.String"/> for the shape of the easing curve applied to the animation.
-	/// </param>   
 	/// <param name="looptype">
-	/// A <see cref="LoopType"/> or <see cref="System.String"/> for the type of loop to apply once the animation has completed.
+	/// A <see cref="LoopType"/> or <see cref="System.String"/> for the type of loop to apply once the animation has completed. (only "loop" is allowed with shakes)
 	/// </param>
 	/// <param name="onstart">
 	/// A <see cref="System.String"/> for the name of a function to launch at the beginning of the animation.
@@ -2828,12 +2819,9 @@ public class iTween : MonoBehaviour{
 	/// </param>
 	/// <param name="delay">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the time in seconds the animation will wait before beginning.
-	/// </param>
-	/// <param name="easetype">
-	/// A <see cref="EaseType"/> or <see cref="System.String"/> for the shape of the easing curve applied to the animation.
 	/// </param>   
 	/// <param name="looptype">
-	/// A <see cref="LoopType"/> or <see cref="System.String"/> for the type of loop to apply once the animation has completed.
+	/// A <see cref="LoopType"/> or <see cref="System.String"/> for the type of loop to apply once the animation has completed. (only "loop" is allowed with punches)
 	/// </param>
 	/// <param name="onstart">
 	/// A <see cref="System.String"/> for the name of a function to launch at the beginning of the animation.
@@ -2912,12 +2900,9 @@ public class iTween : MonoBehaviour{
 	/// </param>
 	/// <param name="delay">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the time in seconds the animation will wait before beginning.
-	/// </param>
-	/// <param name="easetype">
-	/// A <see cref="EaseType"/> or <see cref="System.String"/> for the shape of the easing curve applied to the animation.
-	/// </param>   
+	/// </param> 
 	/// <param name="looptype">
-	/// A <see cref="LoopType"/> or <see cref="System.String"/> for the type of loop to apply once the animation has completed.
+	/// A <see cref="LoopType"/> or <see cref="System.String"/> for the type of loop to apply once the animation has completed. (only "loop" is allowed with punches)
 	/// </param>
 	/// <param name="onstart">
 	/// A <see cref="System.String"/> for the name of a function to launch at the beginning of the animation.
@@ -2993,12 +2978,9 @@ public class iTween : MonoBehaviour{
 	/// </param>
 	/// <param name="delay">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the time in seconds the animation will wait before beginning.
-	/// </param>
-	/// <param name="easetype">
-	/// A <see cref="EaseType"/> or <see cref="System.String"/> for the shape of the easing curve applied to the animation.
-	/// </param>   
+	/// </param> 
 	/// <param name="looptype">
-	/// A <see cref="LoopType"/> or <see cref="System.String"/> for the type of loop to apply once the animation has completed.
+	/// A <see cref="LoopType"/> or <see cref="System.String"/> for the type of loop to apply once the animation has completed. (only "loop" is allowed with punches)
 	/// </param>
 	/// <param name="onstart">
 	/// A <see cref="System.String"/> for the name of a function to launch at the beginning of the animation.
