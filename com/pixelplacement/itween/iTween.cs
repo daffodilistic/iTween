@@ -24,7 +24,7 @@ using UnityEngine;
 #endregion
 
 /// <summary>
-/// <para>Version: 2.0.27</para>	 
+/// <para>Version: 2.0.28</para>	 
 /// <para>Author: Bob Berkebile (http://pixelplacement.com)</para>
 /// <para>Support: http://itween.pixelplacement.com</para>
 /// </summary>
@@ -5951,8 +5951,8 @@ public class iTween : MonoBehaviour{
 		//Line Draw:
 		Vector3 prevPt = Interp(vector3s,0);
 		Gizmos.color=color;
-		for (int i = 1; i <= 20; i++) {
-			float pm = (float) i / 20f;
+		for (int i = 1; i <= path.Length; i++) {
+			float pm = (float) i / path.Length;
 			Vector3 currPt = Interp(vector3s,pm);
 			Gizmos.DrawLine(currPt, prevPt);
 			prevPt = currPt;
