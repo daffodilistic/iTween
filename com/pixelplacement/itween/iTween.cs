@@ -5951,8 +5951,8 @@ public class iTween : MonoBehaviour{
 		//Line Draw:
 		Vector3 prevPt = Interp(vector3s,0);
 		Gizmos.color=color;
-		for (int i = 1; i <= path.Length; i++) {
-			float pm = (float) i / path.Length;
+		for (int i = 1; i <= 100; i++) {
+			float pm = (float) i / 100;
 			Vector3 currPt = Interp(vector3s,pm);
 			Gizmos.DrawLine(currPt, prevPt);
 			prevPt = currPt;
