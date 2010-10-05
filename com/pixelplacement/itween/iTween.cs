@@ -24,7 +24,7 @@ using UnityEngine;
 #endregion
 
 /// <summary>
-/// <para>Version: 2.0.30</para>	 
+/// <para>Version: 2.0.31</para>	 
 /// <para>Author: Bob Berkebile (http://pixelplacement.com)</para>
 /// <para>Support: http://itween.pixelplacement.com</para>
 /// </summary>
@@ -6100,7 +6100,7 @@ public class iTween : MonoBehaviour{
 
 	void LateUpdate(){
 		//look applications:
-		if(tweenArguments.Contains("looktarget") && isRunning){
+		if(tweenArguments.Contains("looktarget") && isRunning && method =="move" || method =="shake" || method=="punch"){
 			LookUpdate(gameObject,tweenArguments);
 		}
 	}
