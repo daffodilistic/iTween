@@ -24,7 +24,7 @@ using UnityEngine;
 #endregion
 
 /// <summary>
-/// <para>Version: 2.0.31</para>	 
+/// <para>Version: 2.0.32</para>	 
 /// <para>Author: Bob Berkebile (http://pixelplacement.com)</para>
 /// <para>Support: http://itween.pixelplacement.com</para>
 /// </summary>
@@ -6095,13 +6095,15 @@ public class iTween : MonoBehaviour{
 					TweenComplete();	
 				}
 			}
-		}			
+		}	
 	}
 
 	void LateUpdate(){
 		//look applications:
-		if(tweenArguments.Contains("looktarget") && isRunning && method =="move" || method =="shake" || method=="punch"){
-			LookUpdate(gameObject,tweenArguments);
+		if(tweenArguments.Contains("looktarget") && isRunning){
+			if(type =="move" || type =="shake" || type=="punch"){
+				LookUpdate(gameObject,tweenArguments);
+			}			
 		}
 	}
 	
