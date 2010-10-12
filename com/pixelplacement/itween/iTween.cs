@@ -24,7 +24,7 @@ using UnityEngine;
 #endregion
 
 /// <summary>
-/// <para>Version: 2.0.32</para>	 
+/// <para>Version: 2.0.33</para>	 
 /// <para>Author: Bob Berkebile (http://pixelplacement.com)</para>
 /// <para>Support: http://itween.pixelplacement.com</para>
 /// </summary>
@@ -65,7 +65,10 @@ public class iTween : MonoBehaviour{
 	private Vector3 preUpdate;
 	private Vector3 postUpdate;
 	private NamedValueColor namedcolorvalue;
-	
+
+    private float lastRealTime; // Added by PressPlay
+    private bool useRealTime; // Added by PressPlay
+
 	/// <summary>
 	/// The type of easing to use based on Robert Penner's open source easing equations (http://www.robertpenner.com/easing_terms_of_use.html).
 	/// </summary>
@@ -167,6 +170,7 @@ public class iTween : MonoBehaviour{
 		public static int cameraFadeDepth = 999999;
 		//path look ahead amount:
 		public static float lookAhead = .05f;
+        public static bool useRealTime = false; // Added by PressPlay
 	}
 	
 	#endregion
@@ -6051,6 +6055,7 @@ public class iTween : MonoBehaviour{
 	
 	void Awake(){
 		RetrieveArgs();
+        lastRealTime = Time.realtimeSinceStartup; // Added by PressPlay
 	}
 	
 	IEnumerator Start(){
@@ -6379,7 +6384,17 @@ public class iTween : MonoBehaviour{
 		}else{
 			isLocal = Defaults.isLocal;
 		}
-		
+
+        // Added by PressPlay
+        if (tweenArguments.Contains("ignoretimescale"))
+        {
+            useRealTime = (bool)tweenArguments["ignoretimescale"];
+        }
+        else
+        {
+            useRealTime = Defaults.useRealTime;
+        }
+
 		//instantiates a cached ease equation reference:
 		GetEasingFunction();
 	}	
@@ -6476,12 +6491,24 @@ public class iTween : MonoBehaviour{
 	
 	//calculate percentage of tween based on time:
 	void UpdatePercentage(){
-		runningTime+=Time.deltaTime;
+
+        // Added by PressPlay   
+        if (useRealTime)
+        {
+            runningTime += (Time.realtimeSinceStartup - lastRealTime);      
+        }
+        else
+        {
+            runningTime += Time.deltaTime;
+        }
+
 		if(reverse){
 			percentage = 1 - runningTime/time;	
 		}else{
 			percentage = runningTime/time;	
 		}
+
+        lastRealTime = Time.realtimeSinceStartup; // Added by PressPlay
 	}
 	
 	void CallBack(string callbackType){
