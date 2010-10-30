@@ -171,6 +171,8 @@ public class iTween : MonoBehaviour{
 		//path look ahead amount:
 		public static float lookAhead = .05f;
         public static bool useRealTime = false; // Added by PressPlay
+		//look direction:
+		public static Vector3 up = Vector3.up;
 	}
 	
 	#endregion
@@ -1169,9 +1171,11 @@ public class iTween : MonoBehaviour{
 		//set look:
 		tempRotation=target.transform.eulerAngles;
 		if (args["looktarget"].GetType() == typeof(Transform)) {
-			target.transform.LookAt((Transform)args["looktarget"]);
+			//target.transform.LookAt((Transform)args["looktarget"]);
+			target.transform.LookAt((Transform)args["looktarget"], (Vector3?)args["up"] ?? Defaults.up);
 		}else if(args["looktarget"].GetType() == typeof(Vector3)){
-			target.transform.LookAt((Vector3)args["looktarget"]);
+			//target.transform.LookAt((Vector3)args["looktarget"]);
+			target.transform.LookAt((Vector3)args["looktarget"], (Vector3?)args["up"] ?? Defaults.up);
 		}
 		
 		//axis restriction:
@@ -3417,9 +3421,11 @@ public class iTween : MonoBehaviour{
 		//set look:
 		if(tweenArguments.Contains("looktarget")){
 			if (tweenArguments["looktarget"].GetType() == typeof(Transform)) {
-				transform.LookAt((Transform)tweenArguments["looktarget"]);
+				//transform.LookAt((Transform)tweenArguments["looktarget"]);
+				transform.LookAt((Transform)tweenArguments["looktarget"], (Vector3?)tweenArguments["up"] ?? Defaults.up);
 			}else if(tweenArguments["looktarget"].GetType() == typeof(Vector3)){
-				transform.LookAt((Vector3)tweenArguments["looktarget"]);
+				//transform.LookAt((Vector3)tweenArguments["looktarget"]);
+				transform.LookAt((Vector3)tweenArguments["looktarget"], (Vector3?)tweenArguments["up"] ?? Defaults.up);
 			}
 		}else{
 			Debug.LogError("iTween Error: LookTo needs a 'looktarget' property!");
@@ -5186,9 +5192,11 @@ public class iTween : MonoBehaviour{
 		//set look:
 		if(args.Contains("looktarget")){
 			if (args["looktarget"].GetType() == typeof(Transform)) {
-				target.transform.LookAt((Transform)args["looktarget"]);
+				//target.transform.LookAt((Transform)args["looktarget"]);
+				target.transform.LookAt((Transform)args["looktarget"], (Vector3?)args["up"] ?? Defaults.up);
 			}else if(args["looktarget"].GetType() == typeof(Vector3)){
-				target.transform.LookAt((Vector3)args["looktarget"]);
+				//target.transform.LookAt((Vector3)args["looktarget"]);
+				target.transform.LookAt((Vector3)args["looktarget"], (Vector3?)args["up"] ?? Defaults.up);
 			}
 		}else{
 			Debug.LogError("iTween Error: LookUpdate needs a 'looktarget' property!");
