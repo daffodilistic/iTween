@@ -24,7 +24,7 @@ using UnityEngine;
 #endregion
 
 /// <summary>
-/// <para>Version: 2.0.33</para>	 
+/// <para>Version: 2.0.34</para>	 
 /// <para>Author: Bob Berkebile (http://pixelplacement.com)</para>
 /// <para>Support: http://itween.pixelplacement.com</para>
 /// </summary>
@@ -6809,21 +6809,27 @@ public class iTween : MonoBehaviour{
     }
 	
 	private float elastic(float start, float end, float value){
-		float d = 1;
-		float a = 0;
-		float p = 0;
-		float s = 0;
+		//Thank you to rafael.marteleto for fixing this as a port over from Pedro's UnityTween
+		end -= start;
 		
-		if (value==0) return start;  
-		if ((value/=d)==1) return start+end;  
-		if (p==0) p=d*.3f;
-		if (a==0 || a < Mathf.Abs(end)) { 
-			a=end; 
-			s=p/4; 
+		float d = 1f;
+		float p = d * .3f;
+		float s = 0;
+		float a = 0;
+		
+		if (value == 0) return start;
+		
+		if ((value /= d) == 1) return start + end;
+		
+		if (a == 0f || a < Mathf.Abs(end)){
+			a = end;
+			s = p / 4;
+			}else{
+			s = p / (2 * Mathf.PI) * Mathf.Asin(end / a);
 		}
-		else s = p/(2*Mathf.PI) * Mathf.Asin (end/a);
-		return (a*Mathf.Pow(2,-10*value) * Mathf.Sin( (value*d-s)*(2*Mathf.PI)/p ) + end + start);
-	}
+		
+		return (a * Mathf.Pow(2, -10 * value) * Mathf.Sin((value * d - s) * (2 * Mathf.PI) / p) + end + start);
+	}		
 	
 	#endregion	
 	
