@@ -24,7 +24,7 @@ using UnityEngine;
 #endregion
 
 /// <summary>
-/// <para>Version: 2.0.35</para>	 
+/// <para>Version: 2.0.36</para>	 
 /// <para>Author: Bob Berkebile (http://pixelplacement.com)</para>
 /// <para>Support: http://itween.pixelplacement.com</para>
 /// </summary>
