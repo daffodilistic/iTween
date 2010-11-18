@@ -24,7 +24,7 @@ using UnityEngine;
 #endregion
 
 /// <summary>
-/// <para>Version: 2.0.36</para>	 
+/// <para>Version: 2.0.37</para>	 
 /// <para>Author: Bob Berkebile (http://pixelplacement.com)</para>
 /// <para>Support: http://itween.pixelplacement.com</para>
 /// </summary>
@@ -4624,7 +4624,70 @@ public class iTween : MonoBehaviour{
 	#endregion
 	
 	#region #6 Update Callable
-			
+	
+	/// <summary>
+	/// Returns a Vector3 that is eased between a current and target value by the supplied speed.
+	/// </summary>
+	/// <returns>
+	/// A <see cref="Vector3"/>
+	/// </returns>
+	/// <param name='currentValue'>
+	/// A <see cref="Vector3"/> the starting or initial value
+	/// </param>
+	/// <param name='targetValue'>
+	/// A <see cref="Vector3"/> the target value that the current value will be eased to.
+	/// </param>
+	/// <param name='speed'>
+	/// A <see cref="System.Single"/> to be used as rate of speed (larger number equals faster animation)
+	/// </param>
+	public static Vector3 Vector3Update(Vector3 currentValue, Vector3 targetValue, float speed){
+		Vector3 diff = targetValue - currentValue;
+		currentValue += (diff * speed) * Time.deltaTime;
+		return (currentValue);
+	}
+	
+	/// <summary>
+	/// Returns a Vector2 that is eased between a current and target value by the supplied speed.
+	/// </summary>
+	/// <returns>
+	/// A <see cref="Vector2"/>
+	/// </returns>
+	/// <param name='currentValue'>
+	/// A <see cref="Vector2"/> the starting or initial value
+	/// </param>
+	/// <param name='targetValue'>
+	/// A <see cref="Vector2"/> the target value that the current value will be eased to.
+	/// </param>
+	/// <param name='speed'>
+	/// A <see cref="System.Single"/> to be used as rate of speed (larger number equals faster animation)
+	/// </param>
+	public static Vector2 Vector2Update(Vector2 currentValue, Vector2 targetValue, float speed){
+		Vector2 diff = targetValue - currentValue;
+		currentValue += (diff * speed) * Time.deltaTime;
+		return (currentValue);
+	}
+	
+	/// <summary>
+	/// Returns a float that is eased between a current and target value by the supplied speed.
+	/// </summary>
+	/// <returns>
+	/// A <see cref="System.Single"/>
+	/// </returns>
+	/// <param name='currentValue'>
+	/// A <see cref="System.Single"/> the starting or initial value
+	/// </param>
+	/// <param name='targetValue'>
+	/// A <see cref="System.Single"/> the target value that the current value will be eased to.
+	/// </param>
+	/// <param name='speed'>
+	/// A <see cref="System.Single"/> to be used as rate of speed (larger number equals faster animation)
+	/// </param>
+	public static float FloatUpdate(float currentValue, float targetValue, float speed){
+		float diff = targetValue - currentValue;
+		currentValue += (diff * speed) * Time.deltaTime;
+		return (currentValue);
+	}
+	
 	/// <summary>
 	/// Similar to FadeTo but incredibly less expensive for usage inside the Update function or similar looping situations involving a "live" set of changing values with FULL customization options. Does not utilize an EaseType. 
 	/// </summary>
@@ -6411,7 +6474,7 @@ public class iTween : MonoBehaviour{
 			if(method == "gizmos"){
 				Gizmos.DrawLine(line[i], line[i+1]);;
 			}else if(method == "handles"){
-				Debug.LogError("iTween Error: Drawing a path with Handles is temporarily disabled because of compatability issues with Unity 2.6!");
+				Debug.LogError("iTween Error: Drawing a line with Handles is temporarily disabled because of compatability issues with Unity 2.6!");
 				//UnityEditor.Handles.DrawLine(line[i], line[i+1]);
 			}
 		}
@@ -6430,6 +6493,7 @@ public class iTween : MonoBehaviour{
 			if(method == "gizmos"){
 				Gizmos.DrawLine(currPt, prevPt);
 			}else if(method == "handles"){
+				Debug.LogError("iTween Error: Drawing a path with Handles is temporarily disabled because of compatability issues with Unity 2.6!");
 				//UnityEditor.Handles.DrawLine(currPt, prevPt);
 			}
 			prevPt = currPt;
