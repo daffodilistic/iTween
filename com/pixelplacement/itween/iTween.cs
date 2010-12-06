@@ -24,7 +24,7 @@ using UnityEngine;
 #endregion
 
 /// <summary>
-/// <para>Version: 2.0.37</para>	 
+/// <para>Version: 2.0.38</para>	 
 /// <para>Author: Bob Berkebile (http://pixelplacement.com)</para>
 /// <para>Support: http://itween.pixelplacement.com</para>
 /// </summary>
@@ -5947,9 +5947,12 @@ public class iTween : MonoBehaviour{
 	/// <param name='depth'>
 	/// A <see cref="System.Int32"/>
 	/// </param>
-	public static void CameraFadeAdd(Texture2D texture, int depth){
+	/// <returns>
+	/// A <see cref="GameObject"/> for a reference to the CameraFade.
+	/// </returns>
+	public static GameObject CameraFadeAdd(Texture2D texture, int depth){
 		if(cameraFade){
-			return;
+			return null;
 		}else{			
 			//establish colorFade object:
 			cameraFade = new GameObject("iTween Camera Fade");
@@ -5957,6 +5960,7 @@ public class iTween : MonoBehaviour{
 			cameraFade.AddComponent("GUITexture");
 			cameraFade.guiTexture.texture=texture;
 			cameraFade.guiTexture.color = new Color(.5f,.5f,.5f,0);
+			return cameraFade;
 		}
 	}
 	
@@ -5966,9 +5970,12 @@ public class iTween : MonoBehaviour{
 	/// <param name='texture'>
 	/// A <see cref="Texture2D"/>
 	/// </param>
-	public static void CameraFadeAdd(Texture2D texture){
+	/// <returns>
+	/// A <see cref="GameObject"/> for a reference to the CameraFade.
+	/// </returns>
+	public static GameObject CameraFadeAdd(Texture2D texture){
 		if(cameraFade){
-			return;
+			return null;
 		}else{			
 			//establish colorFade object:
 			cameraFade = new GameObject("iTween Camera Fade");
@@ -5976,15 +5983,19 @@ public class iTween : MonoBehaviour{
 			cameraFade.AddComponent("GUITexture");
 			cameraFade.guiTexture.texture=texture;
 			cameraFade.guiTexture.color = new Color(.5f,.5f,.5f,0);
+			return cameraFade;
 		}
 	}
 	
 	/// <summary>
 	/// Creates a GameObject (if it doesn't exist) at the default depth filled with black that can be used to simulate a camera fade.
 	/// </summary>
-	public static void CameraFadeAdd(){
+	/// <returns>
+	/// A <see cref="GameObject"/> for a reference to the CameraFade.
+	/// </returns>
+	public static GameObject CameraFadeAdd(){
 		if(cameraFade){
-			return;
+			return null;
 		}else{			
 			//establish colorFade object:
 			cameraFade = new GameObject("iTween Camera Fade");
@@ -5992,6 +6003,7 @@ public class iTween : MonoBehaviour{
 			cameraFade.AddComponent("GUITexture");
 			cameraFade.guiTexture.texture=CameraTexture(Color.black);
 			cameraFade.guiTexture.color = new Color(.5f,.5f,.5f,0);
+			return cameraFade;
 		}
 	}	
 	
