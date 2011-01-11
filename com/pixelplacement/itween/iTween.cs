@@ -39,7 +39,7 @@ using UnityEngine;
 #endregion
 
 /// <summary>
-/// <para>Version: 2.0.39</para>	 
+/// <para>Version: 2.0.40</para>	 
 /// <para>Author: Bob Berkebile (http://pixelplacement.com)</para>
 /// <para>Support: http://itween.pixelplacement.com</para>
 /// </summary>
@@ -5278,7 +5278,7 @@ public class iTween : MonoBehaviour{
 			time=(float)args["looktime"];
 			time*=Defaults.updateTimePercentage;
 		}else if(args.Contains("time")){
-			time=(float)args["time"]/2;
+			time=(float)args["time"]*.15f;
 			time*=Defaults.updateTimePercentage;
 		}else{
 			time=Defaults.updateTime;
