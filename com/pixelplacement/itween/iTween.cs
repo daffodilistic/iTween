@@ -39,7 +39,7 @@ using UnityEngine;
 #endregion
 
 /// <summary>
-/// <para>Version: 2.0.40</para>	 
+/// <para>Version: 2.0.41</para>	 
 /// <para>Author: Bob Berkebile (http://pixelplacement.com)</para>
 /// <para>Support: http://itween.pixelplacement.com</para>
 /// </summary>
@@ -6965,19 +6965,23 @@ public class iTween : MonoBehaviour{
 	}
 	
 	void EnableKinematic(){
+		/*
 		if(gameObject.GetComponent(typeof(Rigidbody))){
 			if(!rigidbody.isKinematic){
 				kinematic=true;
 				rigidbody.isKinematic=true;
 			}
 		}
+		*/
 	}
 	
 	void DisableKinematic(){
+		/*
 		if(kinematic && rigidbody.isKinematic==true){
 			kinematic=false;
 			rigidbody.isKinematic=false;
 		}
+		*/
 	}
 		
 	void ResumeDelay(){
