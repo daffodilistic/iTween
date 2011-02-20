@@ -39,7 +39,7 @@ using UnityEngine;
 #endregion
 
 /// <summary>
-/// <para>Version: 2.0.41</para>	 
+/// <para>Version: 2.0.42</para>	 
 /// <para>Author: Bob Berkebile (http://pixelplacement.com)</para>
 /// <para>Support: http://itween.pixelplacement.com</para>
 /// </summary>
@@ -193,7 +193,17 @@ public class iTween : MonoBehaviour{
 	#endregion
 	
 	#region #1 Static Registers
-		
+
+	/// <summary>
+	/// Sets up a GameObject to avoid hiccups when an initial iTween is added. It's advisable to run this on every object you intend to run iTween on in its Start or Awake.
+	/// </summary>
+	/// <param name="target">
+	/// A <see cref="GameObject"/> to be the target to be initialized for iTween.
+	/// </param>
+	public static void Init(GameObject target){
+		MoveBy(target,Vector3.zero,0);
+	}
+	
 	/// <summary>
 	/// Instantly changes the amount(transparency) of a camera fade and then returns it back over time with MINIMUM customization options.
 	/// </summary>
