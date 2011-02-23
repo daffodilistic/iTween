@@ -39,7 +39,7 @@ using UnityEngine;
 #endregion
 
 /// <summary>
-/// <para>Version: 2.0.42</para>	 
+/// <para>Version: 2.0.43</para>	 
 /// <para>Author: Bob Berkebile (http://pixelplacement.com)</para>
 /// <para>Support: http://itween.pixelplacement.com</para>
 /// </summary>
@@ -6948,6 +6948,11 @@ public class iTween : MonoBehaviour{
 			if(item.type == "value"){
 				return;
 			}else if(item.isRunning && item.type==type){
+				//cancel out if this is a shake or punch variant:
+				if (item.method != method) {
+					return;
+				}				
+				
 				//step 1: check for length first since it's the fastest:
 				if(item.tweenArguments.Count != tweenArguments.Count){
 					item.Dispose();
