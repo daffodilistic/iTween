@@ -703,6 +703,8 @@ public class iTween : MonoBehaviour{
 			tempColor=fromColor=target.guiTexture.color;	
 		}else if(target.GetComponent<GUIText>()){
 			tempColor=fromColor=target.guiText.material.color;
+		}else if(target.GetComponent<SpriteRenderer>()){
+			tempColor=fromColor=target.GetComponent<SpriteRenderer>().color;
 		}else if(target.renderer){
 			tempColor=fromColor=target.renderer.material.color;
 		}else if(target.light){
@@ -741,6 +743,8 @@ public class iTween : MonoBehaviour{
 			target.guiTexture.color=fromColor;	
 		}else if(target.GetComponent<GUIText>()){
 			target.guiText.material.color=fromColor;
+		}else if(target.GetComponent<SpriteRenderer>()){
+			target.GetComponent<SpriteRenderer>().color=fromColor;
 		}else if(target.renderer){
 			target.renderer.material.color=fromColor;
 		}else if(target.light){
@@ -3332,6 +3336,9 @@ public class iTween : MonoBehaviour{
 		}else if(GetComponent<GUIText>()){
 			colors = new Color[1,3];
 			colors[0,0] = colors[0,1] = guiText.material.color;
+		}else if(GetComponent<SpriteRenderer>()){
+			colors = new Color[1,3];
+			colors[0,0] = colors[0,1] = GetComponent<SpriteRenderer>().color;
 		}else if(renderer){
 			colors = new Color[renderer.materials.Length,3];
 			for (int i = 0; i < renderer.materials.Length; i++) {
@@ -4108,6 +4115,9 @@ public class iTween : MonoBehaviour{
 		}else if(GetComponent<GUIText>()){
 			//guiText.material.color=colors[2];
 			guiText.material.color=colors[0,2];
+		}else if(GetComponent<SpriteRenderer>()){
+			//guiText.material.color=colors[2];
+			GetComponent<SpriteRenderer>().color=colors[0,2];
 		}else if(renderer){
 			//renderer.material.color=colors[2];
 			for (int i = 0; i < colors.GetLength(0); i++) {
@@ -4126,6 +4136,9 @@ public class iTween : MonoBehaviour{
 			}else if(GetComponent<GUIText>()){
 				//guiText.material.color=colors[1];
 				guiText.material.color=colors[0,1];
+			}else if(GetComponent<SpriteRenderer>()){
+				//guiText.material.color=colors[1];
+				GetComponent<SpriteRenderer>().color=colors[0,1];
 			}else if(renderer){
 				//renderer.material.color=colors[1];	
 				for (int i = 0; i < colors.GetLength(0); i++) {
@@ -4852,6 +4865,8 @@ public class iTween : MonoBehaviour{
 			colors[0] = colors[1] = target.guiTexture.color;
 		}else if(target.GetComponent<GUIText>()){
 			colors[0] = colors[1] = target.guiText.material.color;
+		}else if(target.GetComponent<SpriteRenderer>()){
+			colors[0] = colors[1] = target.GetComponent<SpriteRenderer>().color;
 		}else if(target.renderer){
 			colors[0] = colors[1] = target.renderer.material.color;
 		}else if(target.light){
@@ -4887,6 +4902,8 @@ public class iTween : MonoBehaviour{
 			target.guiTexture.color=colors[3];
 		}else if(target.GetComponent<GUIText>()){
 			target.guiText.material.color=colors[3];
+		}else if(target.GetComponent<SpriteRenderer>()){
+			target.GetComponent<SpriteRenderer>().color=colors[3];
 		}else if(target.renderer){
 			target.renderer.material.color=colors[3];
 		}else if(target.light){
