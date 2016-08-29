@@ -37,6 +37,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
+using UnityEngine.UI;
+
 #endregion
 
 /// <summary>
@@ -707,6 +709,8 @@ public class iTween : MonoBehaviour{
 			tempColor=fromColor=target.GetComponent<Renderer>().material.color;
 		}else if(target.GetComponent<Light>()){
 			tempColor=fromColor=target.GetComponent<Light>().color;
+		}else if (target.GetComponent<Graphic>()){
+			tempColor = fromColor = target.GetComponent<Graphic>().color;
 		}
 		
 		//set augmented fromColor:
@@ -745,6 +749,8 @@ public class iTween : MonoBehaviour{
 			target.GetComponent<Renderer>().material.color=fromColor;
 		}else if(target.GetComponent<Light>()){
 			target.GetComponent<Light>().color=fromColor;
+		}else if (target.GetComponent<Graphic>()){
+			target.GetComponent<Graphic>().color = fromColor;
 		}
 		
 		//set new color arg:
@@ -3342,6 +3348,9 @@ public class iTween : MonoBehaviour{
 		}else if(GetComponent<Light>()){
 			colors = new Color[1,3];
 			colors[0,0] = colors[0,1] = GetComponent<Light>().color;	
+		}else if (GetComponent<Graphic>()) {
+			colors = new Color[1, 3];
+			colors[0, 0] = colors[0, 1] = GetComponent<Graphic>().color;
 		}else{
 			colors = new Color[1,3]; //empty placeholder incase the GO is perhaps an empty holder or something similar
 		}
@@ -4116,6 +4125,8 @@ public class iTween : MonoBehaviour{
 		}else if(GetComponent<Light>()){
 			//light.color=colors[2];	
 			GetComponent<Light>().color=colors[0,2];
+		}else if (GetComponent<Graphic>()){
+			GetComponent<Graphic>().color = colors[0, 2];
 		}
 		
 		//dial in:
@@ -4134,7 +4145,9 @@ public class iTween : MonoBehaviour{
 			}else if(GetComponent<Light>()){
 				//light.color=colors[1];	
 				GetComponent<Light>().color=colors[0,1];
-			}			
+			}else if(GetComponent<Graphic>()){
+				GetComponent<Graphic>().color= colors[0, 1];
+			}
 		}
 	}	
 	
@@ -4856,8 +4869,10 @@ public class iTween : MonoBehaviour{
 			colors[0] = colors[1] = target.GetComponent<Renderer>().material.color;
 		}else if(target.GetComponent<Light>()){
 			colors[0] = colors[1] = target.GetComponent<Light>().color;	
-		}		
-		
+		}else if (target.GetComponent<Graphic>()){
+			colors[0] = colors[1] = target.GetComponent<Graphic>().color;
+		}
+
 		//to values:
 		if (args.Contains("color")) {
 			colors[1]=(Color)args["color"];
@@ -4891,6 +4906,8 @@ public class iTween : MonoBehaviour{
 			target.GetComponent<Renderer>().material.color=colors[3];
 		}else if(target.GetComponent<Light>()){
 			target.GetComponent<Light>().color=colors[3];	
+		}else if (target.GetComponent<Graphic>()){
+			target.GetComponent<Graphic>().color = colors[3];
 		}
 	}	
 	
